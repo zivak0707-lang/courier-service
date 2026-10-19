@@ -11,7 +11,7 @@ public abstract class EntityBase
 
 /// <summary>
 /// Сутність довідника. Такі записи не видаляються фізично, бо на них посилаються
-/// замовлення, а деактивуються (рішення D-04, docs/plan.md).
+/// замовлення, а деактивуються (рішення D-04).
 /// </summary>
 public abstract class ReferenceEntity : EntityBase
 {

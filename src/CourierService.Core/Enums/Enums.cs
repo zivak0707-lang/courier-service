@@ -46,7 +46,7 @@ public enum RiverBank
     Left = 2,
 }
 
-/// <summary>Статус замовлення (docs/plan.md, розділ 5).</summary>
+/// <summary>Статус замовлення в його життєвому циклі.</summary>
 public enum OrderStatus
 {
     /// <summary>Нове, кур'єра ще не призначено.</summary>

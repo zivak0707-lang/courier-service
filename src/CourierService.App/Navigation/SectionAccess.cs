@@ -3,7 +3,7 @@ using CourierService.Core.Enums;
 namespace CourierService.App.Navigation;
 
 /// <summary>
-/// Які розділи доступні кожній ролі (docs/plan.md, розділ 3).
+/// Які розділи доступні кожній ролі.
 /// </summary>
 /// <remarks>
 /// Ця таблиця лише приховує недоступні пункти меню. Справжня перевірка прав

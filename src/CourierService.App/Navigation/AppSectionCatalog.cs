@@ -9,7 +9,7 @@ namespace CourierService.App.Navigation;
 public sealed record AppSectionInfo(string Title, string Description, int Iteration);
 
 /// <summary>
-/// Довідник розділів застосунку: назва, опис і ітерація реалізації (docs/plan.md).
+/// Довідник розділів застосунку: назва, опис і ітерація плану, у якій розділ реалізується.
 /// </summary>
 public static class AppSectionCatalog
 {
