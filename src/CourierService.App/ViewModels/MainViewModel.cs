@@ -62,6 +62,8 @@ public sealed partial class MainViewModel : ViewModelBase
     /// </summary>
     public static IReadOnlyDictionary<AppSection, Type> SectionPages { get; } = new Dictionary<AppSection, Type>
     {
+        [AppSection.OrderList] = typeof(OrderListViewModel),
+        [AppSection.TrackingSearch] = typeof(TrackingSearchViewModel),
         [AppSection.Zones] = typeof(ZonesViewModel),
         [AppSection.Tariffs] = typeof(TariffsViewModel),
         [AppSection.Clients] = typeof(ClientsViewModel),
@@ -146,7 +148,12 @@ public sealed partial class MainViewModel : ViewModelBase
 
         if (section == AppSection.NewOrder)
         {
-            await _orderForm.OpenNewOrderAsync();
+            // Якщо відкрито список замовлень, нове замовлення одразу з'являється в ньому
+            if (await _orderForm.OpenNewOrderAsync() is not null && CurrentPage is OrderListViewModel list)
+            {
+                await list.SearchCommand.ExecuteAsync(null);
+            }
+
             return;
         }
 

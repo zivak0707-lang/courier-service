@@ -69,9 +69,15 @@
                 <dirViews:UserEditorView />
             </DataTemplate>
 
-            <!-- Замовлення: форма нового замовлення у спільному вікні редагування -->
+            <!-- Замовлення: форма нового замовлення у спільному вікні редагування, список і пошук — сторінки -->
             <DataTemplate DataType="{x:Type orders:OrderEditorViewModel}">
                 <orderViews:OrderEditorView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type orders:OrderListViewModel}">
+                <orderViews:OrderListView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type orders:TrackingSearchViewModel}">
+                <orderViews:TrackingSearchView />
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

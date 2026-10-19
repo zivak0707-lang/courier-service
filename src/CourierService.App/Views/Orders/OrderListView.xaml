@@ -1,0 +1,97 @@
+<UserControl x:Class="CourierService.App.Views.Orders.OrderListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:orders="clr-namespace:CourierService.App.ViewModels.Orders"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=orders:OrderListViewModel}">
+    <DockPanel Margin="{StaticResource PagePadding}">
+        <TextBlock DockPanel.Dock="Top" Text="{Binding Title}" Style="{StaticResource PageTitleStyle}" />
+
+        <!-- Рядок пошуку й кнопки -->
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="_Пошук:" Target="{Binding ElementName=SearchBox}"
+                   VerticalAlignment="Center" Padding="0,0,8,0" />
+            <TextBox x:Name="SearchBox" Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     ToolTip="Трек-номер (KV2610190042-6) або щонайменше 3 цифри телефону відправника чи одержувача"
+                     AutomationProperties.Name="Трек-номер або телефон">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
+                </TextBox.InputBindings>
+            </TextBox>
+            <Button Grid.Column="2" Content="_Знайти" MinWidth="100" Margin="8,0,0,0" Command="{Binding SearchCommand}" />
+            <Button Grid.Column="3" Content="_Скинути фільтри" Margin="8,0,0,0" Command="{Binding ResetFiltersCommand}" />
+            <Button Grid.Column="5" Content="_Нове замовлення" MinWidth="140" Command="{Binding NewOrderCommand}"
+                    Visibility="{Binding CanCreate, Converter={StaticResource VisibleWhen}}" />
+        </Grid>
+
+        <!-- Фільтри застосовуються одразу -->
+        <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+            <StackPanel Margin="0,0,12,4">
+                <TextBlock Text="Статус" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding Statuses}" DisplayMemberPath="Display" SelectedItem="{Binding StatusFilter}"
+                          Width="160" AutomationProperties.Name="Фільтр статусу" />
+            </StackPanel>
+            <StackPanel Margin="0,0,12,4">
+                <TextBlock Text="Оформлено з" Style="{StaticResource FieldLabelStyle}" />
+                <DatePicker SelectedDate="{Binding From}" Width="150" AutomationProperties.Name="Період з" />
+            </StackPanel>
+            <StackPanel Margin="0,0,12,4">
+                <TextBlock Text="по" Style="{StaticResource FieldLabelStyle}" />
+                <DatePicker SelectedDate="{Binding To}" Width="150" AutomationProperties.Name="Період по" />
+            </StackPanel>
+            <StackPanel Margin="0,0,12,4">
+                <TextBlock Text="Відправник" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding Clients}" DisplayMemberPath="Display" SelectedItem="{Binding ClientFilter}"
+                          Width="220" IsTextSearchEnabled="True" TextSearch.TextPath="Display"
+                          AutomationProperties.Name="Фільтр відправника" />
+            </StackPanel>
+            <StackPanel Margin="0,0,12,4">
+                <TextBlock Text="Кур'єр" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding Couriers}" DisplayMemberPath="Display" SelectedItem="{Binding CourierFilter}"
+                          Width="180" AutomationProperties.Name="Фільтр кур'єра" />
+            </StackPanel>
+            <StackPanel Margin="0,0,12,4">
+                <TextBlock Text="Оплата" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding PaymentStatuses}" DisplayMemberPath="Display" SelectedItem="{Binding PaymentFilter}"
+                          Width="140" AutomationProperties.Name="Фільтр оплати" />
+            </StackPanel>
+        </WrapPanel>
+
+        <TextBlock DockPanel.Dock="Top" Text="{Binding Notice}" Style="{StaticResource ErrorTextStyle}" Margin="0,0,0,8"
+                   Visibility="{Binding Notice, Converter={StaticResource VisibleWhen}}" />
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding CountText}" Style="{StaticResource SecondaryTextStyle}" Margin="0,8,0,0" />
+
+        <!-- Сортування кліком по заголовку працює по завантажених рядках (D-20) -->
+        <!-- Рядки без ознаки IsActive: стандартний стиль рядка замість стилю довідників -->
+        <DataGrid ItemsSource="{Binding Items}" Style="{StaticResource DirectoryGridStyle}"
+                  RowStyle="{StaticResource {x:Type DataGridRow}}"
+                  AutomationProperties.Name="Замовлення">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Трек-номер" Binding="{Binding TrackingNumber}" Width="Auto" />
+                <DataGridTextColumn Header="Оформлено" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />
+                <DataGridTextColumn Header="Статус" Binding="{Binding Status, Converter={StaticResource EnumDisplay}}" Width="Auto" />
+                <DataGridTextColumn Header="Відправник" Binding="{Binding ClientName}" Width="*" MinWidth="160" />
+                <DataGridTextColumn Header="Одержувач" Binding="{Binding RecipientName}" Width="*" MinWidth="140" />
+                <DataGridTextColumn Header="Телефон одержувача" Binding="{Binding RecipientPhone, Converter={StaticResource Phone}}" Width="Auto" />
+                <DataGridTextColumn Header="Забір" Binding="{Binding PickupZone}" Width="Auto" />
+                <DataGridTextColumn Header="Доставка" Binding="{Binding DeliveryZone}" Width="Auto" />
+                <DataGridTextColumn Header="Тариф" Binding="{Binding TariffName}" Width="Auto" />
+                <!-- Money порівнюється за копійками -->
+                <DataGridTextColumn Header="Вартість" Binding="{Binding Price}" SortMemberPath="Price.Kopecks" Width="Auto" />
+                <DataGridTextColumn Header="Оплата" Binding="{Binding PaymentStatus, Converter={StaticResource EnumDisplay}}" Width="Auto" />
+                <DataGridTextColumn Header="Кур'єр" Binding="{Binding CourierName}" Width="Auto" />
+                <DataGridTextColumn Header="Доставити до" Binding="{Binding Deadline, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>
