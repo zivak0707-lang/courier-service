@@ -1,3 +1,5 @@
+using System.IO;
+using CourierService.App.Services;
 using CourierService.App.ViewModels.Reports;
 using CourierService.Core.Exceptions;
 using CourierService.Core.Reports;
@@ -24,14 +26,49 @@ internal sealed class FakeReportService : IReportService
         Task.FromResult(ReportTests.Data() with { Period = period });
 }
 
+/// <summary>Заглушка експорту: запам'ятовує збережені звіти або кидає помилку запису.</summary>
+internal sealed class FakeReportExporter : IReportExporter
+{
+    public List<(ReportTable Table, string Path)> Exported { get; } = [];
+    public bool FileLocked { get; set; }
+
+    public void Export(ReportTable table, string path)
+    {
+        if (FileLocked)
+        {
+            throw new IOException("The process cannot access the file because it is being used by another process.");
+        }
+
+        Exported.Add((table, path));
+    }
+}
+
+/// <summary>Заглушка вибору файлу: повертає заданий шлях і запам'ятовує відкриті файли.</summary>
+internal sealed class FakeFileDialogService : IFileDialogService
+{
+    public string? PathToReturn { get; set; } = @"C:\Звіти\звіт.xlsx";
+    public List<string> Suggested { get; } = [];
+    public List<string> Opened { get; } = [];
+
+    public string? AskExcelSavePath(string suggestedName)
+    {
+        Suggested.Add(suggestedName);
+        return PathToReturn;
+    }
+
+    public void OpenFile(string path) => Opened.Add(path);
+}
+
 public class ReportPageViewModelTests
 {
     private static readonly DateTime Now = new(2026, 10, 19, 15, 0, 0);
 
     private readonly FakeReportService _reports = new();
     private readonly FakeDialogService _dialogs = new();
+    private readonly FakeReportExporter _exporter = new();
+    private readonly FakeFileDialogService _files = new();
 
-    private RevenueReportViewModel CreatePage() => new(_reports, _dialogs, new FixedClock(Now));
+    private RevenueReportViewModel CreatePage() => new(_reports, _dialogs, new FixedClock(Now), _exporter, _files);
 
     [Fact]
     public async Task Load_BuildsReportForLastThirtyDays()
@@ -116,7 +153,7 @@ public class ReportPageViewModelTests
     public async Task AccessDenied_ShowsError()
     {
         _reports.ThrowOnBuild = new AccessDeniedException("Дія недоступна для ролі «Оператор».");
-        var page = new CourierPayoutReportViewModel(_reports, _dialogs, new FixedClock(Now));
+        var page = new CourierPayoutReportViewModel(_reports, _dialogs, new FixedClock(Now), _exporter, _files);
 
         await page.LoadCommand.ExecuteAsync(null);
 
@@ -125,9 +162,51 @@ public class ReportPageViewModelTests
     }
 
     [Fact]
+    public async Task Export_AvailableAfterBuild_SuggestsNameWithPeriod_AndOffersToOpen()
+    {
+        var page = CreatePage();
+        Assert.False(page.ExportCommand.CanExecute(null));
+        await page.LoadCommand.ExecuteAsync(null);
+        _dialogs.ConfirmResult = true;
+
+        page.ExportCommand.Execute(null);
+
+        Assert.Equal("Виручка 2026-09-20 — 2026-10-19.xlsx", Assert.Single(_files.Suggested));
+        var exported = Assert.Single(_exporter.Exported);
+        Assert.Same(page.Table, exported.Table);
+        Assert.Equal([_files.PathToReturn!], _files.Opened);
+    }
+
+    [Fact]
+    public async Task Export_CancelledDialog_SavesNothing()
+    {
+        var page = CreatePage();
+        await page.LoadCommand.ExecuteAsync(null);
+        _files.PathToReturn = null;
+
+        page.ExportCommand.Execute(null);
+
+        Assert.Empty(_exporter.Exported);
+        Assert.Empty(_dialogs.Questions);
+    }
+
+    [Fact]
+    public async Task Export_LockedFile_ShowsUnderstandableError()
+    {
+        var page = CreatePage();
+        await page.LoadCommand.ExecuteAsync(null);
+        _exporter.FileLocked = true;
+
+        page.ExportCommand.Execute(null);
+
+        Assert.Contains("відкрито в Excel", Assert.Single(_dialogs.Errors));
+        Assert.Empty(_files.Opened);
+    }
+
+    [Fact]
     public async Task UnpaidPage_HasNoPeriod()
     {
-        var page = new UnpaidReportViewModel(_reports, _dialogs, new FixedClock(Now));
+        var page = new UnpaidReportViewModel(_reports, _dialogs, new FixedClock(Now), _exporter, _files);
 
         await page.LoadCommand.ExecuteAsync(null);
 

@@ -39,6 +39,7 @@
                 </ItemsControl>
             </StackPanel>
             <Button Content="_Оновити" MinWidth="100" Margin="6,0,8,0" Command="{Binding BuildCommand}" />
+            <Button Content="_Експорт у Excel" MinWidth="140" Command="{Binding ExportCommand}" />
         </WrapPanel>
 
         <TextBlock DockPanel.Dock="Top" Text="{Binding Notice}" Style="{StaticResource ErrorTextStyle}" Margin="0,0,0,8"

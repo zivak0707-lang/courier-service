@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CourierService.App.Services;
@@ -24,6 +26,8 @@ public abstract partial class ReportPageViewModel : ViewModelBase, ILoadable
     private readonly IReportService _reports;
     private readonly IDialogService _dialogs;
     private readonly IClock _clock;
+    private readonly IReportExporter _exporter;
+    private readonly IFileDialogService _files;
     private bool _isLoaded;
 
     /// <summary>
@@ -32,11 +36,16 @@ public abstract partial class ReportPageViewModel : ViewModelBase, ILoadable
     /// <param name="reports">Сервіс звітів.</param>
     /// <param name="dialogs">Повідомлення.</param>
     /// <param name="clock">Поточний час (типовий період).</param>
-    protected ReportPageViewModel(IReportService reports, IDialogService dialogs, IClock clock)
+    /// <param name="exporter">Експорт у Excel.</param>
+    /// <param name="files">Вибір файлу для збереження.</param>
+    protected ReportPageViewModel(
+        IReportService reports, IDialogService dialogs, IClock clock, IReportExporter exporter, IFileDialogService files)
     {
         _reports = reports;
         _dialogs = dialogs;
         _clock = clock;
+        _exporter = exporter;
+        _files = files;
         ReportPeriod period = ReportPeriod.LastDays(clock.Now, DefaultDays);
         From = period.From;
         To = period.To;
@@ -65,6 +74,7 @@ public abstract partial class ReportPageViewModel : ViewModelBase, ILoadable
     /// <summary>Сформований звіт.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasReport))]
+    [NotifyCanExecuteChangedFor(nameof(ExportCommand))]
     public partial ReportTable? Table { get; private set; }
 
     /// <summary>Рядки для показу (з підсумком у кінці).</summary>
@@ -81,6 +91,7 @@ public abstract partial class ReportPageViewModel : ViewModelBase, ILoadable
     public partial bool IsBusy { get; private set; }
 
     /// <summary>Чи сформовано звіт.</summary>
+    [MemberNotNullWhen(true, nameof(Table))]
     public bool HasReport => Table is not null;
 
     /// <summary>Чи звіт без рядків.</summary>
@@ -133,6 +144,39 @@ public abstract partial class ReportPageViewModel : ViewModelBase, ILoadable
         }
     }
 
+    [RelayCommand(CanExecute = nameof(HasReport))]
+    private void Export()
+    {
+        if (!HasReport)
+        {
+            return;
+        }
+
+        string suggested = UsesPeriod && Period is { } period
+            ? $"{Table.Title} {period.From:yyyy-MM-dd} — {period.To:yyyy-MM-dd}.xlsx"
+            : $"{Table.Title} {_clock.Now:yyyy-MM-dd}.xlsx";
+        if (_files.AskExcelSavePath(suggested) is not { } path)
+        {
+            return;
+        }
+
+        try
+        {
+            _exporter.Export(Table, path);
+        }
+        catch (IOException ex)
+        {
+            // Найчастіше файл відкритий в Excel і заблокований для запису
+            _dialogs.ShowError($"Не вдалося зберегти файл. Можливо, його відкрито в Excel — закрийте його й спробуйте ще раз.\n\n{ex.Message}");
+            return;
+        }
+
+        if (_dialogs.Confirm($"Звіт збережено у файл:\n{path}\n\nВідкрити його?"))
+        {
+            _files.OpenFile(path);
+        }
+    }
+
     [RelayCommand]
     private void UseLastDays(int days)
     {
@@ -180,8 +224,11 @@ public abstract partial class ReportPageViewModel : ViewModelBase, ILoadable
 /// <param name="reports">Сервіс звітів.</param>
 /// <param name="dialogs">Повідомлення.</param>
 /// <param name="clock">Поточний час.</param>
-public sealed class RevenueReportViewModel(IReportService reports, IDialogService dialogs, IClock clock)
-    : ReportPageViewModel(reports, dialogs, clock)
+/// <param name="exporter">Експорт у Excel.</param>
+/// <param name="files">Вибір файлу.</param>
+public sealed class RevenueReportViewModel(
+    IReportService reports, IDialogService dialogs, IClock clock, IReportExporter exporter, IFileDialogService files)
+    : ReportPageViewModel(reports, dialogs, clock, exporter, files)
 {
     /// <inheritdoc />
     protected override ReportKind Kind => ReportKind.Revenue;
@@ -191,8 +238,11 @@ public sealed class RevenueReportViewModel(IReportService reports, IDialogServic
 /// <param name="reports">Сервіс звітів.</param>
 /// <param name="dialogs">Повідомлення.</param>
 /// <param name="clock">Поточний час.</param>
-public sealed class UnpaidReportViewModel(IReportService reports, IDialogService dialogs, IClock clock)
-    : ReportPageViewModel(reports, dialogs, clock)
+/// <param name="exporter">Експорт у Excel.</param>
+/// <param name="files">Вибір файлу.</param>
+public sealed class UnpaidReportViewModel(
+    IReportService reports, IDialogService dialogs, IClock clock, IReportExporter exporter, IFileDialogService files)
+    : ReportPageViewModel(reports, dialogs, clock, exporter, files)
 {
     /// <inheritdoc />
     protected override ReportKind Kind => ReportKind.Unpaid;
@@ -202,8 +252,11 @@ public sealed class UnpaidReportViewModel(IReportService reports, IDialogService
 /// <param name="reports">Сервіс звітів.</param>
 /// <param name="dialogs">Повідомлення.</param>
 /// <param name="clock">Поточний час.</param>
-public sealed class CourierPerformanceReportViewModel(IReportService reports, IDialogService dialogs, IClock clock)
-    : ReportPageViewModel(reports, dialogs, clock)
+/// <param name="exporter">Експорт у Excel.</param>
+/// <param name="files">Вибір файлу.</param>
+public sealed class CourierPerformanceReportViewModel(
+    IReportService reports, IDialogService dialogs, IClock clock, IReportExporter exporter, IFileDialogService files)
+    : ReportPageViewModel(reports, dialogs, clock, exporter, files)
 {
     /// <inheritdoc />
     protected override ReportKind Kind => ReportKind.CourierPerformance;
@@ -213,8 +266,11 @@ public sealed class CourierPerformanceReportViewModel(IReportService reports, ID
 /// <param name="reports">Сервіс звітів.</param>
 /// <param name="dialogs">Повідомлення.</param>
 /// <param name="clock">Поточний час.</param>
-public sealed class CourierPayoutReportViewModel(IReportService reports, IDialogService dialogs, IClock clock)
-    : ReportPageViewModel(reports, dialogs, clock)
+/// <param name="exporter">Експорт у Excel.</param>
+/// <param name="files">Вибір файлу.</param>
+public sealed class CourierPayoutReportViewModel(
+    IReportService reports, IDialogService dialogs, IClock clock, IReportExporter exporter, IFileDialogService files)
+    : ReportPageViewModel(reports, dialogs, clock, exporter, files)
 {
     /// <inheritdoc />
     protected override ReportKind Kind => ReportKind.CourierPayout;
