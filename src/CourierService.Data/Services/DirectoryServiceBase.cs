@@ -2,7 +2,6 @@ using CourierService.Core.Entities;
 using CourierService.Core.Enums;
 using CourierService.Core.Exceptions;
 using CourierService.Core.Security;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourierService.Data.Services;
@@ -82,9 +81,8 @@ public abstract class DirectoryServiceBase<TEntity>
         {
             await context.SaveChangesAsync(cancellationToken);
         }
-        catch (DbUpdateException ex) when (ex.InnerException is SqliteException { SqliteExtendedErrorCode: 2067 })
+        catch (DbUpdateException ex) when (DbErrors.IsUniqueViolation(ex))
         {
-            // 2067 = SQLITE_CONSTRAINT_UNIQUE: запис з таким значенням з'явився між перевіркою й збереженням
             throw new DomainValidationException("Запис з такими даними вже існує.");
         }
     }

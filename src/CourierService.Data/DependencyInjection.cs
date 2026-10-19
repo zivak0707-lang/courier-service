@@ -1,6 +1,9 @@
 using CourierService.Core.Abstractions;
 using CourierService.Core.Directories;
+using CourierService.Core.Orders;
+using CourierService.Core.Pricing;
 using CourierService.Core.Security;
+using CourierService.Core.Sla;
 using CourierService.Core.Validation;
 using CourierService.Data.Seed;
 using CourierService.Data.Services;
@@ -45,6 +48,12 @@ public static class DependencyInjection
         services.AddSingleton<IClientService, ClientService>();
         services.AddSingleton<ICourierService, CourierDirectoryService>();
         services.AddSingleton<IUserService, UserService>();
+
+        // Замовлення: чисті правила розрахунку (Core) і сервіс
+        services.AddSingleton<IPriceCalculator, PriceCalculator>();
+        services.AddSingleton<IDeadlineCalculator, DeadlineCalculator>();
+        services.AddSingleton<OrderValidator>();
+        services.AddSingleton<IOrderService, OrderService>();
 
         return services;
     }
