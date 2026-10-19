@@ -35,6 +35,22 @@ internal sealed class FakeOrderService : IOrderService
         Searches.Add(filter);
         return Task.FromResult(SearchResult);
     }
+
+    public Dictionary<int, Order> Orders { get; } = [];
+    public List<OrderListItem> MyActive { get; set; } = [];
+    public List<OrderListItem> MyCompleted { get; set; } = [];
+    public List<bool> MyDeliveryRequests { get; } = [];
+
+    public Task<Order> GetOrderAsync(int orderId, CancellationToken cancellationToken = default) =>
+        Orders.TryGetValue(orderId, out Order? order)
+            ? Task.FromResult(order)
+            : Task.FromException<Order>(new EntityNotFoundException("Замовлення не знайдено."));
+
+    public Task<IReadOnlyList<OrderListItem>> GetMyDeliveriesAsync(bool active, CancellationToken cancellationToken = default)
+    {
+        MyDeliveryRequests.Add(active);
+        return Task.FromResult<IReadOnlyList<OrderListItem>>(active ? MyActive : MyCompleted);
+    }
 }
 
 /// <summary>Дані форми з ідентифікаторами, як після завантаження з БД.</summary>

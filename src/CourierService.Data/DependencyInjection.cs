@@ -1,4 +1,5 @@
 using CourierService.Core.Abstractions;
+using CourierService.Core.Assignment;
 using CourierService.Core.Directories;
 using CourierService.Core.Orders;
 using CourierService.Core.Pricing;
@@ -54,6 +55,9 @@ public static class DependencyInjection
         services.AddSingleton<IDeadlineCalculator, DeadlineCalculator>();
         services.AddSingleton<OrderValidator>();
         services.AddSingleton<IOrderService, OrderService>();
+        services.AddSingleton<IOrderWorkflow, OrderWorkflow>();
+        services.AddSingleton<ICourierAssignmentService, CourierAssignment>();
+        services.AddSingleton<IOrderActionService, OrderActionService>();
 
         return services;
     }

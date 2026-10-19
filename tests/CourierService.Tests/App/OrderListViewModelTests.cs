@@ -181,6 +181,12 @@ public class OrderListViewModelTests
 
         public Task<OrderSearchResult> SearchAsync(OrderFilter filter, CancellationToken cancellationToken = default) =>
             Task.FromException<OrderSearchResult>(new AccessDeniedException("Дія недоступна."));
+
+        public Task<Order> GetOrderAsync(int orderId, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<IReadOnlyList<OrderListItem>> GetMyDeliveriesAsync(bool active, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
     }
 }
 

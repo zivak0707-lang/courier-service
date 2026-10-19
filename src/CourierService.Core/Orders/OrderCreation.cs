@@ -212,4 +212,22 @@ public interface IOrderService
     /// <param name="cancellationToken">Скасування операції.</param>
     /// <returns>Не більше <see cref="OrderFilter.MaxResults"/> замовлень, новіші першими.</returns>
     Task<OrderSearchResult> SearchAsync(OrderFilter filter, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Повні дані замовлення для картки: відправник, зони, тариф, кур'єр, оплата, історія статусів.
+    /// Адміністратор і оператор бачать будь-яке замовлення, кур'єр — лише призначене йому.
+    /// </summary>
+    /// <param name="orderId">Замовлення.</param>
+    /// <param name="cancellationToken">Скасування операції.</param>
+    /// <returns>Замовлення з пов'язаними даними (лише для читання).</returns>
+    Task<Order> GetOrderAsync(int orderId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Доставки поточного кур'єра: активні (призначені й забрані, найтерміновіші першими)
+    /// або решта (історія, новіші першими).
+    /// </summary>
+    /// <param name="active">Активні чи виконані.</param>
+    /// <param name="cancellationToken">Скасування операції.</param>
+    /// <returns>Доставки кур'єра.</returns>
+    Task<IReadOnlyList<OrderListItem>> GetMyDeliveriesAsync(bool active, CancellationToken cancellationToken = default);
 }

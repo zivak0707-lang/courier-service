@@ -105,6 +105,13 @@ public sealed class OrderWorkflow : IOrderWorkflow
 
     private static readonly OrderStatus[] Unfinished = [OrderStatus.New, OrderStatus.Assigned];
 
+    /// <summary>Статуси, у яких доставка «в роботі» в кур'єра (для навантаження й «Моїх доставок»).</summary>
+    public static IReadOnlyList<OrderStatus> InProgressStatuses { get; } = [OrderStatus.Assigned, OrderStatus.PickedUp];
+
+    /// <summary>Статуси, у яких посилка в кур'єра й рішення по ній ще не ухвалене (кур'єра не можна деактивувати).</summary>
+    public static IReadOnlyList<OrderStatus> HeldByCourierStatuses { get; } =
+        [OrderStatus.Assigned, OrderStatus.PickedUp, OrderStatus.DeliveryFailed];
+
     /// <summary>Таблиця переходів (рішення D-24) — одна на всю програму.</summary>
     public static IReadOnlyList<OrderTransition> Transitions { get; } =
     [

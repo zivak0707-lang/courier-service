@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using CourierService.Core.Abstractions;
 using CourierService.Core.Entities;
 using CourierService.Core.Enums;
@@ -12,12 +13,32 @@ using Microsoft.EntityFrameworkCore;
 namespace CourierService.Data.Services;
 
 /// <summary>
-/// Замовлення: оформлення (оператор) і пошук.
+/// Замовлення: оформлення (оператор), пошук, картка замовлення, доставки кур'єра.
 /// </summary>
 public sealed class OrderService : IOrderService
 {
     // Друга спроба потрібна, лише якщо трек-номер встиг зайняти інший запис (рішення D-23)
     private const int MaxSaveAttempts = 2;
+
+    /// <summary>Проєкція замовлення в рядок списку — виконується в SQL, вибираються лише потрібні колонки.</summary>
+    private static readonly Expression<Func<Order, OrderListItem>> ToListItem = o => new OrderListItem(
+        o.Id,
+        o.TrackingNumber,
+        o.CreatedAt,
+        o.Status,
+        o.Client.Name,
+        o.Client.Phone,
+        o.RecipientName,
+        o.RecipientPhone,
+        o.PickupZone.Name,
+        o.DeliveryZone.Name,
+        o.Tariff.Name,
+        o.Price,
+        o.Payment!.Status,
+        o.Payment.Payer,
+        o.Payment.Method,
+        o.Courier != null ? o.Courier.User.FullName : null,
+        o.Deadline);
 
     private readonly IDbContextFactory<AppDbContext> _contextFactory;
     private readonly ICurrentUser _currentUser;
@@ -114,24 +135,7 @@ public sealed class OrderService : IOrderService
             .OrderByDescending(o => o.CreatedAt)
             .ThenByDescending(o => o.Id)
             .Take(OrderFilter.MaxResults + 1)
-            .Select(o => new OrderListItem(
-                o.Id,
-                o.TrackingNumber,
-                o.CreatedAt,
-                o.Status,
-                o.Client.Name,
-                o.Client.Phone,
-                o.RecipientName,
-                o.RecipientPhone,
-                o.PickupZone.Name,
-                o.DeliveryZone.Name,
-                o.Tariff.Name,
-                o.Price,
-                o.Payment!.Status,
-                o.Payment.Payer,
-                o.Payment.Method,
-                o.Courier != null ? o.Courier.User.FullName : null,
-                o.Deadline))
+            .Select(ToListItem)
             .ToListAsync(cancellationToken);
 
         bool isTruncated = items.Count > OrderFilter.MaxResults;
@@ -146,6 +150,51 @@ public sealed class OrderService : IOrderService
                 ? $"Замовлення з трек-номером {query.Value} не знайдено."
                 : null;
         return new OrderSearchResult(items, isTruncated, notice);
+    }
+
+    /// <inheritdoc />
+    public async Task<Order> GetOrderAsync(int orderId, CancellationToken cancellationToken = default)
+    {
+        UserSession session = _currentUser.RequireRole(UserRole.Admin, UserRole.Operator, UserRole.Courier);
+
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        Order order = await context.Orders
+            .AsNoTracking()
+            .Include(o => o.Client)
+            .Include(o => o.PickupZone)
+            .Include(o => o.DeliveryZone)
+            .Include(o => o.Tariff)
+            .Include(o => o.CreatedBy)
+            .Include(o => o.Courier!).ThenInclude(c => c.User)
+            .Include(o => o.Payment!).ThenInclude(p => p.ConfirmedBy)
+            .Include(o => o.StatusChanges).ThenInclude(c => c.ChangedBy)
+            .AsSplitQuery()
+            .SingleOrDefaultAsync(o => o.Id == orderId, cancellationToken)
+            ?? throw new EntityNotFoundException("Замовлення не знайдено.");
+
+        if (session.Role == UserRole.Courier && order.CourierId != session.CourierId)
+        {
+            throw new AccessDeniedException("Це замовлення не призначено вам.");
+        }
+
+        return order;
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<OrderListItem>> GetMyDeliveriesAsync(bool active, CancellationToken cancellationToken = default)
+    {
+        UserSession session = _currentUser.RequireRole(UserRole.Courier);
+        int courierId = session.CourierId ?? throw new AccessDeniedException("Обліковий запис не пов'язано з кур'єром.");
+        OrderStatus[] inProgress = [.. OrderWorkflow.InProgressStatuses];
+
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        IQueryable<Order> orders = context.Orders.AsNoTracking().Where(o => o.CourierId == courierId);
+
+        // Активні — найтерміновіші першими; історія — новіші першими й не більше межі списку
+        orders = active
+            ? orders.Where(o => inProgress.Contains(o.Status)).OrderBy(o => o.Deadline)
+            : orders.Where(o => !inProgress.Contains(o.Status)).OrderByDescending(o => o.CreatedAt).Take(OrderFilter.MaxResults);
+        return await orders.Select(ToListItem).ToListAsync(cancellationToken);
     }
 
     private static IQueryable<Order> ApplyFilter(IQueryable<Order> orders, OrderFilter filter, OrderQuery query)
