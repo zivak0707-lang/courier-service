@@ -25,6 +25,7 @@ public sealed class DatabaseInitializer : IDatabaseInitializer
 {
     private readonly IDbContextFactory<AppDbContext> _contextFactory;
     private readonly DatabaseSeeder _seeder;
+    private readonly DemoOrderGenerator _demoOrders;
     private readonly ILogger<DatabaseInitializer> _logger;
     private bool _initialized;
 
@@ -33,14 +34,17 @@ public sealed class DatabaseInitializer : IDatabaseInitializer
     /// </summary>
     /// <param name="contextFactory">Фабрика контекстів БД.</param>
     /// <param name="seeder">Початкові дані.</param>
+    /// <param name="demoOrders">Демонстраційні замовлення (D-28).</param>
     /// <param name="logger">Журнал.</param>
     public DatabaseInitializer(
         IDbContextFactory<AppDbContext> contextFactory,
         DatabaseSeeder seeder,
+        DemoOrderGenerator demoOrders,
         ILogger<DatabaseInitializer> logger)
     {
         _contextFactory = contextFactory;
         _seeder = seeder;
+        _demoOrders = demoOrders;
         _logger = logger;
     }
 
@@ -53,14 +57,20 @@ public sealed class DatabaseInitializer : IDatabaseInitializer
         }
 
         // Міграції й хешування демо-паролів займають помітний час — виконуємо поза потоком інтерфейсу
-        await Task.Run(async () =>
+        int demoOrders = await Task.Run(async () =>
         {
             await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
             await context.Database.MigrateAsync(cancellationToken);
             await _seeder.SeedAsync(context, cancellationToken);
+            return await _demoOrders.SeedAsync(context, cancellationToken);
         }, cancellationToken);
 
         _initialized = true;
+        if (demoOrders > 0)
+        {
+            _logger.LogInformation("Додано демонстраційних замовлень: {Count}", demoOrders);
+        }
+
         _logger.LogInformation("Базу даних підготовлено");
     }
 }

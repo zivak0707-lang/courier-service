@@ -270,7 +270,29 @@ public sealed class OrderService : IOrderService
 
         PriceBreakdown price = _priceCalculator.Calculate(tariff, pickupZone, deliveryZone, input.Parcel);
         DateTime now = _clock.Now;
+        DateTime deadline = _deadlineCalculator.CalculateDeadline(now, tariff.DeliveryHours);
+        return Compose(input, recipientPhone, client, pickupZone, deliveryZone, tariff, price, now, deadline, userId);
+    }
 
+    /// <summary>
+    /// Складає нове замовлення зі знімком вартості, оплатою (очікує) і першим записом історії.
+    /// Спільне для оформлення оператором і демонстраційних даних — обидва шляхи дають однакові замовлення.
+    /// </summary>
+    /// <param name="input">Перевірені дані форми.</param>
+    /// <param name="recipientPhone">Телефон одержувача у форматі +380XXXXXXXXX.</param>
+    /// <param name="client">Відправник.</param>
+    /// <param name="pickupZone">Зона забору.</param>
+    /// <param name="deliveryZone">Зона доставки.</param>
+    /// <param name="tariff">Тариф.</param>
+    /// <param name="price">Розрахована вартість.</param>
+    /// <param name="createdAt">Час оформлення.</param>
+    /// <param name="deadline">Дедлайн доставки.</param>
+    /// <param name="userId">Хто оформив.</param>
+    /// <returns>Замовлення без трек-номера (його призначає той, хто зберігає).</returns>
+    internal static Order Compose(
+        OrderInput input, string recipientPhone, Client client, Zone pickupZone, Zone deliveryZone, Tariff tariff,
+        PriceBreakdown price, DateTime createdAt, DateTime deadline, int userId)
+    {
         var order = new Order
         {
             Client = client,
@@ -296,8 +318,8 @@ public sealed class OrderService : IOrderService
             FragileCost = price.FragileCost,
             Price = price.Total,
             CreatedByUserId = userId,
-            CreatedAt = now,
-            Deadline = _deadlineCalculator.CalculateDeadline(now, tariff.DeliveryHours),
+            CreatedAt = createdAt,
+            Deadline = deadline,
             Comment = string.IsNullOrWhiteSpace(input.Comment) ? null : input.Comment.Trim(),
             Payment = new Payment
             {
@@ -311,7 +333,7 @@ public sealed class OrderService : IOrderService
         {
             FromStatus = null,
             ToStatus = OrderStatus.New,
-            ChangedAt = now,
+            ChangedAt = createdAt,
             ChangedByUserId = userId,
         });
         return order;

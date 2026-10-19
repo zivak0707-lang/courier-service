@@ -24,11 +24,13 @@ public class DatabaseSeederTests : IAsyncLifetime
     private SqliteTestDatabase _db = null!;
     private DatabaseInitializer _initializer = null!;
 
+    private static FixedClock Clock => new(new DateTime(2026, 10, 19, 15, 0, 0));
+
     public async Task InitializeAsync()
     {
         _db = await SqliteTestDatabase.CreateAsync();
-        var seeder = new DatabaseSeeder(_hasher, new FixedClock(new DateTime(2026, 10, 19, 9, 0, 0)));
-        _initializer = new DatabaseInitializer(_db, seeder, NullLogger<DatabaseInitializer>.Instance);
+        var seeder = new DatabaseSeeder(_hasher, Clock);
+        _initializer = new DatabaseInitializer(_db, seeder, new DemoOrderGenerator(Clock), NullLogger<DatabaseInitializer>.Instance);
         await _initializer.InitializeAsync();
     }
 
@@ -75,14 +77,21 @@ public class DatabaseSeederTests : IAsyncLifetime
     [Fact]
     public async Task Initialize_Twice_DoesNotDuplicateData()
     {
+        int firstRunOrders;
+        await using (var before = _db.CreateDbContext())
+        {
+            firstRunOrders = await before.Orders.CountAsync();
+        }
+
         // Новий ініціалізатор — імітація повторного запуску програми з тією самою БД
         var seeder = new DatabaseSeeder(_hasher, new FixedClock(new DateTime(2026, 10, 20, 9, 0, 0)));
-        await new DatabaseInitializer(_db, seeder, NullLogger<DatabaseInitializer>.Instance).InitializeAsync();
+        await new DatabaseInitializer(_db, seeder, new DemoOrderGenerator(new FixedClock(new DateTime(2026, 10, 20, 9, 0, 0))), NullLogger<DatabaseInitializer>.Instance).InitializeAsync();
 
         await using var context = _db.CreateDbContext();
         Assert.Equal(10, await context.Zones.CountAsync());
         Assert.Equal(3, await context.Tariffs.CountAsync());
         Assert.Equal(DemoAccounts.All.Count, await context.Users.CountAsync());
+        Assert.Equal(firstRunOrders, await context.Orders.CountAsync());
     }
 
     [Fact]

@@ -36,6 +36,7 @@ public static class DependencyInjection
         services.AddSingleton<IAuthService, AuthService>();
 
         services.AddSingleton<DatabaseSeeder>();
+        services.AddSingleton<DemoOrderGenerator>();
         services.AddSingleton<IDatabaseInitializer, DatabaseInitializer>();
 
         // Довідники: правила перевірки (Core) і сервіси (рішення D-18)
