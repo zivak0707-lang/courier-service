@@ -39,7 +39,7 @@ public sealed class ZoneService : DirectoryServiceBase<Zone>, IZoneService
         CurrentUser.RequireRole(ReadRoles);
         await using var context = await ContextFactory.CreateDbContextAsync(cancellationToken);
         var zones = await context.Zones.AsNoTracking().ToListAsync(cancellationToken);
-        return zones.OrderBy(z => z.Name, SearchText.UkrainianComparer).ToList();
+        return zones.OrderBy(z => z.Name, TextSearch.UkrainianComparer).ToList();
     }
 
     /// <inheritdoc />
@@ -51,7 +51,7 @@ public sealed class ZoneService : DirectoryServiceBase<Zone>, IZoneService
         await using var context = await ContextFactory.CreateDbContextAsync(cancellationToken);
         string name = input.Name.Trim();
         var otherNames = await context.Zones.Where(z => z.Id != input.Id).Select(z => z.Name).ToListAsync(cancellationToken);
-        if (otherNames.Any(other => SearchText.SameText(other, name)))
+        if (otherNames.Any(other => TextSearch.SameText(other, name)))
         {
             throw new DomainValidationException($"Зона «{name}» вже існує.", nameof(input.Name));
         }
@@ -110,7 +110,7 @@ public sealed class TariffService : DirectoryServiceBase<Tariff>, ITariffService
         await using var context = await ContextFactory.CreateDbContextAsync(cancellationToken);
         string name = input.Name.Trim();
         var otherNames = await context.Tariffs.Where(t => t.Id != input.Id).Select(t => t.Name).ToListAsync(cancellationToken);
-        if (otherNames.Any(other => SearchText.SameText(other, name)))
+        if (otherNames.Any(other => TextSearch.SameText(other, name)))
         {
             throw new DomainValidationException($"Тариф «{name}» вже існує.", nameof(input.Name));
         }

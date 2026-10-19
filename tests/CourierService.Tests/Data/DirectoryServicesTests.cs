@@ -66,7 +66,7 @@ public class ZoneAndTariffServiceTests : DirectoryServiceTestBase
 
         var names = (await Zones.GetAllAsync()).Select(z => z.Name).ToList();
 
-        Assert.Equal(names.Order(SearchText.UkrainianComparer), names);
+        Assert.Equal(names.Order(TextSearch.UkrainianComparer), names);
         Assert.Equal("Голосіївський", names[0]);
     }
 

@@ -59,7 +59,7 @@ public sealed class UserService : DirectoryServiceBase<User>, IUserService
             .ToListAsync(cancellationToken);
         return users
             .OrderBy(u => u.Role)
-            .ThenBy(u => u.FullName, SearchText.UkrainianComparer)
+            .ThenBy(u => u.FullName, TextSearch.UkrainianComparer)
             .ToList();
     }
 

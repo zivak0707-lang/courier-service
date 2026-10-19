@@ -327,7 +327,7 @@ public class DirectoryValidatorsTests
     }
 }
 
-public class SearchTextTests
+public class TextSearchTests
 {
     [Theory]
     [InlineData("київ", "Київ", true)]
@@ -337,13 +337,13 @@ public class SearchTextTests
     [InlineData("кава", "ТОВ «Квітковий двір»", false)]
     public void Matches_IgnoresCaseForCyrillic(string query, string field, bool expected)
     {
-        Assert.Equal(expected, SearchText.Matches(query, field));
+        Assert.Equal(expected, TextSearch.Matches(query, field));
     }
 
     [Fact]
     public void Matches_SearchesAllFields()
     {
-        Assert.True(SearchText.Matches("0002", "Наталія Руденко", "+380930000204"));
-        Assert.False(SearchText.Matches("0002", "Наталія Руденко", null));
+        Assert.True(TextSearch.Matches("0002", "Наталія Руденко", "+380930000204"));
+        Assert.False(TextSearch.Matches("0002", "Наталія Руденко", null));
     }
 }

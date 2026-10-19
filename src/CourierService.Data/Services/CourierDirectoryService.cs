@@ -57,7 +57,7 @@ public sealed class CourierDirectoryService : DirectoryServiceBase<Courier>, ICo
                 c.Id, c.UserId, c.User.FullName, c.User.Login, c.Phone, c.TransportType,
                 c.MaxWeightGrams, c.HomeZoneId, c.HomeZone.Name, c.PayoutPercent, c.IsActive))
             .ToListAsync(cancellationToken);
-        return couriers.OrderBy(c => c.FullName, SearchText.UkrainianComparer).ToList();
+        return couriers.OrderBy(c => c.FullName, TextSearch.UkrainianComparer).ToList();
     }
 
     /// <inheritdoc />

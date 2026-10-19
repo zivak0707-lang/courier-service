@@ -35,5 +35,11 @@ public sealed class NavigationService : INavigationService
         ArgumentNullException.ThrowIfNull(viewModel);
         CurrentViewModel = viewModel;
         CurrentViewModelChanged?.Invoke(this, EventArgs.Empty);
+
+        // Сторінки зі списками завантажують дані з БД асинхронно, не блокуючи інтерфейс
+        if (viewModel is ILoadable loadable)
+        {
+            loadable.LoadCommand.Execute(null);
+        }
     }
 }

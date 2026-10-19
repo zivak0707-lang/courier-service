@@ -47,7 +47,7 @@ public sealed class ClientService : DirectoryServiceBase<Client>, IClientService
         CurrentUser.RequireRole(ReadRoles);
         await using var context = await ContextFactory.CreateDbContextAsync(cancellationToken);
         var clients = await context.Clients.AsNoTracking().ToListAsync(cancellationToken);
-        return clients.OrderBy(c => c.Name, SearchText.UkrainianComparer).ToList();
+        return clients.OrderBy(c => c.Name, TextSearch.UkrainianComparer).ToList();
     }
 
     /// <inheritdoc />

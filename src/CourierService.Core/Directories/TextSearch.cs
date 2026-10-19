@@ -9,7 +9,7 @@ namespace CourierService.Core.Directories;
 /// Довідники фільтруються в пам'яті: порівняння NOCASE і LIKE в SQLite не враховують
 /// регістр лише для латиниці, тож «київ» не знайшов би «Київ».
 /// </remarks>
-public static class SearchText
+public static class TextSearch
 {
     private static readonly CompareInfo Ukrainian = CultureInfo.GetCultureInfo("uk-UA").CompareInfo;
 

@@ -22,6 +22,7 @@ public static class CompositionRoot
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IAppLifetime, WpfAppLifetime>();
         services.AddSingleton<ILoginDialog, LoginDialog>();
+        services.AddSingleton<IEditDialogService, EditDialogService>();
         services.AddSingleton<GlobalExceptionHandler>();
 
         // Вікно входу: нова ViewModel під час кожного входу
