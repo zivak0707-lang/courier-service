@@ -61,6 +61,23 @@ public sealed class CourierDirectoryService : DirectoryServiceBase<Courier>, ICo
     }
 
     /// <inheritdoc />
+    /// <remarks>Кур'єра з незавершеними доставками деактивувати не можна — вони «зависли» б.</remarks>
+    public override async Task SetActiveAsync(int id, bool isActive, CancellationToken cancellationToken = default)
+    {
+        CurrentUser.RequireRole(EditRoles);
+
+        await using var context = await ContextFactory.CreateDbContextAsync(cancellationToken);
+        Courier courier = await FindOrThrowAsync(context, id, cancellationToken);
+        if (!isActive)
+        {
+            await CourierWorkload.EnsureNoHeldOrdersAsync(context, courier.Id, cancellationToken);
+        }
+
+        courier.IsActive = isActive;
+        await SaveChangesAsync(context, cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task<int> SaveAsync(CourierInput input, CancellationToken cancellationToken = default)
     {
         _validator.Validate(input).ThrowIfInvalid();

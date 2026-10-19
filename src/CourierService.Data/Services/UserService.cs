@@ -124,6 +124,13 @@ public sealed class UserService : DirectoryServiceBase<User>, IUserService
             throw new DomainValidationException(LastAdminMessage);
         }
 
+        // Вимкнений обліковий запис не дав би кур'єру завершити свої доставки
+        if (!isActive && user.Role == UserRole.Courier
+            && await context.Couriers.Where(c => c.UserId == user.Id).Select(c => (int?)c.Id).SingleOrDefaultAsync(cancellationToken) is { } courierId)
+        {
+            await CourierWorkload.EnsureNoHeldOrdersAsync(context, courierId, cancellationToken);
+        }
+
         user.IsActive = isActive;
         await SaveChangesAsync(context, cancellationToken);
     }

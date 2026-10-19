@@ -1,5 +1,6 @@
 using CourierService.Core;
 using CourierService.Core.Assignment;
+using CourierService.Core.Directories;
 using CourierService.Core.Enums;
 using CourierService.Core.Exceptions;
 using CourierService.Core.Orders;
@@ -212,6 +213,44 @@ public class OrderActionServiceTests : OrderServiceTestBase
 
         Assert.Equal([second], active.Select(o => o.Id));
         Assert.Equal([first], history.Select(o => o.Id));
+    }
+
+    [Fact]
+    public async Task CourierWithUnfinishedDeliveries_CannotBeDeactivated()
+    {
+        int orderId = await CreateOrderAsync(PaymentPayer.Recipient, courierLogin: "courier1");
+        int courierId = await CourierIdAsync("courier1");
+        var couriers = new CourierDirectoryService(Db, CurrentUser, new CourierValidator(), Hasher, Clock);
+
+        var exception = await Assert.ThrowsAsync<DomainValidationException>(() => couriers.SetActiveAsync(courierId, false));
+        Assert.Contains("KV2610190001-2", exception.UserMessage);
+
+        // Невдала спроба теж тримає посилку в кур'єра
+        await SignInAsAsync("courier1");
+        await Actions.ExecuteAsync(orderId, OrderAction.PickUp);
+        await Actions.ExecuteAsync(orderId, OrderAction.ReportFailure, reason: "Одержувач не відповідає");
+        await SignInAsAsync("operator");
+        await Assert.ThrowsAsync<DomainValidationException>(() => couriers.SetActiveAsync(courierId, false));
+
+        // Після повернення посилки рішення ухвалено — кур'єра можна деактивувати
+        await Actions.ExecuteAsync(orderId, OrderAction.Return);
+        await couriers.SetActiveAsync(courierId, false);
+        await using var context = Db.CreateDbContext();
+        Assert.False(await context.Couriers.Where(c => c.Id == courierId).Select(c => c.IsActive).SingleAsync());
+    }
+
+    [Fact]
+    public async Task CourierAccountWithUnfinishedDeliveries_CannotBeDisabledByAdmin()
+    {
+        await CreateOrderAsync(courierLogin: "courier1");
+        await SignInAsAsync("admin");
+        var users = new UserService(Db, CurrentUser, new UserValidator(), Hasher, Clock);
+        await using var context = Db.CreateDbContext();
+        int courierUserId = await context.Users.Where(u => u.Login == "courier1").Select(u => u.Id).SingleAsync();
+        int idleCourierUserId = await context.Users.Where(u => u.Login == "courier3").Select(u => u.Id).SingleAsync();
+
+        await Assert.ThrowsAsync<DomainValidationException>(() => users.SetActiveAsync(courierUserId, false));
+        await users.SetActiveAsync(idleCourierUserId, false);
     }
 
     [Fact]
