@@ -97,18 +97,24 @@
                 <DataGridTextColumn Header="Трек-номер" Binding="{Binding TrackingNumber}" Width="Auto" />
                 <DataGridTextColumn Header="Оформлено" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />
                 <DataGridTextColumn Header="Статус" Binding="{Binding Status, Converter={StaticResource EnumDisplay}}" Width="Auto" />
-                <DataGridTemplateColumn Header="Термін" CellTemplate="{StaticResource SlaCellTemplate}" SortMemberPath="Sla.State" Width="Auto" />
-                <DataGridTextColumn Header="Відправник" Binding="{Binding ClientName}" Width="*" MinWidth="160" />
-                <DataGridTextColumn Header="Одержувач" Binding="{Binding RecipientName}" Width="*" MinWidth="140" />
-                <DataGridTextColumn Header="Телефон одержувача" Binding="{Binding RecipientPhone, Converter={StaticResource Phone}}" Width="Auto" />
-                <DataGridTextColumn Header="Звідки" Binding="{Binding PickupZone}" Width="Auto" />
-                <DataGridTextColumn Header="Куди" Binding="{Binding DeliveryZone}" Width="Auto" />
+                <DataGridTemplateColumn Header="Термін" CellTemplate="{StaticResource SlaCellTemplate}" SortMemberPath="Sla.State" Width="210" />
+                <DataGridTextColumn Header="Доставити до" Binding="{Binding Deadline, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />
+                <DataGridTextColumn Header="Відправник" Binding="{Binding ClientName}" Width="*" MinWidth="140" />
+                <DataGridTextColumn Header="Одержувач" Binding="{Binding RecipientName}" Width="*" MinWidth="120" />
+                <!-- Маршрут — одна колонка замість двох, телефон одержувача є в картці: таблиця вужча (огляд C2) -->
+                <DataGridTextColumn Header="Маршрут" SortMemberPath="PickupZone" Width="Auto">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding StringFormat="{}{0} → {1}">
+                            <Binding Path="PickupZone" />
+                            <Binding Path="DeliveryZone" />
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="Тариф" Binding="{Binding TariffName}" Width="Auto" />
                 <!-- Money порівнюється за копійками -->
                 <DataGridTextColumn Header="Вартість" Binding="{Binding Price}" SortMemberPath="Price.Kopecks" Width="Auto" />
                 <DataGridTextColumn Header="Оплата" Binding="{Binding PaymentStatus, Converter={StaticResource EnumDisplay}}" Width="Auto" />
                 <DataGridTextColumn Header="Кур'єр" Binding="{Binding CourierName}" Width="Auto" />
-                <DataGridTextColumn Header="Доставити до" Binding="{Binding Deadline, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>
