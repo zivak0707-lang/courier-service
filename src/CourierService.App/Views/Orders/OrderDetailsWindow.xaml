@@ -41,6 +41,10 @@
         <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
             <DockPanel>
                 <Button DockPanel.Dock="Right" Content="_Закрити" IsCancel="True" MinWidth="110" />
+                <Button DockPanel.Dock="Right" Content="Друк _накладної…" MinWidth="150" Margin="0,0,8,6"
+                        Command="{Binding PrintWaybillCommand}"
+                        Visibility="{Binding CanPrintWaybill, Converter={StaticResource VisibleWhen}}"
+                        ToolTip="Перегляд і друк накладної з QR-кодом трек-номера" />
                 <ItemsControl ItemsSource="{Binding Actions}" Focusable="False" AutomationProperties.Name="Дії">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

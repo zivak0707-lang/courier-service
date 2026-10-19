@@ -31,6 +31,7 @@ public static class CompositionRoot
         services.AddSingleton<IOrderDetailsDialog, OrderDetailsDialog>();
         services.AddSingleton<IReportExporter, ExcelReportExporter>();
         services.AddSingleton<IFileDialogService, FileDialogService>();
+        services.AddSingleton<IWaybillPrinter, WaybillPrinter>();
         services.AddSingleton<GlobalExceptionHandler>();
 
         // Вікно входу: нова ViewModel під час кожного входу

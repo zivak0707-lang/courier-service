@@ -36,6 +36,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
     private readonly IDialogService _dialogs;
     private readonly IEditDialogService _editDialogs;
     private readonly ISlaEvaluator _sla;
+    private readonly IWaybillPrinter _waybills;
 
     /// <summary>
     /// Створює картку.
@@ -48,6 +49,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
     /// <param name="dialogs">Повідомлення й підтвердження.</param>
     /// <param name="editDialogs">Вікна вибору кур'єра й причини.</param>
     /// <param name="sla">Оцінка терміну доставки.</param>
+    /// <param name="waybills">Перегляд і друк накладної (D-36).</param>
     public OrderDetailsViewModel(
         int orderId,
         IOrderService orders,
@@ -56,7 +58,8 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
         ICurrentUser currentUser,
         IDialogService dialogs,
         IEditDialogService editDialogs,
-        ISlaEvaluator sla)
+        ISlaEvaluator sla,
+        IWaybillPrinter waybills)
     {
         _orderId = orderId;
         _orders = orders;
@@ -66,6 +69,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
         _dialogs = dialogs;
         _editDialogs = editDialogs;
         _sla = sla;
+        _waybills = waybills;
     }
 
     /// <inheritdoc />
@@ -76,7 +80,8 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
 
     /// <summary>Замовлення з пов'язаними даними (лише для читання).</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Title), nameof(FragileText), nameof(PaymentDetails), nameof(DatesText))]
+    [NotifyPropertyChangedFor(nameof(Title), nameof(FragileText), nameof(PaymentDetails), nameof(DatesText), nameof(CanPrintWaybill))]
+    [NotifyCanExecuteChangedFor(nameof(PrintWaybillCommand))]
     public partial Order? Order { get; private set; }
 
     /// <summary>Хто й коли оформив, дедлайн і (якщо є) час доставки.</summary>
@@ -110,6 +115,12 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasActions))]
     public partial IReadOnlyList<OrderActionOption> Actions { get; private set; } = [];
+
+    /// <summary>
+    /// Чи показувати кнопку «Друк накладної»: накладну друкує адміністратор чи оператор, для скасованого замовлення — ні.
+    /// </summary>
+    public bool CanPrintWaybill => Order is { } order && Waybill.CanPrint(order)
+        && _currentUser.Session?.Role is UserRole.Admin or UserRole.Operator;
 
     /// <summary>Чи є доступні дії (інакше панель дій прихована).</summary>
     public bool HasActions => Actions.Count > 0;
@@ -183,6 +194,15 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanPrintWaybill))]
+    private void PrintWaybill()
+    {
+        if (Order is { } order)
+        {
+            _waybills.ShowPreview(Waybill.From(order));
         }
     }
 

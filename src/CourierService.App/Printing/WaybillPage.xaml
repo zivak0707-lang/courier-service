@@ -1,0 +1,122 @@
+<UserControl x:Class="CourierService.App.Printing.WaybillPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:core="clr-namespace:CourierService.Core.Orders;assembly=CourierService.Core"
+             xmlns:converters="clr-namespace:CourierService.App.Converters"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=core:Waybill}"
+             Background="White" Foreground="Black" FontFamily="Segoe UI" FontSize="10.5">
+    <!-- Сторінка A5 для друку (D-36): лише чорний текст і рамки — добре друкується на будь-якому принтері -->
+    <UserControl.Resources>
+        <!-- Власні ресурси: сторінка не залежить від ресурсів застосунку й будується навіть поза вікном -->
+        <converters:VisibleWhenConverter x:Key="VisibleWhen" />
+        <Style x:Key="BlockTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="8.5" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#444444" />
+            <Setter Property="Margin" Value="0,0,0,2" />
+        </Style>
+        <Style x:Key="Block" TargetType="Border">
+            <Setter Property="BorderBrush" Value="Black" />
+            <Setter Property="BorderThickness" Value="0.75" />
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <DataTemplate x:Key="PartyTemplate" DataType="{x:Type core:WaybillParty}">
+            <StackPanel>
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{Binding Phone}" />
+                <TextBlock Text="{Binding Address}" />
+                <TextBlock>
+                    <Run Text="Зона:" /> <Run Text="{Binding Zone, Mode=OneWay}" />
+                </TextBlock>
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <DockPanel Margin="34,30,34,30">
+        <!-- Шапка: назва служби, трек-номер і QR -->
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Кур'єрська служба · Київ" FontSize="9.5" Foreground="#444444" />
+                <TextBlock Text="НАКЛАДНА" FontSize="18" FontWeight="Bold" Margin="0,2,0,0" />
+                <TextBlock Text="{Binding TrackingNumber}" FontSize="22" FontWeight="Bold" FontFamily="Consolas"
+                           Margin="0,2,0,2" AutomationProperties.Name="Трек-номер" />
+                <TextBlock Text="{Binding DatesText}" FontSize="9.5" />
+                <TextBlock FontSize="9.5">
+                    <Run Text="Тариф:" /> <Run Text="{Binding Tariff, Mode=OneWay}" FontWeight="SemiBold" />
+                </TextBlock>
+            </StackPanel>
+            <Image x:Name="QrImage" Grid.Column="1" Width="112" Height="112" Margin="12,0,0,0"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor" AutomationProperties.Name="QR-код трек-номера" />
+        </Grid>
+
+        <!-- Підписи внизу сторінки -->
+        <Grid DockPanel.Dock="Bottom" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <Border BorderBrush="Black" BorderThickness="0,0,0,0.75" Height="22" />
+                <TextBlock Text="Відправник (підпис)" FontSize="8.5" />
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <Border BorderBrush="Black" BorderThickness="0,0,0,0.75" Height="22" />
+                <TextBlock Text="Одержувач (підпис, дата й час)" FontSize="8.5" />
+            </StackPanel>
+        </Grid>
+
+        <StackPanel>
+            <Border Style="{StaticResource Block}">
+                <StackPanel>
+                    <TextBlock Text="ВІДПРАВНИК · АДРЕСА ЗАБОРУ" Style="{StaticResource BlockTitle}" />
+                    <ContentPresenter Content="{Binding Sender}" ContentTemplate="{StaticResource PartyTemplate}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Block}">
+                <StackPanel>
+                    <TextBlock Text="ОДЕРЖУВАЧ · АДРЕСА ДОСТАВКИ" Style="{StaticResource BlockTitle}" />
+                    <ContentPresenter Content="{Binding Recipient}" ContentTemplate="{StaticResource PartyTemplate}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Block}">
+                <StackPanel>
+                    <TextBlock Text="ПОСИЛКА" Style="{StaticResource BlockTitle}" />
+                    <ItemsControl ItemsSource="{Binding Parcel}" />
+                    <TextBlock Margin="0,4,0,0" Visibility="{Binding Comment, Converter={StaticResource VisibleWhen}}">
+                        <Run Text="Коментар:" /> <Run Text="{Binding Comment, Mode=OneWay}" />
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Block}">
+                <StackPanel>
+                    <TextBlock Text="ОПЛАТА" Style="{StaticResource BlockTitle}" />
+                    <TextBlock>
+                        <Run Text="Вартість доставки:" /> <Run Text="{Binding Price, Mode=OneWay}" FontWeight="SemiBold" />
+                    </TextBlock>
+                    <TextBlock Text="{Binding PaymentText}" />
+                    <Border BorderBrush="Black" BorderThickness="1.5" Padding="8,4" Margin="0,6,0,2" HorizontalAlignment="Left"
+                            Visibility="{Binding CollectOnDelivery, Converter={StaticResource VisibleWhen}}">
+                        <TextBlock FontSize="13" FontWeight="Bold">
+                            <Run Text="Отримати від одержувача:" /> <Run Text="{Binding CollectOnDelivery, Mode=OneWay}" />
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
+            </Border>
+            <TextBlock Visibility="{Binding Courier, Converter={StaticResource VisibleWhen}}">
+                <Run Text="Кур'єр:" /> <Run Text="{Binding Courier, Mode=OneWay}" FontWeight="SemiBold" />
+            </TextBlock>
+        </StackPanel>
+    </DockPanel>
+</UserControl>

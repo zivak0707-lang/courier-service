@@ -1,3 +1,4 @@
+using CourierService.App.Services;
 using CourierService.App.ViewModels.Orders;
 using CourierService.Core;
 using CourierService.Core.Assignment;
@@ -41,12 +42,13 @@ public class OrderDetailsViewModelTests
     private readonly FakeDialogService _dialogs = new();
     private readonly FakeEditDialogService _editDialogs = new();
     private readonly CurrentUser _currentUser = new();
+    private readonly FakeWaybillPrinter _waybills = new();
 
     private OrderDetailsViewModel CreateCard(Order order, UserSession user)
     {
         _orders.Orders[order.Id] = order;
         _currentUser.SignIn(user);
-        return new OrderDetailsViewModel(order.Id, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs, new SlaEvaluator(new FixedClock(WorkflowTestData.Now)));
+        return new OrderDetailsViewModel(order.Id, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs, new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills);
     }
 
     private static Order NewOrderWithHistory()
@@ -95,7 +97,7 @@ public class OrderDetailsViewModelTests
     public async Task NotFound_ShowsError()
     {
         _currentUser.SignIn(WorkflowTestData.Operator);
-        var card = new OrderDetailsViewModel(404, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs, new SlaEvaluator(new FixedClock(WorkflowTestData.Now)));
+        var card = new OrderDetailsViewModel(404, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs, new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills);
 
         await card.LoadCommand.ExecuteAsync(null);
 
@@ -270,11 +272,84 @@ public class OrderDetailsSlaTests
         currentUser.SignIn(WorkflowTestData.Operator);
         var clock = new FixedClock(WorkflowTestData.Now.AddHours(3.5));   // лишилося 30 хв із 4 год
         var card = new OrderDetailsViewModel(order.Id, orders, new FakeOrderActionService(), new OrderWorkflow(), currentUser,
-            new FakeDialogService(), new FakeEditDialogService(), new SlaEvaluator(clock));
+            new FakeDialogService(), new FakeEditDialogService(), new SlaEvaluator(clock), new FakeWaybillPrinter());
 
         await card.LoadCommand.ExecuteAsync(null);
 
         Assert.Equal(SlaState.AtRisk, card.Sla.State);
         Assert.Equal("Під загрозою: лишилося 30 хв", card.Sla.Text);
+    }
+}
+
+/// <summary>Заглушка друку накладної: запам'ятовує показані накладні.</summary>
+internal sealed class FakeWaybillPrinter : IWaybillPrinter
+{
+    public List<Waybill> Shown { get; } = [];
+
+    public void ShowPreview(Waybill waybill) => Shown.Add(waybill);
+}
+
+public class OrderDetailsWaybillTests
+{
+    private readonly FakeOrderService _orders = new();
+    private readonly FakeWaybillPrinter _waybills = new();
+    private readonly CurrentUser _currentUser = new();
+
+    private async Task<OrderDetailsViewModel> OpenCardAsync(Order order, UserSession user)
+    {
+        _orders.Orders[order.Id] = order;
+        _currentUser.SignIn(user);
+        var card = new OrderDetailsViewModel(order.Id, _orders, new FakeOrderActionService(), new OrderWorkflow(), _currentUser,
+            new FakeDialogService(), new FakeEditDialogService(), new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills);
+        await card.LoadCommand.ExecuteAsync(null);
+        return card;
+    }
+
+    [Fact]
+    public async Task PrintWaybill_Operator_ShowsPreviewOfThisOrder()
+    {
+        var card = await OpenCardAsync(WaybillTestData.FullOrder(), WorkflowTestData.Operator);
+
+        Assert.True(card.CanPrintWaybill);
+        card.PrintWaybillCommand.Execute(null);
+
+        Assert.Equal("KV2610190001-2", Assert.Single(_waybills.Shown).TrackingNumber);
+    }
+
+    [Fact]
+    public async Task PrintWaybill_Admin_IsAvailable()
+    {
+        var card = await OpenCardAsync(WaybillTestData.FullOrder(OrderStatus.Delivered), WorkflowTestData.Admin);
+
+        Assert.True(card.PrintWaybillCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task PrintWaybill_Courier_IsHidden()
+    {
+        Order order = WaybillTestData.FullOrder(OrderStatus.Assigned);
+        var card = await OpenCardAsync(order, WorkflowTestData.Courier1);
+
+        Assert.False(card.CanPrintWaybill);
+        Assert.False(card.PrintWaybillCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task PrintWaybill_CancelledOrder_IsHidden()
+    {
+        var card = await OpenCardAsync(WaybillTestData.FullOrder(OrderStatus.Cancelled), WorkflowTestData.Operator);
+
+        Assert.False(card.CanPrintWaybill);
+        Assert.False(card.PrintWaybillCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public void PrintWaybill_BeforeLoad_IsUnavailable()
+    {
+        _currentUser.SignIn(WorkflowTestData.Operator);
+        var card = new OrderDetailsViewModel(1, _orders, new FakeOrderActionService(), new OrderWorkflow(), _currentUser,
+            new FakeDialogService(), new FakeEditDialogService(), new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills);
+
+        Assert.False(card.PrintWaybillCommand.CanExecute(null));
     }
 }
