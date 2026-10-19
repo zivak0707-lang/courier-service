@@ -67,6 +67,7 @@ public sealed partial class MainViewModel : ViewModelBase
         [AppSection.TrackingSearch] = typeof(TrackingSearchViewModel),
         [AppSection.MyActiveDeliveries] = typeof(MyActiveDeliveriesViewModel),
         [AppSection.MyCompletedDeliveries] = typeof(MyCompletedDeliveriesViewModel),
+        [AppSection.Dashboard] = typeof(DashboardViewModel),
         [AppSection.RevenueReport] = typeof(RevenueReportViewModel),
         [AppSection.UnpaidReport] = typeof(UnpaidReportViewModel),
         [AppSection.CourierPerformanceReport] = typeof(CourierPerformanceReportViewModel),

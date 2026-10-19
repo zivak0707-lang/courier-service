@@ -46,6 +46,7 @@ public static class CompositionRoot
         services.AddTransient<TrackingSearchViewModel>();
         services.AddTransient<MyActiveDeliveriesViewModel>();
         services.AddTransient<MyCompletedDeliveriesViewModel>();
+        services.AddTransient<DashboardViewModel>();
         services.AddTransient<RevenueReportViewModel>();
         services.AddTransient<UnpaidReportViewModel>();
         services.AddTransient<CourierPerformanceReportViewModel>();

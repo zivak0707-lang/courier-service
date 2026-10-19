@@ -214,3 +214,53 @@ public class ReportPageViewModelTests
         Assert.Equal("Неоплачені замовлення", page.Title);
     }
 }
+
+public class DashboardViewModelTests
+{
+    private static readonly DateTime Now = new(2026, 10, 19, 15, 0, 0);
+
+    [Fact]
+    public async Task Load_CalculatesSnapshotForThirtyDays()
+    {
+        var page = new DashboardViewModel(new FakeReportService(), new FakeDialogService(), new FixedClock(Now));
+
+        await page.LoadCommand.ExecuteAsync(null);
+
+        Assert.NotNull(page.Snapshot);
+        Assert.Equal(ReportPeriod.LastDays(Now, 30), page.Snapshot.Period);
+        Assert.Equal(30, page.Snapshot.Daily.Count);
+        Assert.Equal(6, page.Snapshot.Tiles.Count);
+        Assert.Equal("Дашборд", page.Title);
+    }
+
+    [Fact]
+    public void ChangingPeriod_Reloads()
+    {
+        var page = new DashboardViewModel(new FakeReportService(), new FakeDialogService(), new FixedClock(Now));
+
+        page.Days = 7;
+
+        Assert.Equal(7, page.Snapshot!.Daily.Count);
+    }
+
+    [Fact]
+    public async Task AccessDenied_ShowsError()
+    {
+        var dialogs = new FakeDialogService();
+        var page = new DashboardViewModel(new DeniedReportService(), dialogs, new FixedClock(Now));
+
+        await page.LoadCommand.ExecuteAsync(null);
+
+        Assert.Null(page.Snapshot);
+        Assert.Single(dialogs.Errors);
+    }
+
+    private sealed class DeniedReportService : IReportService
+    {
+        public Task<ReportTable> BuildAsync(ReportKind kind, ReportPeriod period, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<ReportData> GetDataAsync(ReportPeriod period, CancellationToken cancellationToken = default) =>
+            Task.FromException<ReportData>(new AccessDeniedException("Дія недоступна."));
+    }
+}
