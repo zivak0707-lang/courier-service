@@ -55,6 +55,28 @@ public sealed class DeadlineCalculator : IDeadlineCalculator
     }
 
     /// <summary>
+    /// Скільки робочого часу служби (09:00–21:00) минає між двома моментами — обернена дія до дедлайну.
+    /// </summary>
+    /// <param name="from">Початок.</param>
+    /// <param name="to">Кінець.</param>
+    /// <returns>Робочий час; нуль, якщо кінець не пізніше початку.</returns>
+    public static TimeSpan WorkingTimeBetween(DateTime from, DateTime to)
+    {
+        TimeSpan total = TimeSpan.Zero;
+        for (DateTime day = from.Date; day <= to.Date; day = day.AddDays(1))
+        {
+            DateTime start = from > day + WorkdayStart ? from : day + WorkdayStart;
+            DateTime end = to < day + WorkdayEnd ? to : day + WorkdayEnd;
+            if (end > start)
+            {
+                total += end - start;
+            }
+        }
+
+        return total;
+    }
+
+    /// <summary>
     /// Найближчий момент робочого часу, починаючи з заданого.
     /// </summary>
     /// <param name="moment">Довільний момент.</param>
