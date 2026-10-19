@@ -1,0 +1,35 @@
+<UserControl x:Class="CourierService.App.Views.Directories.TariffsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dir="clr-namespace:CourierService.App.ViewModels.Directories"
+             xmlns:local="clr-namespace:CourierService.App.Views.Directories"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=dir:TariffsViewModel}">
+    <DockPanel Margin="{StaticResource PagePadding}">
+        <TextBlock DockPanel.Dock="Top" Text="{Binding Title}" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock DockPanel.Dock="Top" Style="{StaticResource SecondaryTextStyle}" Margin="0,-8,0,12"
+                   Text="Зміни тарифу діють лише для нових замовлень: у вже оформлених ціна збережена на момент створення." />
+        <local:DirectoryToolbar DockPanel.Dock="Top" />
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding CountText}" Style="{StaticResource SecondaryTextStyle}" Margin="0,8,0,0" />
+
+        <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}"
+                  Style="{StaticResource DirectoryGridStyle}">
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding EditCommand}" />
+            </DataGrid.InputBindings>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Тариф" Binding="{Binding Name}" Width="*" />
+                <DataGridTextColumn Header="Термін, роб. год" Binding="{Binding DeliveryHours}" Width="Auto" />
+                <DataGridTextColumn Header="Базова ціна" Binding="{Binding BasePrice}" Width="Auto" />
+                <DataGridTextColumn Header="Включено" Binding="{Binding IncludedWeightGrams, Converter={StaticResource Kilograms}}" Width="Auto" />
+                <DataGridTextColumn Header="За дод. кг" Binding="{Binding PricePerExtraKg}" Width="Auto" />
+                <DataGridTextColumn Header="Макс. вага" Binding="{Binding MaxWeightGrams, Converter={StaticResource Kilograms}}" Width="Auto" />
+                <DataGridTextColumn Header="Через Дніпро" Binding="{Binding CrossRiverSurcharge}" Width="Auto" />
+                <DataGridTextColumn Header="Крихкість" Binding="{Binding FragileSurcharge}" Width="Auto" />
+                <DataGridCheckBoxColumn Header="Активний" Binding="{Binding IsActive}" Width="Auto" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

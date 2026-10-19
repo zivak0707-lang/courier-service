@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CourierService.App.Navigation;
 using CourierService.App.Services;
+using CourierService.App.ViewModels.Directories;
 using CourierService.Core.Enums;
 using CourierService.Core.Security;
 
@@ -50,6 +51,15 @@ public sealed partial class MainViewModel : ViewModelBase
         _currentUser.Changed += (_, _) => OnCurrentUserChanged();
         _navigation.NavigateTo<HomeViewModel>();
     }
+
+    /// <summary>
+    /// Реалізовані розділи та їхні сторінки. Розділи, яких тут немає, поки показують заглушку.
+    /// </summary>
+    public static IReadOnlyDictionary<AppSection, Type> SectionPages { get; } = new Dictionary<AppSection, Type>
+    {
+        [AppSection.Zones] = typeof(ZonesViewModel),
+        [AppSection.Tariffs] = typeof(TariffsViewModel),
+    };
 
     /// <inheritdoc />
     public override string Title => "Кур'єрська служба";
@@ -126,7 +136,14 @@ public sealed partial class MainViewModel : ViewModelBase
             return;
         }
 
-        _navigation.NavigateTo(new PlaceholderViewModel(AppSectionCatalog.Get(section)));
+        if (SectionPages.TryGetValue(section, out Type? pageType))
+        {
+            _navigation.NavigateTo(pageType);
+        }
+        else
+        {
+            _navigation.NavigateTo(new PlaceholderViewModel(AppSectionCatalog.Get(section)));
+        }
     }
 
     [RelayCommand]

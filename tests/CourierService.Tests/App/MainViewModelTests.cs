@@ -1,9 +1,11 @@
 using System.ComponentModel;
+using CourierService.App.Infrastructure;
 using CourierService.App.Navigation;
 using CourierService.App.Services;
 using CourierService.App.ViewModels;
 using CourierService.Core.Enums;
 using CourierService.Core.Security;
+using CourierService.Data;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CourierService.Tests.App;
@@ -59,16 +61,39 @@ public class MainViewModelTests
 
     [Theory]
     [MemberData(nameof(AllSections))]
-    public void OpenSection_AllowedRole_ShowsPlaceholderForSection(AppSection section)
+    public void OpenSection_AllowedRole_OpensPageOrPlaceholder(AppSection section)
     {
         UserRole allowedRole = Enum.GetValues<UserRole>().First(role => SectionAccess.IsAllowed(section, role));
+        var navigation = new RecordingNavigationService();
         _currentUser.SignIn(SessionFor(allowedRole));
+        var viewModel = new MainViewModel(navigation, _dialogs, _lifetime, _currentUser, _loginDialog);
 
-        _viewModel.OpenSectionCommand.Execute(section);
+        viewModel.OpenSectionCommand.Execute(section);
 
-        var page = Assert.IsType<PlaceholderViewModel>(_viewModel.CurrentPage);
-        Assert.Equal(AppSectionCatalog.Get(section).Title, page.Title);
+        if (MainViewModel.SectionPages.TryGetValue(section, out Type? pageType))
+        {
+            Assert.Equal(pageType, navigation.RequestedTypes.Last());
+        }
+        else
+        {
+            var page = Assert.IsType<PlaceholderViewModel>(navigation.CurrentViewModel);
+            Assert.Equal(AppSectionCatalog.Get(section).Title, page.Title);
+        }
+
         Assert.Empty(_dialogs.Warnings);
+    }
+
+    [Fact]
+    public void SectionPages_AreRegisteredInContainer()
+    {
+        var services = new ServiceCollection()
+            .AddLogging()
+            .AddCourierData(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "courier-di-test.db"))
+            .AddCourierApp();
+        using var provider = services.BuildServiceProvider();
+
+        Assert.All(MainViewModel.SectionPages.Values, pageType =>
+            Assert.Contains(services, descriptor => descriptor.ServiceType == pageType));
     }
 
     [Fact]
@@ -282,7 +307,7 @@ public class NavigationServiceTests
     {
         var navigation = new NavigationService(new ServiceCollection().BuildServiceProvider());
 
-        Assert.Throws<ArgumentNullException>(() => navigation.NavigateTo(null!));
+        Assert.Throws<ArgumentNullException>(() => navigation.NavigateTo((ViewModelBase)null!));
     }
 }
 

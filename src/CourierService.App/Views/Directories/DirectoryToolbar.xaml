@@ -5,21 +5,24 @@
          тому панель працює з будь-яким довідником без додаткового коду. -->
     <Grid Margin="0,0,0,12">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="300" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <TextBox Grid.Column="0"
+        <Label Grid.Column="0" Content="_Пошук:" Target="{Binding ElementName=SearchBox}"
+               VerticalAlignment="Center" Padding="0,0,8,0" />
+        <TextBox x:Name="SearchBox" Grid.Column="1"
                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                  ToolTip="Пошук за назвою, телефоном або іншими полями"
                  AutomationProperties.Name="Пошук" />
-        <CheckBox Grid.Column="1" Content="Показувати неактивні" Margin="16,0,0,0"
+        <CheckBox Grid.Column="2" Content="Показувати неактивні" Margin="16,0,0,0"
                   VerticalAlignment="Center"
                   IsChecked="{Binding ShowInactive}" />
 
-        <StackPanel Grid.Column="3" Orientation="Horizontal"
+        <StackPanel Grid.Column="4" Orientation="Horizontal"
                     Visibility="{Binding CanEdit, Converter={StaticResource VisibleWhen}}">
             <Button Content="_Додати" MinWidth="100" Margin="0,0,8,0" Command="{Binding AddCommand}" />
             <Button Content="_Змінити" MinWidth="100" Margin="0,0,8,0" Command="{Binding EditCommand}" />

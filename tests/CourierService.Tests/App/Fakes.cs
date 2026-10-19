@@ -1,4 +1,5 @@
 using CourierService.App.Services;
+using CourierService.App.ViewModels;
 using CourierService.Core.Abstractions;
 using CourierService.Core.Security;
 using CourierService.Data;
@@ -67,6 +68,25 @@ internal sealed class FakeAuthService : IAuthService
     {
         Calls.Add((login, password));
         return ThrowOnSignIn is null ? Task.FromResult(Result) : Task.FromException<SignInResult>(ThrowOnSignIn);
+    }
+}
+
+/// <summary>Навігація, що лише запам'ятовує запити (сторінки не створюються).</summary>
+internal sealed class RecordingNavigationService : INavigationService
+{
+    public ViewModelBase? CurrentViewModel { get; private set; }
+    public List<Type> RequestedTypes { get; } = [];
+
+    public event EventHandler? CurrentViewModelChanged;
+
+    public void NavigateTo<TViewModel>() where TViewModel : ViewModelBase => RequestedTypes.Add(typeof(TViewModel));
+
+    public void NavigateTo(Type viewModelType) => RequestedTypes.Add(viewModelType);
+
+    public void NavigateTo(ViewModelBase viewModel)
+    {
+        CurrentViewModel = viewModel;
+        CurrentViewModelChanged?.Invoke(this, EventArgs.Empty);
     }
 }
 

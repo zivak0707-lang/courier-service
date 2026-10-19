@@ -4,6 +4,8 @@
              xmlns:vm="clr-namespace:CourierService.App.ViewModels"
              xmlns:views="clr-namespace:CourierService.App.Views"
              xmlns:converters="clr-namespace:CourierService.App.Converters"
+             xmlns:dir="clr-namespace:CourierService.App.ViewModels.Directories"
+             xmlns:dirViews="clr-namespace:CourierService.App.Views.Directories"
              ShutdownMode="OnExplicitShutdown"
              ThemeMode="Light">
     <!-- StartupUri не використовується: вікно входу й головне вікно відкриває App.OnStartup.
@@ -17,6 +19,10 @@
 
             <converters:SectionVisibilityConverter x:Key="SectionVisibility" />
             <converters:VisibleWhenConverter x:Key="VisibleWhen" />
+            <converters:EnumDisplayConverter x:Key="EnumDisplay" />
+            <converters:CoefficientConverter x:Key="Coefficient" />
+            <converters:KilogramsConverter x:Key="Kilograms" />
+            <converters:PhoneConverter x:Key="Phone" />
 
             <!-- Відповідність «ViewModel → View»: WPF сам обирає вигляд сторінки за типом ViewModel -->
             <DataTemplate DataType="{x:Type vm:HomeViewModel}">
@@ -27,6 +33,20 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type vm:HelpViewModel}">
                 <views:HelpView />
+            </DataTemplate>
+
+            <!-- Довідники: сторінки зі списком і поля форм у спільному вікні редагування -->
+            <DataTemplate DataType="{x:Type dir:ZonesViewModel}">
+                <dirViews:ZonesView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type dir:ZoneEditorViewModel}">
+                <dirViews:ZoneEditorView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type dir:TariffsViewModel}">
+                <dirViews:TariffsView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type dir:TariffEditorViewModel}">
+                <dirViews:TariffEditorView />
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

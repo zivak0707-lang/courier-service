@@ -30,6 +30,10 @@ public sealed class NavigationService : INavigationService
         NavigateTo(_services.GetRequiredService<TViewModel>());
 
     /// <inheritdoc />
+    public void NavigateTo(Type viewModelType) =>
+        NavigateTo((ViewModelBase)_services.GetRequiredService(viewModelType));
+
+    /// <inheritdoc />
     public void NavigateTo(ViewModelBase viewModel)
     {
         ArgumentNullException.ThrowIfNull(viewModel);

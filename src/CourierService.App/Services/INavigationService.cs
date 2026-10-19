@@ -24,6 +24,12 @@ public interface INavigationService
     void NavigateTo<TViewModel>() where TViewModel : ViewModelBase;
 
     /// <summary>
+    /// Переходить на сторінку, ViewModel якої заданого типу створює DI-контейнер.
+    /// </summary>
+    /// <param name="viewModelType">Тип ViewModel сторінки (нащадок <see cref="ViewModelBase"/>).</param>
+    void NavigateTo(Type viewModelType);
+
+    /// <summary>
     /// Переходить на сторінку з уже створеною ViewModel.
     /// </summary>
     /// <param name="viewModel">ViewModel сторінки.</param>

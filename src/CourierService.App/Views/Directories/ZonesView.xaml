@@ -1,0 +1,30 @@
+<UserControl x:Class="CourierService.App.Views.Directories.ZonesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dir="clr-namespace:CourierService.App.ViewModels.Directories"
+             xmlns:local="clr-namespace:CourierService.App.Views.Directories"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=dir:ZonesViewModel}">
+    <DockPanel Margin="{StaticResource PagePadding}">
+        <TextBlock DockPanel.Dock="Top" Text="{Binding Title}" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock DockPanel.Dock="Top" Style="{StaticResource SecondaryTextStyle}" Margin="0,-8,0,12"
+                   Text="Коефіцієнт зони множить базову вартість доставки. Доплата за переїзд через Дніпро — у тарифі." />
+        <local:DirectoryToolbar DockPanel.Dock="Top" />
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding CountText}" Style="{StaticResource SecondaryTextStyle}" Margin="0,8,0,0" />
+
+        <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}"
+                  Style="{StaticResource DirectoryGridStyle}">
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding EditCommand}" />
+            </DataGrid.InputBindings>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Район" Binding="{Binding Name}" Width="*" />
+                <DataGridTextColumn Header="Берег" Binding="{Binding Bank, Converter={StaticResource EnumDisplay}}" Width="160" />
+                <DataGridTextColumn Header="Коефіцієнт" Binding="{Binding CoefficientPercent, Converter={StaticResource Coefficient}}" Width="140" />
+                <DataGridCheckBoxColumn Header="Активна" Binding="{Binding IsActive}" Width="100" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

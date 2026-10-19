@@ -58,9 +58,10 @@
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 
+    <!-- Підказка ставиться між підписом і полем: під полем місце зарезервоване для тексту помилки -->
     <Style x:Key="HintTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SecondaryTextStyle}">
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="Margin" Value="0,-20,0,20" />
+        <Setter Property="Margin" Value="0,0,0,6" />
     </Style>
 
     <!-- Таблиці довідників: неактивні записи — сірі -->
