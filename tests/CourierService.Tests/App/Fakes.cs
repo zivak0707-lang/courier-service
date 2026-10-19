@@ -1,8 +1,13 @@
 using CourierService.App.Services;
 using CourierService.App.ViewModels;
 using CourierService.Core.Abstractions;
+using CourierService.Core.Backups;
+using CourierService.Core.Orders;
+using CourierService.Core.Reports;
 using CourierService.Core.Security;
 using CourierService.Data;
+using CourierService.Tests.Data;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CourierService.Tests.App;
 
@@ -147,4 +152,18 @@ internal sealed class FakeClipboardService : IClipboardService
         Copied.Add(text);
         return true;
     }
+}
+
+/// <summary>Залежності головної сторінки (робочого столу) для тестів, де сторінку створює DI-контейнер.</summary>
+internal static class HomePageServices
+{
+    public static IServiceCollection AddHomePage(this IServiceCollection services, ICurrentUser currentUser) => services
+        .AddSingleton(currentUser)
+        .AddSingleton<IOrderService>(new FakeOrderService())
+        .AddSingleton<IReportService>(new FakeReportService())
+        .AddSingleton<IBackupService>(new FakeBackupService())
+        .AddSingleton<IOrderDetailsDialog>(new FakeOrderDetailsDialog())
+        .AddSingleton<IDialogService>(new FakeDialogService())
+        .AddSingleton<IClock>(new FixedClock(new DateTime(2026, 10, 19, 12, 0, 0)))
+        .AddTransient<HomeViewModel>();
 }

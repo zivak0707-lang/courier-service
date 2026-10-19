@@ -19,6 +19,9 @@ internal sealed class FakeOrderService : IOrderService
     public OrderSearchResult SearchResult { get; set; } = new([], false, null);
     public List<OrderFilter> Searches { get; } = [];
 
+    /// <summary>Відповідь залежно від фільтра (якщо задано — замість <see cref="SearchResult"/>).</summary>
+    public Func<OrderFilter, OrderSearchResult>? Respond { get; set; }
+
     public Task<OrderCreated> CreateAsync(OrderInput input, CancellationToken cancellationToken = default)
     {
         if (ThrowOnCreate is not null)
@@ -33,7 +36,7 @@ internal sealed class FakeOrderService : IOrderService
     public Task<OrderSearchResult> SearchAsync(OrderFilter filter, CancellationToken cancellationToken = default)
     {
         Searches.Add(filter);
-        return Task.FromResult(SearchResult);
+        return Task.FromResult(Respond?.Invoke(filter) ?? SearchResult);
     }
 
     public Dictionary<int, Order> Orders { get; } = [];

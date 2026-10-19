@@ -6,6 +6,7 @@ namespace CourierService.App.Converters;
 
 /// <summary>
 /// <c>true</c> → Visible, інакше → Collapsed. Також приховує елемент для порожнього рядка чи <c>null</c>.
+/// Параметр «invert» обертає умову: показати, коли значення хибне (наприклад, текст «Немає записів»).
 /// </summary>
 public sealed class VisibleWhenConverter : IValueConverter
 {
@@ -19,6 +20,11 @@ public sealed class VisibleWhenConverter : IValueConverter
             null => false,
             _ => true,
         };
+
+        if (parameter is "invert")
+        {
+            visible = !visible;
+        }
 
         return visible ? Visibility.Visible : Visibility.Collapsed;
     }

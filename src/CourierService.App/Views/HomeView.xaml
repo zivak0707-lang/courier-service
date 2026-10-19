@@ -4,22 +4,195 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:CourierService.App.ViewModels"
+             xmlns:nav="clr-namespace:CourierService.App.Navigation"
+             xmlns:core="clr-namespace:CourierService.Core.Reports;assembly=CourierService.Core"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:HomeViewModel}">
+    <!-- Робочий стіл за роллю (D-42). Кнопки переходу викликають ту саму команду, що й головне меню -->
+    <UserControl.Resources>
+        <Style x:Key="DeskTileStyle" TargetType="Border">
+            <Setter Property="Background" Value="#F3F6FA" />
+            <Setter Property="BorderBrush" Value="#D8DEE6" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="Margin" Value="0,0,10,10" />
+        </Style>
+        <Style x:Key="TileValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="DeskGridStyle" TargetType="DataGrid" BasedOn="{StaticResource DirectoryGridStyle}">
+            <Setter Property="RowStyle" Value="{StaticResource {x:Type DataGridRow}}" />
+            <Setter Property="MaxHeight" Value="230" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+    </UserControl.Resources>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="{StaticResource PagePadding}" MaxWidth="900" HorizontalAlignment="Left">
-            <TextBlock Text="{Binding Greeting}" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock Text="Можливості програми" Style="{StaticResource SectionHeadingStyle}" />
-            <ItemsControl ItemsSource="{Binding Features}" Margin="0,4,0,16">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Style="{StaticResource BodyTextStyle}" Margin="0,4">
-                            <Run Text="•  " /><Run Text="{Binding Mode=OneWay}" />
+        <StackPanel Margin="{StaticResource PagePadding}">
+            <TextBlock Text="{Binding Greeting}" Style="{StaticResource PageTitleStyle}" Margin="0,0,0,2" />
+            <TextBlock Text="{Binding Subtitle}" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,16" />
+
+            <!-- Оператор: що потребує уваги -->
+            <StackPanel Visibility="{Binding IsOperator, Converter={StaticResource VisibleWhen}}">
+                <UniformGrid Rows="1" HorizontalAlignment="Left" MinWidth="640">
+                    <Border Style="{StaticResource DeskTileStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Нові без кур'єра" Style="{StaticResource SecondaryTextStyle}" />
+                            <TextBlock Text="{Binding Operator.NewCount, FallbackValue=…}" Style="{StaticResource TileValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource DeskTileStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Прострочені зараз" Style="{StaticResource SecondaryTextStyle}" />
+                            <TextBlock Text="{Binding Operator.OverdueCount, FallbackValue=…}" Style="{StaticResource TileValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource DeskTileStyle}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SecondaryTextStyle}">
+                                <Run Text="Неоплачені:" /> <Run Text="{Binding Operator.UnpaidCount, Mode=OneWay, FallbackValue=…}" />
+                            </TextBlock>
+                            <TextBlock Text="{Binding Operator.UnpaidSum, FallbackValue=…}" Style="{StaticResource TileValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+                <WrapPanel Margin="0,0,0,8">
+                    <Button Content="Нове замовлення" Margin="0,0,8,8" Padding="14,6"
+                            Command="{Binding DataContext.OpenSectionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{x:Static nav:AppSection.NewOrder}" />
+                    <Button Content="Список замовлень" Margin="0,0,8,8" Padding="14,6"
+                            Command="{Binding DataContext.OpenSectionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{x:Static nav:AppSection.OrderList}" />
+                    <Button Content="Звіт «Неоплачені»" Margin="0,0,8,8" Padding="14,6"
+                            Command="{Binding DataContext.OpenSectionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{x:Static nav:AppSection.UnpaidReport}" />
+                </WrapPanel>
+
+                <TextBlock Style="{StaticResource SectionHeadingStyle}">
+                    <Run Text="Нові без кур'єра — призначте кур'єра" />
+                </TextBlock>
+                <TextBlock Text="Немає: усі нові замовлення вже мають кур'єра." Style="{StaticResource SecondaryTextStyle}"
+                           Visibility="{Binding Operator.HasNew, Converter={StaticResource VisibleWhen}, ConverterParameter=invert, FallbackValue=Collapsed}" />
+                <DataGrid x:Name="NewGrid" ItemsSource="{Binding Operator.NewOrders}" Style="{StaticResource DeskGridStyle}"
+                          Visibility="{Binding Operator.HasNew, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}"
+                          AutomationProperties.Name="Нові без кур'єра">
+                    <DataGrid.InputBindings>
+                        <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenOrderCommand}" CommandParameter="{Binding SelectedItem, ElementName=NewGrid}" />
+                        <KeyBinding Key="Enter" Command="{Binding OpenOrderCommand}" CommandParameter="{Binding SelectedItem, ElementName=NewGrid}" />
+                    </DataGrid.InputBindings>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Трек-номер" Binding="{Binding TrackingNumber}" Width="Auto" />
+                        <DataGridTextColumn Header="Оформлено" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />
+                        <DataGridTemplateColumn Header="Термін" CellTemplate="{StaticResource SlaCellTemplate}" Width="Auto" />
+                        <DataGridTextColumn Header="Відправник" Binding="{Binding ClientName}" Width="*" />
+                        <DataGridTextColumn Header="Маршрут" Width="*">
+                            <DataGridTextColumn.Binding>
+                                <MultiBinding StringFormat="{}{0} → {1}">
+                                    <Binding Path="PickupZone" />
+                                    <Binding Path="DeliveryZone" />
+                                </MultiBinding>
+                            </DataGridTextColumn.Binding>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <TextBlock Text="Прострочені — потребують уваги" Style="{StaticResource SectionHeadingStyle}" />
+                <TextBlock Text="Немає прострочених замовлень." Style="{StaticResource SecondaryTextStyle}"
+                           Visibility="{Binding Operator.HasOverdue, Converter={StaticResource VisibleWhen}, ConverterParameter=invert, FallbackValue=Collapsed}" />
+                <DataGrid x:Name="OverdueGrid" ItemsSource="{Binding Operator.Overdue}" Style="{StaticResource DeskGridStyle}"
+                          Visibility="{Binding Operator.HasOverdue, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}"
+                          AutomationProperties.Name="Прострочені">
+                    <DataGrid.InputBindings>
+                        <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenOrderCommand}" CommandParameter="{Binding SelectedItem, ElementName=OverdueGrid}" />
+                        <KeyBinding Key="Enter" Command="{Binding OpenOrderCommand}" CommandParameter="{Binding SelectedItem, ElementName=OverdueGrid}" />
+                    </DataGrid.InputBindings>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Трек-номер" Binding="{Binding TrackingNumber}" Width="Auto" />
+                        <DataGridTextColumn Header="Статус" Binding="{Binding Status, Converter={StaticResource EnumDisplay}}" Width="Auto" />
+                        <DataGridTextColumn Header="Доставити до" Binding="{Binding Deadline, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />
+                        <DataGridTemplateColumn Header="Термін" CellTemplate="{StaticResource SlaCellTemplate}" Width="Auto" />
+                        <DataGridTextColumn Header="Кур'єр" Binding="{Binding CourierName, TargetNullValue=—}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+
+            <!-- Кур'єр: активні доставки й найближчий дедлайн -->
+            <StackPanel Visibility="{Binding IsCourier, Converter={StaticResource VisibleWhen}}">
+                <UniformGrid Rows="1" HorizontalAlignment="Left" MinWidth="430">
+                    <Border Style="{StaticResource DeskTileStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Активних доставок" Style="{StaticResource SecondaryTextStyle}" />
+                            <TextBlock Text="{Binding Courier.ActiveCount, FallbackValue=…}" Style="{StaticResource TileValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource DeskTileStyle}">
+                        <StackPanel>
+                            <TextBlock Text="З них прострочених" Style="{StaticResource SecondaryTextStyle}" />
+                            <TextBlock Text="{Binding Courier.OverdueCount, FallbackValue=…}" Style="{StaticResource TileValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <TextBlock Text="Найближчий дедлайн" Style="{StaticResource SectionHeadingStyle}" />
+                <TextBlock Text="Активних доставок немає." Style="{StaticResource SecondaryTextStyle}"
+                           Visibility="{Binding Courier.HasActive, Converter={StaticResource VisibleWhen}, ConverterParameter=invert, FallbackValue=Collapsed}" />
+                <Border Style="{StaticResource DeskTileStyle}" HorizontalAlignment="Left" MinWidth="430" Padding="16,12"
+                        Visibility="{Binding Courier.HasActive, Converter={StaticResource VisibleWhen}, FallbackValue=Collapsed}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Courier.Nearest.TrackingNumber}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <ContentControl Content="{Binding Courier.Nearest}" ContentTemplate="{StaticResource SlaCellTemplate}"
+                                            Margin="10,0,0,0" VerticalAlignment="Center" Focusable="False" />
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" Margin="0,6,0,0">
+                            <Run Text="Доставити до" /> <Run Text="{Binding Courier.Nearest.Deadline, Mode=OneWay, StringFormat=dd.MM.yyyy HH:mm}" />
                         </TextBlock>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            <TextBlock Text="{Binding Hint}" Style="{StaticResource SecondaryTextStyle}" />
+                        <TextBlock Text="{Binding Courier.NextStep}" Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" />
+                        <Button Content="Відкрити картку" HorizontalAlignment="Left" Margin="0,10,0,0" Padding="14,6"
+                                Command="{Binding OpenOrderCommand}" CommandParameter="{Binding Courier.Nearest}" />
+                    </StackPanel>
+                </Border>
+                <Button Content="Усі мої доставки" HorizontalAlignment="Left" Margin="0,0,0,8" Padding="14,6"
+                        Command="{Binding DataContext.OpenSectionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        CommandParameter="{x:Static nav:AppSection.MyActiveDeliveries}" />
+            </StackPanel>
+
+            <!-- Адміністратор: показники дня й резервна копія -->
+            <StackPanel Visibility="{Binding IsAdmin, Converter={StaticResource VisibleWhen}}">
+                <TextBlock Text="Сьогодні" Style="{StaticResource SectionHeadingStyle}" Margin="0,0,0,8" />
+                <ItemsControl ItemsSource="{Binding AdminTiles}" Focusable="False" MaxWidth="1000" HorizontalAlignment="Left">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="4" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type core:ReportSummaryItem}">
+                            <Border Style="{StaticResource DeskTileStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Label}" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock Text="{Binding Text}" Style="{StaticResource TileValueStyle}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <WrapPanel Margin="0,0,0,8">
+                    <Button Content="Дашборд" Margin="0,0,8,8" Padding="14,6"
+                            Command="{Binding DataContext.OpenSectionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{x:Static nav:AppSection.Dashboard}" />
+                    <Button Content="Звіт «Виручка»" Margin="0,0,8,8" Padding="14,6"
+                            Command="{Binding DataContext.OpenSectionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{x:Static nav:AppSection.RevenueReport}" />
+                    <Button Content="Резервні копії" Margin="0,0,8,8" Padding="14,6"
+                            Command="{Binding DataContext.OpenSectionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{x:Static nav:AppSection.Backups}" />
+                </WrapPanel>
+            </StackPanel>
+
+            <TextBlock Text="{Binding Hint}" Style="{StaticResource SecondaryTextStyle}" Margin="0,8,0,0" />
         </StackPanel>
     </ScrollViewer>
 </UserControl>

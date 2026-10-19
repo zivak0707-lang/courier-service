@@ -26,7 +26,7 @@ public class MainViewModelTests
     public MainViewModelTests()
     {
         var provider = new ServiceCollection()
-            .AddTransient<HomeViewModel>()
+            .AddHomePage(_currentUser)
             .BuildServiceProvider();
 
         _loginDialog = new FakeLoginDialog(_currentUser);
@@ -364,7 +364,7 @@ public class NavigationServiceTests
     [Fact]
     public void NavigateTo_SetsCurrentViewModelAndRaisesEvent()
     {
-        var provider = new ServiceCollection().AddTransient<HomeViewModel>().BuildServiceProvider();
+        var provider = new ServiceCollection().AddHomePage(new CurrentUser()).BuildServiceProvider();
         var navigation = new NavigationService(provider);
         int raised = 0;
         navigation.CurrentViewModelChanged += (_, _) => raised++;
