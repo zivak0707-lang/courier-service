@@ -105,6 +105,10 @@ public sealed class OrderWorkflow : IOrderWorkflow
 
     private static readonly OrderStatus[] Unfinished = [OrderStatus.New, OrderStatus.Assigned];
 
+    /// <summary>Незавершені статуси: доставку ще не виконано й не скасовано, тож дедлайн має значення.</summary>
+    public static IReadOnlyList<OrderStatus> OpenStatuses { get; } =
+        [OrderStatus.New, OrderStatus.Assigned, OrderStatus.PickedUp, OrderStatus.DeliveryFailed];
+
     /// <summary>Статуси, у яких доставка «в роботі» в кур'єра (для навантаження й «Моїх доставок»).</summary>
     public static IReadOnlyList<OrderStatus> InProgressStatuses { get; } = [OrderStatus.Assigned, OrderStatus.PickedUp];
 

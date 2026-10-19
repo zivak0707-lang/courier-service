@@ -1,5 +1,6 @@
 using CourierService.Core.Abstractions;
 using CourierService.Core.Enums;
+using CourierService.Core.Orders;
 using CourierService.Core.Reports;
 using CourierService.Core.Security;
 using Microsoft.EntityFrameworkCore;
@@ -56,13 +57,16 @@ public sealed class ReportService : IReportService
 
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-        // Замовлення, оформлені, доставлені або оплачені в періоді, а також усі неоплачені на зараз
+        // Замовлення, оформлені, доставлені або оплачені в періоді, а також усі неоплачені й незавершені на зараз
+        // (без незавершених «Прострочено зараз» не бачив би оплачених замовлень, оформлених до періоду)
+        OrderStatus[] open = [.. OrderWorkflow.OpenStatuses];
         List<ReportOrderRow> orders = await context.Orders
             .AsNoTracking()
             .Where(o => (o.CreatedAt >= start && o.CreatedAt < end)
                 || (o.DeliveredAt >= start && o.DeliveredAt < end)
                 || (o.Payment!.PaidAt >= start && o.Payment.PaidAt < end)
-                || o.Payment!.Status == PaymentStatus.Pending)
+                || o.Payment!.Status == PaymentStatus.Pending
+                || open.Contains(o.Status))
             .Select(o => new ReportOrderRow(
                 o.Id,
                 o.TrackingNumber,

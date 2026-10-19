@@ -27,6 +27,25 @@ public class ReportServiceTests : DirectoryServiceTestBase
     }
 
     [Fact]
+    public async Task Dashboard_OverdueNow_CountsAllUnfinishedOrders_WhateverThePeriod()
+    {
+        await SeedDemoAsync();
+        await SignInAsync(UserRole.Admin);
+
+        // Наступного дня опівдні, період — лише цей день: замовлення, оформлені напередодні, у період не входять,
+        // але незавершені з них мають потрапити в показник
+        DateTime nextNoon = Afternoon.Date.AddDays(1).AddHours(12);
+        ReportData data = await new ReportService(Db, CurrentUser, new FixedClock(nextNoon)).GetDataAsync(new ReportPeriod(nextNoon, nextNoon));
+        ReportSummaryItem tile = DashboardCalculator.Calculate(data).Tiles.Single(t => t.Label == "Прострочено зараз");
+
+        await using var context = Db.CreateDbContext();
+        OrderStatus[] open = [.. global::CourierService.Core.Orders.OrderWorkflow.OpenStatuses];
+        int expected = await context.Orders.CountAsync(o => open.Contains(o.Status) && o.Deadline < nextNoon);
+        Assert.True(expected > 0);
+        Assert.Equal(expected, tile.Value);
+    }
+
+    [Fact]
     public async Task Revenue_MatchesPaidPaymentsInPeriod()
     {
         await SeedDemoAsync();
