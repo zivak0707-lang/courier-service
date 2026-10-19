@@ -1,4 +1,6 @@
 using CourierService.App.Services;
+using CourierService.App.ViewModels;
+using CourierService.App.Views;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CourierService.App.Infrastructure;
@@ -15,9 +17,20 @@ public static class CompositionRoot
     /// <returns>Ту саму колекцію для ланцюжкових викликів.</returns>
     public static IServiceCollection AddCourierApp(this IServiceCollection services)
     {
+        // Сервіси інтерфейсу: один екземпляр на весь час роботи програми
         services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<IAppLifetime, WpfAppLifetime>();
         services.AddSingleton<GlobalExceptionHandler>();
+
+        // Головне вікно та його ViewModel
+        services.AddSingleton<MainViewModel>();
         services.AddSingleton<MainWindow>();
+
+        // ViewModel-и сторінок: новий екземпляр під час кожного переходу
+        services.AddTransient<HomeViewModel>();
+        services.AddTransient<HelpViewModel>();
+
         return services;
     }
 }

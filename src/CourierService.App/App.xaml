@@ -1,9 +1,28 @@
 ﻿<Application x:Class="CourierService.App.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             ShutdownMode="OnMainWindowClose">
-    <!-- StartupUri не використовується: головне вікно створює DI-контейнер в App.OnStartup -->
+             xmlns:vm="clr-namespace:CourierService.App.ViewModels"
+             xmlns:views="clr-namespace:CourierService.App.Views"
+             ShutdownMode="OnMainWindowClose"
+             ThemeMode="Light">
+    <!-- StartupUri не використовується: головне вікно створює DI-контейнер в App.OnStartup.
+         ThemeMode="Light" вмикає вбудовану Fluent-тему WPF (рішення D-16). -->
     <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
 
+            <!-- Відповідність «ViewModel → View»: WPF сам обирає вигляд сторінки за типом ViewModel -->
+            <DataTemplate DataType="{x:Type vm:HomeViewModel}">
+                <views:HomeView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:PlaceholderViewModel}">
+                <views:PlaceholderView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:HelpViewModel}">
+                <views:HelpView />
+            </DataTemplate>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

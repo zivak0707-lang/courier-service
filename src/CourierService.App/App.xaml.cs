@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using CourierService.App.Infrastructure;
+using CourierService.App.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;

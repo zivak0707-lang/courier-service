@@ -25,4 +25,7 @@ public interface IDialogService
     /// <param name="message">Питання до користувача.</param>
     /// <returns><c>true</c>, якщо користувач погодився.</returns>
     bool Confirm(string message);
+
+    /// <summary>Показує модальне вікно «Про програму».</summary>
+    void ShowAbout();
 }

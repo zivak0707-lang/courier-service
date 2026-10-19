@@ -1,0 +1,98 @@
+<Window x:Class="CourierService.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:CourierService.App.ViewModels"
+        xmlns:nav="clr-namespace:CourierService.App.Navigation"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
+        Title="{Binding WindowTitle}"
+        Width="1200" Height="760"
+        MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.InputBindings>
+        <KeyBinding Key="F1" Command="{Binding ShowHelpCommand}" />
+        <KeyBinding Key="N" Modifiers="Control"
+                    Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.NewOrder}" />
+        <KeyBinding Key="F" Modifiers="Control"
+                    Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.TrackingSearch}" />
+    </Window.InputBindings>
+
+    <DockPanel>
+        <!-- Головне меню. Підкреслена літера (після «_») — клавіша доступу разом з Alt -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_Файл">
+                <MenuItem Header="_Головна сторінка" Command="{Binding ShowHomeCommand}" />
+                <MenuItem Header="Змінити _користувача"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.ChangeUser}" />
+                <Separator />
+                <MenuItem Header="_Вихід" Command="{Binding ExitCommand}" InputGestureText="Alt+F4" />
+            </MenuItem>
+
+            <MenuItem Header="_Замовлення">
+                <MenuItem Header="_Нове замовлення" InputGestureText="Ctrl+N"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.NewOrder}" />
+                <MenuItem Header="_Список замовлень"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.OrderList}" />
+                <MenuItem Header="_Пошук за трек-номером" InputGestureText="Ctrl+F"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.TrackingSearch}" />
+            </MenuItem>
+
+            <MenuItem Header="_Мої доставки">
+                <MenuItem Header="_Активні"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.MyActiveDeliveries}" />
+                <MenuItem Header="_Виконані"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.MyCompletedDeliveries}" />
+            </MenuItem>
+
+            <MenuItem Header="_Довідники">
+                <MenuItem Header="_Клієнти"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Clients}" />
+                <MenuItem Header="Кур'_єри"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Couriers}" />
+                <Separator />
+                <MenuItem Header="_Зони доставки"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Zones}" />
+                <MenuItem Header="_Тарифи"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Tariffs}" />
+            </MenuItem>
+
+            <MenuItem Header="З_віти">
+                <MenuItem Header="_Дашборд"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Dashboard}" />
+                <Separator />
+                <MenuItem Header="_Виручка"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.RevenueReport}" />
+                <MenuItem Header="_Неоплачені замовлення"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.UnpaidReport}" />
+                <MenuItem Header="_Ефективність кур'єрів"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.CourierPerformanceReport}" />
+                <MenuItem Header="Нарахування _кур'єрам"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.CourierPayoutReport}" />
+            </MenuItem>
+
+            <MenuItem Header="_Адміністрування">
+                <MenuItem Header="_Користувачі"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Users}" />
+            </MenuItem>
+
+            <MenuItem Header="Д_овідка">
+                <MenuItem Header="_Допомога" InputGestureText="F1" Command="{Binding ShowHelpCommand}" />
+                <Separator />
+                <MenuItem Header="_Про програму" Command="{Binding ShowAboutCommand}" />
+            </MenuItem>
+        </Menu>
+
+        <!-- Рядок стану -->
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock Text="{Binding CurrentUserText}" />
+            </StatusBarItem>
+        </StatusBar>
+
+        <!-- Робоча область: View для поточної ViewModel обирається через DataTemplate з App.xaml -->
+        <ContentControl Content="{Binding CurrentPage}" Focusable="False" />
+    </DockPanel>
+</Window>

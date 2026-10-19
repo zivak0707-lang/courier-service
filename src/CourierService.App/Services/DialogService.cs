@@ -1,4 +1,6 @@
 using System.Windows;
+using CourierService.App.ViewModels;
+using CourierService.App.Views;
 
 namespace CourierService.App.Services;
 
@@ -26,12 +28,22 @@ public sealed class DialogService : IDialogService
     public bool Confirm(string message) =>
         Show(message, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
 
-    private static MessageBoxResult Show(string message, MessageBoxButton buttons, MessageBoxImage icon)
+    /// <inheritdoc />
+    public void ShowAbout()
     {
-        // Власник — активне вікно, щоб повідомлення не сховалося за ним
-        Window? owner = Application.Current?.Windows
+        var window = new AboutWindow(new AboutViewModel()) { Owner = FindOwner() };
+        window.ShowDialog();
+    }
+
+    // Власник — активне вікно, щоб діалог не сховався за ним
+    private static Window? FindOwner() =>
+        Application.Current?.Windows
             .OfType<Window>()
             .FirstOrDefault(window => window.IsActive);
+
+    private static MessageBoxResult Show(string message, MessageBoxButton buttons, MessageBoxImage icon)
+    {
+        Window? owner = FindOwner();
 
         return owner is null
             ? MessageBox.Show(message, Caption, buttons, icon)

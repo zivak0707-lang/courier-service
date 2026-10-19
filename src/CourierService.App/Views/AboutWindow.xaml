@@ -1,0 +1,29 @@
+<Window x:Class="CourierService.App.Views.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:CourierService.App.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:AboutViewModel}"
+        Title="{Binding Title}"
+        Width="520" SizeToContent="Height"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="28,24">
+        <TextBlock Text="{Binding ProductName}" Style="{StaticResource PageTitleStyle}" Margin="0,0,0,4" />
+        <TextBlock Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,16">
+            <Run Text="Версія " /><Run Text="{Binding Version, Mode=OneWay}" />
+        </TextBlock>
+        <TextBlock Text="{Binding Description}" Style="{StaticResource BodyTextStyle}" Margin="0,0,0,12" />
+        <TextBlock Text="{Binding Purpose}" Style="{StaticResource BodyTextStyle}" Margin="0,0,0,12" />
+        <TextBlock Style="{StaticResource BodyTextStyle}">
+            <Run Text="Автор: " /><Run Text="{Binding Author, Mode=OneWay}" />
+        </TextBlock>
+        <TextBlock Text="{Binding Platform}" Style="{StaticResource SecondaryTextStyle}" Margin="0,4,0,0" />
+        <TextBlock Text="{Binding Copyright}" Style="{StaticResource SecondaryTextStyle}" Margin="0,4,0,20" />
+        <Button Content="Закрити" IsDefault="True" IsCancel="True"
+                MinWidth="110" HorizontalAlignment="Right" />
+    </StackPanel>
+</Window>

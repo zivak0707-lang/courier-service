@@ -12,6 +12,8 @@
 
     <Product>Кур'єрська служба</Product>
     <Authors>Sergiy Zivak</Authors>
+    <!-- Company потрапляє в атрибут збірки й показується у вікні «Про програму» як автор -->
+    <Company>$(Authors)</Company>
     <Copyright>© 2026 Sergiy Zivak</Copyright>
     <Version>0.1.0</Version>
   </PropertyGroup>
