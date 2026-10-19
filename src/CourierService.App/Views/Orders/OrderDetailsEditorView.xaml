@@ -1,0 +1,39 @@
+<UserControl x:Class="CourierService.App.Views.Orders.OrderDetailsEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:b="clr-namespace:CourierService.App.Behaviors"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:orders="clr-namespace:CourierService.App.ViewModels.Orders"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=orders:OrderDetailsEditorViewModel}">
+    <!-- Лише поля, що не впливають на ціну (D-40); кожна зміна потрапляє в історію замовлення -->
+    <StackPanel>
+        <TextBlock Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,8">
+            <Run Text="Замовлення" /> <Run Text="{Binding TrackingNumber, Mode=OneWay}" />.
+            <Run Text="Зміна запишеться в історію замовлення." />
+        </TextBlock>
+
+        <TextBlock Text="Звідки забрати" Style="{StaticResource FieldLabelStyle}" />
+        <TextBlock Text="{Binding PickupZoneHint}" Style="{StaticResource HintTextStyle}" />
+        <TextBox Text="{Binding PickupAddress, UpdateSourceTrigger=PropertyChanged}" MaxLength="200"
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="вул. Хрещатик, 22, офіс 5" AutomationProperties.Name="Звідки забрати" />
+
+        <TextBlock Text="Одержувач (ПІБ)" Style="{StaticResource FieldLabelStyle}" />
+        <TextBox Text="{Binding RecipientName, UpdateSourceTrigger=PropertyChanged}" MaxLength="100"
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="Прізвище та ім'я" AutomationProperties.Name="ПІБ одержувача" />
+
+        <TextBlock Text="Телефон одержувача" Style="{StaticResource FieldLabelStyle}" />
+        <TextBox Text="{Binding RecipientPhone, UpdateSourceTrigger=PropertyChanged}" MaxLength="25"
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="050 123 45 67" b:InputMask.Kind="Phone" AutomationProperties.Name="Телефон одержувача" />
+
+        <TextBlock Text="Куди доставити" Style="{StaticResource FieldLabelStyle}" />
+        <TextBlock Text="{Binding DeliveryZoneHint}" Style="{StaticResource HintTextStyle}" />
+        <TextBox Text="{Binding DeliveryAddress, UpdateSourceTrigger=PropertyChanged}" MaxLength="200"
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="вул. Січових Стрільців, 12, кв. 4" AutomationProperties.Name="Куди доставити" />
+
+        <TextBlock Text="Коментар (необов'язково)" Style="{StaticResource FieldLabelStyle}" />
+        <TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}" MaxLength="500"
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="Наприклад: зателефонувати за 30 хв до приїзду" AutomationProperties.Name="Коментар" />
+    </StackPanel>
+</UserControl>

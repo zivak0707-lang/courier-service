@@ -1,6 +1,7 @@
 using CourierService.Core;
 using CourierService.Core.Assignment;
 using CourierService.Core.Directories;
+using CourierService.Core.Entities;
 using CourierService.Core.Enums;
 using CourierService.Core.Exceptions;
 using CourierService.Core.Orders;
@@ -214,6 +215,31 @@ public class OrderActionServiceTests : OrderServiceTestBase
 
         Assert.Equal([second], active.Select(o => o.Id));
         Assert.Equal([first], history.Select(o => o.Id));
+    }
+
+    [Fact]
+    public async Task UpdateDetails_OperatorBeforePickup_SavesAndWritesHistory_CourierCannot()
+    {
+        int orderId = await CreateOrderAsync(PaymentPayer.Recipient, courierLogin: "courier1");
+        Order before = await Orders.GetOrderAsync(orderId);
+        var edit = new OrderDetailsEdit(orderId, before.RecipientName, before.RecipientPhone, before.PickupAddress,
+            "вул. Виправлена, 7", before.Comment);
+
+        Assert.True(await Orders.UpdateDetailsAsync(edit));
+        Assert.False(await Orders.UpdateDetailsAsync(edit));
+
+        Order after = await Orders.GetOrderAsync(orderId);
+        Assert.Equal("вул. Виправлена, 7", after.DeliveryAddress);
+        Assert.Equal(before.Price, after.Price);
+        OrderStatusChange entry = after.StatusChanges.Single(c => c.FromStatus == c.ToStatus);
+        Assert.Contains("куди доставити", entry.Reason);
+        Assert.Equal("Ігор Бондар", entry.ChangedBy.FullName);
+
+        await SignInAsAsync("courier1");
+        await Assert.ThrowsAsync<AccessDeniedException>(() => Orders.UpdateDetailsAsync(edit with { DeliveryAddress = "вул. Інша, 1" }));
+        await Actions.ExecuteAsync(orderId, OrderAction.PickUp);
+        await SignInAsAsync("operator");
+        await Assert.ThrowsAsync<InvalidStatusTransitionException>(() => Orders.UpdateDetailsAsync(edit with { DeliveryAddress = "вул. Інша, 1" }));
     }
 
     [Fact]

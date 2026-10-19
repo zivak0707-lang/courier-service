@@ -230,4 +230,13 @@ public interface IOrderService
     /// <param name="cancellationToken">Скасування операції.</param>
     /// <returns>Доставки кур'єра.</returns>
     Task<IReadOnlyList<OrderListItem>> GetMyDeliveriesAsync(bool active, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Виправляє контакти одержувача, адреси й коментар (рішення D-40) і записує зміну в історію.
+    /// Лише оператор і лише до того, як кур'єр забрав посилку; ціна не змінюється.
+    /// </summary>
+    /// <param name="edit">Нові дані.</param>
+    /// <param name="cancellationToken">Скасування операції.</param>
+    /// <returns><c>true</c>, якщо дані змінилися; <c>false</c>, якщо змінювати нічого.</returns>
+    Task<bool> UpdateDetailsAsync(OrderDetailsEdit edit, CancellationToken cancellationToken = default);
 }

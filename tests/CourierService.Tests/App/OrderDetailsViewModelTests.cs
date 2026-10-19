@@ -100,6 +100,64 @@ public class OrderDetailsViewModelTests
     }
 
     [Fact]
+    public async Task EditDetails_OperatorFixesAddress_CardReloadsAndMarksChanges()
+    {
+        Order order = NewOrderWithHistory();
+        order.RecipientName = "Оксана Мельник";
+        order.RecipientPhone = "+380501234567";
+        order.PickupAddress = "вул. Липова, 5";
+        order.DeliveryAddress = "вул. Каштанова, 15";
+        order.PickupZone = new Zone { Name = "Подільський" };
+        order.DeliveryZone = new Zone { Name = "Дарницький" };
+        var card = CreateCard(order, WorkflowTestData.Operator);
+        await card.LoadCommand.ExecuteAsync(null);
+        _editDialogs.Result = true;
+        _editDialogs.OnShow = editor =>
+        {
+            var form = Assert.IsType<OrderDetailsEditorViewModel>(editor);
+            Assert.Contains("Дарницький", form.DeliveryZoneHint);
+            form.DeliveryAddress = "вул. Каштанова, 17";
+            form.SaveCommand.ExecuteAsync(null).GetAwaiter().GetResult();
+        };
+
+        Assert.True(card.CanEditDetails);
+        await card.EditDetailsCommand.ExecuteAsync(null);
+
+        OrderDetailsEdit edit = Assert.Single(_orders.Edits);
+        Assert.Equal("вул. Каштанова, 17", edit.DeliveryAddress);
+        Assert.Equal("+380 (50) 123-45-67", edit.RecipientPhone);
+        Assert.True(card.HasChanges);
+    }
+
+    [Fact]
+    public async Task EditDetails_HiddenForCourierAndAfterPickup()
+    {
+        var courierCard = CreateCard(WorkflowTestData.InStatus(OrderStatus.Assigned), WorkflowTestData.Courier1);
+        await courierCard.LoadCommand.ExecuteAsync(null);
+        Assert.False(courierCard.CanEditDetails);
+
+        var pickedUpCard = CreateCard(WorkflowTestData.InStatus(OrderStatus.PickedUp), WorkflowTestData.Operator);
+        await pickedUpCard.LoadCommand.ExecuteAsync(null);
+        Assert.False(pickedUpCard.CanEditDetails);
+    }
+
+    [Fact]
+    public async Task History_EntryWithoutStatusChange_IsShownAsCorrection()
+    {
+        Order order = NewOrderWithHistory();
+        order.StatusChanges.Add(new OrderStatusChange
+        {
+            Id = 2, FromStatus = OrderStatus.New, ToStatus = OrderStatus.New, ChangedAt = WorkflowTestData.Now.AddMinutes(3),
+            ChangedBy = new User { FullName = "Ігор Бондар" }, Reason = "Змінено: коментар",
+        });
+        var card = CreateCard(order, WorkflowTestData.Operator);
+
+        await card.LoadCommand.ExecuteAsync(null);
+
+        Assert.Equal(["Виправлено дані", "Оформлено"], card.History.Select(h => h.Change));
+    }
+
+    [Fact]
     public async Task CancelledOrder_HidesDeadlineBadge()
     {
         Order order = NewOrderWithHistory();

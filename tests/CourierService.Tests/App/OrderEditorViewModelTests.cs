@@ -46,6 +46,14 @@ internal sealed class FakeOrderService : IOrderService
             ? Task.FromResult(order)
             : Task.FromException<Order>(new EntityNotFoundException("Замовлення не знайдено."));
 
+    public List<OrderDetailsEdit> Edits { get; } = [];
+
+    public Task<bool> UpdateDetailsAsync(OrderDetailsEdit edit, CancellationToken cancellationToken = default)
+    {
+        Edits.Add(edit);
+        return Task.FromResult(true);
+    }
+
     public Task<IReadOnlyList<OrderListItem>> GetMyDeliveriesAsync(bool active, CancellationToken cancellationToken = default)
     {
         MyDeliveryRequests.Add(active);

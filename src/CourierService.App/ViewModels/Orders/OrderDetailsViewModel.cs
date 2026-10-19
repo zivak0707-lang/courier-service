@@ -84,8 +84,8 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
 
     /// <summary>Замовлення з пов'язаними даними (лише для читання).</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Title), nameof(FeaturesText), nameof(PaymentDetails), nameof(DatesText), nameof(CanPrintWaybill))]
-    [NotifyCanExecuteChangedFor(nameof(PrintWaybillCommand), nameof(CopyTrackingNumberCommand))]
+    [NotifyPropertyChangedFor(nameof(Title), nameof(FeaturesText), nameof(PaymentDetails), nameof(DatesText), nameof(CanPrintWaybill), nameof(CanEditDetails))]
+    [NotifyCanExecuteChangedFor(nameof(PrintWaybillCommand), nameof(CopyTrackingNumberCommand), nameof(EditDetailsCommand))]
     public partial Order? Order { get; private set; }
 
     /// <summary>Хто й коли оформив, дедлайн і (якщо є) час доставки.</summary>
@@ -152,6 +152,12 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
     public bool CanPrintWaybill => Order is { } order && Waybill.CanPrint(order)
         && _currentUser.Session?.Role is UserRole.Admin or UserRole.Operator;
 
+    /// <summary>
+    /// Чи показувати кнопку «Виправити дані» (D-40): оператор, поки кур'єр не забрав посилку.
+    /// </summary>
+    public bool CanEditDetails => Order is { } order && _currentUser.Session is { } session
+        && OrderEditing.CanEdit(order.Status, session);
+
     /// <summary>Чи є доступні дії (інакше панель дій прихована).</summary>
     public bool HasActions => Actions.Count > 0;
 
@@ -211,7 +217,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
                 .ThenByDescending(c => c.Id)
                 .Select(c => new StatusHistoryItem(
                     c.ChangedAt,
-                    c.FromStatus is { } from ? $"{from.ToDisplayName()} → {c.ToStatus.ToDisplayName()}" : "Оформлено",
+                    HistoryChange(c),
                     c.ChangedBy?.FullName ?? string.Empty,
                     c.Reason))
                 .ToList();
@@ -245,6 +251,30 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
             _waybills.ShowPreview(Waybill.From(order));
         }
     }
+
+    [RelayCommand(CanExecute = nameof(CanEditDetails))]
+    private async Task EditDetailsAsync()
+    {
+        if (Order is not { } order)
+        {
+            return;
+        }
+
+        var editor = new OrderDetailsEditorViewModel(_orders, order);
+        if (_editDialogs.ShowEditor(editor) && editor.HasChanged)
+        {
+            HasChanges = true;
+            await LoadAsync();
+        }
+    }
+
+    // Запис без зміни статусу — це виправлення даних (D-40), його опис — у колонці «Причина»
+    private static string HistoryChange(OrderStatusChange change) => change.FromStatus switch
+    {
+        null => "Оформлено",
+        { } from when from == change.ToStatus => "Виправлено дані",
+        { } from => $"{from.ToDisplayName()} → {change.ToStatus.ToDisplayName()}",
+    };
 
     [RelayCommand]
     private async Task ExecuteActionAsync(OrderActionOption? option)

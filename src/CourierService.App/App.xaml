@@ -105,6 +105,9 @@
             <DataTemplate DataType="{x:Type orders:FailureReasonViewModel}">
                 <orderViews:FailureReasonView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type orders:OrderDetailsEditorViewModel}">
+                <orderViews:OrderDetailsEditorView />
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

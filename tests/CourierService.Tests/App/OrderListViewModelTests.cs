@@ -190,6 +190,9 @@ public class OrderListViewModelTests
 
         public Task<IReadOnlyList<OrderListItem>> GetMyDeliveriesAsync(bool active, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
+
+        public Task<bool> UpdateDetailsAsync(OrderDetailsEdit edit, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
     }
 }
 

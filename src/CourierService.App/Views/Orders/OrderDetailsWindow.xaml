@@ -41,6 +41,10 @@
         <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
             <DockPanel>
                 <Button DockPanel.Dock="Right" Content="_Закрити" IsCancel="True" MinWidth="110" />
+                <Button DockPanel.Dock="Right" Content="_Виправити дані…" MinWidth="150" Margin="0,0,8,6"
+                        Command="{Binding EditDetailsCommand}"
+                        Visibility="{Binding CanEditDetails, Converter={StaticResource VisibleWhen}}"
+                        ToolTip="Контакти одержувача, адреси й коментар (до того, як кур'єр забере посилку)" />
                 <Button DockPanel.Dock="Right" Content="Друк _накладної…" MinWidth="150" Margin="0,0,8,6"
                         Command="{Binding PrintWaybillCommand}"
                         Visibility="{Binding CanPrintWaybill, Converter={StaticResource VisibleWhen}}"
@@ -215,7 +219,7 @@
                         <DataGridTextColumn Header="Коли" Binding="{Binding ChangedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />
                         <DataGridTextColumn Header="Зміна" Binding="{Binding Change}" Width="Auto" />
                         <DataGridTextColumn Header="Хто" Binding="{Binding ChangedBy}" Width="Auto" />
-                        <DataGridTextColumn Header="Причина" Binding="{Binding Reason}" Width="*" />
+                        <DataGridTextColumn Header="Причина / що змінено" Binding="{Binding Reason}" Width="*" />
                     </DataGrid.Columns>
                 </DataGrid>
             </StackPanel>

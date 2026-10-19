@@ -20,6 +20,8 @@ public sealed class OrderService : IOrderService
     // Друга спроба потрібна, лише якщо трек-номер встиг зайняти інший запис (рішення D-23)
     private const int MaxSaveAttempts = 2;
 
+    private static readonly OrderDetailsEditValidator EditValidator = new();
+
     /// <summary>Проєкція замовлення в рядок списку — виконується в SQL, вибираються лише потрібні колонки.</summary>
     private static readonly Expression<Func<Order, OrderListItem>> ToListItem = o => new OrderListItem(
         o.Id,
@@ -206,6 +208,26 @@ public sealed class OrderService : IOrderService
         // Невдала спроба для кур'єра вже завершена: «лишилося 5 год» в історії збивало б, рішення за оператором
         return items.Select(item => item.Status == OrderStatus.DeliveryFailed ? item with { Sla = SlaResult.AwaitingOperator } : item)
             .ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> UpdateDetailsAsync(OrderDetailsEdit edit, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(edit);
+        EditValidator.Validate(edit).ThrowIfInvalid();
+        UserSession session = _currentUser.RequireRole(UserRole.Operator);
+
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        Order order = await context.Orders.SingleOrDefaultAsync(o => o.Id == edit.OrderId, cancellationToken)
+            ?? throw new EntityNotFoundException("Замовлення не знайдено.");
+
+        if (!OrderEditing.Apply(order, edit, session.UserId, _clock.Now))
+        {
+            return false;
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     /// <summary>
