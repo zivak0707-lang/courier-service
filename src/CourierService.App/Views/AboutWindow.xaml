@@ -19,7 +19,11 @@
         <TextBlock Text="{Binding Description}" Style="{StaticResource BodyTextStyle}" Margin="0,0,0,12" />
         <TextBlock Text="{Binding Purpose}" Style="{StaticResource BodyTextStyle}" Margin="0,0,0,12" />
         <TextBlock Style="{StaticResource BodyTextStyle}">
-            <Run Text="Автор: " /><Run Text="{Binding Author, Mode=OneWay}" />
+            <Run Text="Автор: " /><Run Text="{Binding Author, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=", студент групи " /><Run Text="{Binding Group, Mode=OneWay}" />
+        </TextBlock>
+        <TextBlock Text="{Binding College}" Style="{StaticResource BodyTextStyle}" />
+        <TextBlock Style="{StaticResource BodyTextStyle}" Margin="0,0,0,8">
+            <Run Text="Керівник: " /><Run Text="{Binding Supervisor, Mode=OneWay}" />
         </TextBlock>
         <TextBlock Text="{Binding Platform}" Style="{StaticResource SecondaryTextStyle}" Margin="0,4,0,0" />
         <TextBlock Text="{Binding Copyright}" Style="{StaticResource SecondaryTextStyle}" Margin="0,4,0,20" />

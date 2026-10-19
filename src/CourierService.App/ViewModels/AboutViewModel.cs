@@ -59,6 +59,15 @@ public sealed class AboutViewModel : ViewModelBase
     public string Purpose =>
         "Курсовий проєкт з дисципліни «Інструментальні засоби візуального програмування».";
 
+    /// <summary>Навчальна група автора.</summary>
+    public string Group => "471";
+
+    /// <summary>Навчальний заклад.</summary>
+    public string College => "Фаховий коледж інформаційних систем і технологій «КНЕУ імені Вадима Гетьмана»";
+
+    /// <summary>Керівник курсового проєкту.</summary>
+    public string Supervisor => "Литовка Л. В.";
+
     /// <summary>Платформа, на якій працює програма.</summary>
     public string Platform => $".NET {Environment.Version}, WPF, SQLite";
 }
