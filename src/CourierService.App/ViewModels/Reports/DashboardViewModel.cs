@@ -42,7 +42,11 @@ public sealed partial class DashboardViewModel : ViewModelBase, ILoadable
 
     /// <summary>Дані дашборда.</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasIncompleteDay))]
     public partial DashboardSnapshot? Snapshot { get; private set; }
+
+    /// <summary>Чи є на графіку сьогоднішній неповний день (тоді під графіком показується пояснення пунктиру).</summary>
+    public bool HasIncompleteDay => Snapshot?.Daily.Any(point => point.IsIncomplete) == true;
 
     /// <summary>Чи триває завантаження.</summary>
     [ObservableProperty]

@@ -9,7 +9,8 @@ namespace CourierService.Core.Reports;
 /// <param name="Day">День.</param>
 /// <param name="Revenue">Виручка за датою оплати.</param>
 /// <param name="GrossProfit">Виручка мінус нарахування за доставки цього дня.</param>
-public sealed record DailyPoint(DateTime Day, Money Revenue, Money GrossProfit);
+/// <param name="IsIncomplete">Чи день ще триває (сьогодні): його суми ще зростатимуть, тож на графіку він позначається окремо.</param>
+public sealed record DailyPoint(DateTime Day, Money Revenue, Money GrossProfit, bool IsIncomplete);
 
 /// <summary>Кількість замовлень у статусі.</summary>
 /// <param name="Status">Статус.</param>
@@ -81,7 +82,7 @@ public static class DashboardCalculator
                 Money dayRevenue = ReportData.Sum(paid.Where(o => o.PaidAt!.Value.Date == day).Select(o => o.Price));
                 Money dayPayouts = ReportData.Sum(delivered.Where(o => o.DeliveredAt!.Value.Date == day)
                     .Select(o => o.CourierPayout ?? Money.Zero));
-                return new DailyPoint(day, dayRevenue, dayRevenue - dayPayouts);
+                return new DailyPoint(day, dayRevenue, dayRevenue - dayPayouts, IsIncomplete: day == data.Now.Date);
             })
             .ToList();
 

@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using CourierService.App.ViewModels.Reports;
+using CourierService.Core;
 using CourierService.Core.Enums;
 using CourierService.Core.Reports;
 using ScottPlot;
@@ -82,21 +83,42 @@ public partial class DashboardView : UserControl
     private void DrawDaily(IReadOnlyList<DailyPoint> daily)
     {
         Plot plot = DailyPlot.Plot;
-        double[] days = daily.Select(point => point.Day.ToOADate()).ToArray();
 
-        var revenue = plot.Add.Scatter(days, daily.Select(point => (double)point.Revenue.Hryvnias).ToArray());
-        revenue.LegendText = "Виручка";
-        revenue.Color = RevenueColor;
-        revenue.LineWidth = 2;
-
-        var gross = plot.Add.Scatter(days, daily.Select(point => (double)point.GrossProfit.Hryvnias).ToArray());
-        gross.LegendText = "Валовий дохід";
-        gross.Color = GrossColor;
-        gross.LineWidth = 2;
+        // Сьогоднішній день ще триває: суцільна лінія — до вчора, останній відрізок — пунктиром,
+        // щоб «провал» неповного дня не виглядав як падіння виручки (огляд C4)
+        int complete = daily.Count > 0 && daily[^1].IsIncomplete ? daily.Count - 1 : daily.Count;
+        DrawSeries(plot, daily.Take(complete).ToList(), point => point.Revenue, RevenueColor, "Виручка", LinePattern.Solid);
+        DrawSeries(plot, daily.Take(complete).ToList(), point => point.GrossProfit, GrossColor, "Валовий дохід", LinePattern.Solid);
+        if (complete < daily.Count)
+        {
+            List<DailyPoint> tail = daily.Skip(Math.Max(0, complete - 1)).ToList();
+            DrawSeries(plot, tail, point => point.Revenue, RevenueColor, null, LinePattern.Dashed);
+            DrawSeries(plot, tail, point => point.GrossProfit, GrossColor, null, LinePattern.Dashed);
+        }
 
         plot.Axes.DateTimeTicksBottom();
         plot.Axes.Left.Label.Text = "грн";
         plot.ShowLegend(Alignment.UpperLeft);
+    }
+
+    private static void DrawSeries(
+        Plot plot, IReadOnlyList<DailyPoint> points, Func<DailyPoint, Money> value, Color color, string? legend, LinePattern pattern)
+    {
+        if (points.Count == 0)
+        {
+            return;
+        }
+
+        var series = plot.Add.Scatter(
+            points.Select(point => point.Day.ToOADate()).ToArray(),
+            points.Select(point => (double)value(point).Hryvnias).ToArray());
+        series.Color = color;
+        series.LineWidth = 2;
+        series.LinePattern = pattern;
+        if (legend is not null)
+        {
+            series.LegendText = legend;
+        }
     }
 
     private void DrawStatuses(IReadOnlyList<StatusCount> statuses)

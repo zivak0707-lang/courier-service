@@ -56,6 +56,9 @@
 
             <TextBlock Text="Виручка й валовий дохід по днях" Style="{StaticResource SectionHeadingStyle}" />
             <scottplot:WpfPlot x:Name="DailyPlot" Height="250" AutomationProperties.Name="Графік виручки" />
+            <TextBlock Text="Пунктир — сьогоднішній день: він ще триває, тож суми зростатимуть до вечора."
+                       Style="{StaticResource SecondaryTextStyle}" FontSize="12"
+                       Visibility="{Binding HasIncompleteDay, Converter={StaticResource VisibleWhen}}" />
 
             <Grid Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>

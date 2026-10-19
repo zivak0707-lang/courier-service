@@ -65,4 +65,17 @@ public class DashboardCalculatorTests
         Assert.Empty(snapshot.TopCouriers);
         Assert.Null(snapshot.Tiles.Single(t => t.Label == "Середній чек").Value);
     }
+
+    [Fact]
+    public void Daily_OnlyTodayIsMarkedIncomplete()
+    {
+        ReportData data = ReportTests.Data();
+        DateTime today = data.Period.To.Date;
+
+        DashboardSnapshot during = DashboardCalculator.Calculate(data with { Now = today.AddHours(15) });
+        DashboardSnapshot after = DashboardCalculator.Calculate(data with { Now = today.AddDays(1).AddHours(9) });
+
+        Assert.Equal([today], during.Daily.Where(p => p.IsIncomplete).Select(p => p.Day));
+        Assert.DoesNotContain(after.Daily, p => p.IsIncomplete);
+    }
 }
