@@ -15,18 +15,22 @@ public sealed class ClientsViewModel : ReferenceListViewModel<Client>
 {
     private readonly IClientService _service;
     private readonly IValidator<ClientInput> _validator;
+    private readonly IZoneService _zoneService;
+    private IReadOnlyList<Zone> _zones = [];
 
     /// <summary>
     /// Створює сторінку.
     /// </summary>
     /// <param name="service">Сервіс клієнтів.</param>
     /// <param name="validator">Правила клієнта.</param>
+    /// <param name="zoneService">Сервіс зон (для вибору району типової адреси).</param>
     /// <param name="dialogs">Повідомлення.</param>
     /// <param name="editDialogs">Вікно редагування.</param>
     /// <param name="currentUser">Поточний користувач.</param>
     public ClientsViewModel(
         IClientService service,
         IValidator<ClientInput> validator,
+        IZoneService zoneService,
         IDialogService dialogs,
         IEditDialogService editDialogs,
         ICurrentUser currentUser)
@@ -34,6 +38,7 @@ public sealed class ClientsViewModel : ReferenceListViewModel<Client>
     {
         _service = service;
         _validator = validator;
+        _zoneService = zoneService;
     }
 
     /// <inheritdoc />
@@ -43,15 +48,28 @@ public sealed class ClientsViewModel : ReferenceListViewModel<Client>
     protected override UserRole[] EditRoles => [UserRole.Operator];
 
     /// <inheritdoc />
-    protected override Task<IReadOnlyList<Client>> LoadItemsAsync() => _service.GetAllAsync();
+    protected override async Task<IReadOnlyList<Client>> LoadItemsAsync()
+    {
+        // Зони потрібні формі для вибору району типової адреси
+        _zones = await _zoneService.GetAllAsync();
+        return await _service.GetAllAsync();
+    }
 
     /// <inheritdoc />
     protected override bool Matches(Client item, string search) =>
         TextSearch.MatchesPhone(search, item.Phone)
-        || TextSearch.Matches(search, item.Name, item.Email, item.Address);
+        || TextSearch.Matches(search, item.Name, item.Email, item.Address, item.DefaultZone?.Name);
 
     /// <inheritdoc />
-    protected override EditViewModelBase CreateEditor(Client? item) => new ClientEditorViewModel(_service, _validator, item);
+    protected override EditViewModelBase CreateEditor(Client? item)
+    {
+        // Пропонуються активні зони; поточний район клієнта лишається у списку, навіть якщо його деактивовано
+        var zones = _zones
+            .Where(zone => zone.IsActive || zone.Id == item?.DefaultZoneId)
+            .Select(zone => new Option<int>(zone.Id, zone.IsActive ? zone.Name : zone.Name + " (неактивна)"))
+            .ToList();
+        return new ClientEditorViewModel(_service, _validator, zones, item);
+    }
 
     /// <inheritdoc />
     protected override Task SetActiveAsync(int id, bool isActive) => _service.SetActiveAsync(id, isActive);
@@ -72,11 +90,14 @@ public sealed partial class ClientEditorViewModel : EditViewModelBase<ClientInpu
     /// </summary>
     /// <param name="service">Сервіс клієнтів.</param>
     /// <param name="validator">Правила клієнта.</param>
+    /// <param name="zones">Варіанти району типової адреси.</param>
     /// <param name="client">Клієнт для редагування або <c>null</c> для нового.</param>
-    public ClientEditorViewModel(IClientService service, IValidator<ClientInput> validator, Client? client)
+    public ClientEditorViewModel(IClientService service, IValidator<ClientInput> validator, IReadOnlyList<Option<int>> zones, Client? client)
         : base(validator, client?.Id)
     {
         _service = service;
+        Zones = zones;
+        DefaultZoneId = client?.DefaultZoneId ?? 0;
         ClientType = client?.ClientType ?? ClientType.Individual;
         Name = client?.Name ?? string.Empty;
         Phone = client is null ? string.Empty : PhoneNumber.Format(client.Phone);
@@ -111,13 +132,20 @@ public sealed partial class ClientEditorViewModel : EditViewModelBase<ClientInpu
     [ObservableProperty]
     public partial string Address { get; set; }
 
+    /// <summary>Варіанти району типової адреси.</summary>
+    public IReadOnlyList<Option<int>> Zones { get; }
+
+    /// <summary>Район типової адреси (0 — не обрано).</summary>
+    [ObservableProperty]
+    public partial int DefaultZoneId { get; set; }
+
     /// <summary>Примітки.</summary>
     [ObservableProperty]
     public partial string Notes { get; set; }
 
     /// <inheritdoc />
     protected override ClientInput BuildInput(ValidationErrors parseErrors) =>
-        new(Id, ClientType, Name, Phone, Email, Address, Notes);
+        new(Id, ClientType, Name, Phone, Email, Address, DefaultZoneId, Notes);
 
     /// <inheritdoc />
     protected override Task SaveInputAsync(ClientInput input) => _service.SaveAsync(input);

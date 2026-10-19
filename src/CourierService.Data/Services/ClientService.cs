@@ -46,7 +46,7 @@ public sealed class ClientService : DirectoryServiceBase<Client>, IClientService
     {
         CurrentUser.RequireRole(ReadRoles);
         await using var context = await ContextFactory.CreateDbContextAsync(cancellationToken);
-        var clients = await context.Clients.AsNoTracking().ToListAsync(cancellationToken);
+        var clients = await context.Clients.AsNoTracking().Include(c => c.DefaultZone).ToListAsync(cancellationToken);
         return clients.OrderBy(c => c.Name, TextSearch.UkrainianComparer).ToList();
     }
 
@@ -68,13 +68,21 @@ public sealed class ClientService : DirectoryServiceBase<Client>, IClientService
         }
 
         Client client;
-        if (input.Id is { } id)
+        if (input.Id is { } existingId)
         {
-            client = await FindOrThrowAsync(context, id, cancellationToken);
+            client = await FindOrThrowAsync(context, existingId, cancellationToken);
         }
         else
         {
             client = context.Clients.Add(new Client { CreatedAt = _clock.Now }).Entity;
+        }
+
+        // Неактивну зону обрати не можна; лише якщо вона вже стояла в картці, зміна інших полів дозволена
+        bool zoneAllowed = input.DefaultZoneId == client.DefaultZoneId
+            || await context.Zones.AnyAsync(z => z.Id == input.DefaultZoneId && z.IsActive, cancellationToken);
+        if (!zoneAllowed)
+        {
+            throw new DomainValidationException("Оберіть активний район типової адреси.", nameof(input.DefaultZoneId));
         }
 
         client.ClientType = input.ClientType;
@@ -82,6 +90,7 @@ public sealed class ClientService : DirectoryServiceBase<Client>, IClientService
         client.Phone = phone;
         client.Email = TrimToNull(input.Email);
         client.Address = input.Address.Trim();
+        client.DefaultZoneId = input.DefaultZoneId;
         client.Notes = TrimToNull(input.Notes);
 
         await SaveChangesAsync(context, cancellationToken);

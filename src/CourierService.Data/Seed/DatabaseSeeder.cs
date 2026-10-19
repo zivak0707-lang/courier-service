@@ -62,7 +62,8 @@ public sealed class DatabaseSeeder
 
         if (!await context.Clients.AnyAsync(cancellationToken))
         {
-            context.Clients.AddRange(CreateClients());
+            var zones = await context.Zones.ToDictionaryAsync(z => z.Name, cancellationToken);
+            context.Clients.AddRange(CreateClients(zones));
             await context.SaveChangesAsync(cancellationToken);
         }
     }
@@ -143,23 +144,23 @@ public sealed class DatabaseSeeder
         });
     }
 
-    private IEnumerable<Client> CreateClients()
+    private IEnumerable<Client> CreateClients(IReadOnlyDictionary<string, Zone> zones)
     {
         DateTime now = _clock.Now;
         return
         [
             new() { ClientType = ClientType.Company, Name = "ТОВ «Квітковий двір»", Phone = "+380670000201",
-                    Email = "orders@kvitkovyi-dvir.example", Address = "вул. Каштанова, 12", CreatedAt = now },
+                    Email = "orders@kvitkovyi-dvir.example", Address = "вул. Каштанова, 12", DefaultZone = zones["Печерський"], CreatedAt = now },
             new() { ClientType = ClientType.Company, Name = "Інтернет-магазин «Книжкова полиця»", Phone = "+380670000202",
-                    Email = "shop@knyzhkova-polytsia.example", Address = "вул. Липова, 5", CreatedAt = now },
+                    Email = "shop@knyzhkova-polytsia.example", Address = "вул. Липова, 5", DefaultZone = zones["Подільський"], CreatedAt = now },
             new() { ClientType = ClientType.Company, Name = "ФОП Гнатюк Р. В. («Чайна майстерня»)", Phone = "+380670000203",
-                    Address = "просп. Світанковий, 48", CreatedAt = now },
+                    Address = "просп. Світанковий, 48", DefaultZone = zones["Голосіївський"], CreatedAt = now },
             new() { ClientType = ClientType.Company, Name = "ТОВ «Тиха кава»", Phone = "+380670000206",
-                    Email = "office@tykha-kava.example", Address = "вул. Річкова, 9", CreatedAt = now },
+                    Email = "office@tykha-kava.example", Address = "вул. Річкова, 9", DefaultZone = zones["Оболонський"], CreatedAt = now },
             new() { ClientType = ClientType.Individual, Name = "Наталія Руденко", Phone = "+380930000204",
-                    Address = "вул. Яблунева, 3, кв. 17", CreatedAt = now },
+                    Address = "вул. Яблунева, 3, кв. 17", DefaultZone = zones["Дніпровський"], CreatedAt = now },
             new() { ClientType = ClientType.Individual, Name = "Павло Остапенко", Phone = "+380930000205",
-                    Address = "вул. Соснова, 21", CreatedAt = now },
+                    Address = "вул. Соснова, 21", DefaultZone = zones["Святошинський"], CreatedAt = now },
         ];
     }
 }

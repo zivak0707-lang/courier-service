@@ -21,11 +21,13 @@ public class ClientsViewModelTests
         ],
     };
 
+    private static readonly IReadOnlyList<Option<int>> Zones = [new(1, "Шевченківський"), new(2, "Печерський")];
+
     private ClientsViewModel CreateList(UserRole role)
     {
         var currentUser = new CurrentUser();
         currentUser.SignIn(new UserSession(1, "user", "Користувач", role, null));
-        return new ClientsViewModel(_service, new ClientValidator(), new FakeDialogService(), new FakeEditDialogService(), currentUser);
+        return new ClientsViewModel(_service, new ClientValidator(), new FakeZoneService(), new FakeDialogService(), new FakeEditDialogService(), currentUser);
     }
 
     [Theory]
@@ -53,7 +55,7 @@ public class ClientsViewModelTests
     [Fact]
     public void Editor_ShowsPhoneInReadableFormat()
     {
-        var editor = new ClientEditorViewModel(_service, new ClientValidator(), _service.Items[0]);
+        var editor = new ClientEditorViewModel(_service, new ClientValidator(), Zones, _service.Items[0]);
 
         Assert.Equal("+380 (67) 000-02-01", editor.Phone);
         Assert.Equal(ClientType.Company, editor.ClientType);
@@ -62,7 +64,7 @@ public class ClientsViewModelTests
     [Fact]
     public async Task Editor_InvalidPhoneAndEmail_ShowErrorsNextToFields()
     {
-        var editor = new ClientEditorViewModel(_service, new ClientValidator(), null)
+        var editor = new ClientEditorViewModel(_service, new ClientValidator(), Zones, null)
         {
             Name = "Олег Петренко", Phone = "12345", Email = "oleg@", Address = "вул. Вишнева, 7",
         };
@@ -77,14 +79,29 @@ public class ClientsViewModelTests
     [Fact]
     public async Task Editor_ValidClient_IsSaved()
     {
-        var editor = new ClientEditorViewModel(_service, new ClientValidator(), null)
+        var editor = new ClientEditorViewModel(_service, new ClientValidator(), Zones, null)
+        {
+            Name = "Олег Петренко", Phone = "063 111 22 33", Address = "вул. Вишнева, 7", DefaultZoneId = 1,
+        };
+
+        await editor.SaveCommand.ExecuteAsync(null);
+
+        Assert.Equal("063 111 22 33", Assert.Single(_service.Saved).Phone);
+        Assert.Equal(1, _service.Saved[0].DefaultZoneId);
+    }
+
+    [Fact]
+    public async Task Editor_WithoutZone_ShowsErrorNextToZone()
+    {
+        var editor = new ClientEditorViewModel(_service, new ClientValidator(), Zones, null)
         {
             Name = "Олег Петренко", Phone = "063 111 22 33", Address = "вул. Вишнева, 7",
         };
 
         await editor.SaveCommand.ExecuteAsync(null);
 
-        Assert.Equal("063 111 22 33", Assert.Single(_service.Saved).Phone);
+        Assert.NotEmpty(editor.GetErrors(nameof(ClientEditorViewModel.DefaultZoneId)).Cast<string>());
+        Assert.Empty(_service.Saved);
     }
 }
 

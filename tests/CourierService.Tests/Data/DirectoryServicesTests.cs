@@ -163,7 +163,7 @@ public class ClientServiceTests : DirectoryServiceTestBase
     private ClientService Clients => new(Db, CurrentUser, new ClientValidator(), Clock);
 
     private static ClientInput NewClient(string phone = "063 111 22 33") =>
-        new(null, ClientType.Individual, "Олег Петренко", phone, "  ", " вул. Вишнева, 7 ", "");
+        new(null, ClientType.Individual, "Олег Петренко", phone, "  ", " вул. Вишнева, 7 ", 1, "");
 
     [Fact]
     public async Task Operator_CreatesClient_WithNormalizedPhoneAndCleanedFields()
@@ -201,6 +201,36 @@ public class ClientServiceTests : DirectoryServiceTestBase
         await Clients.SaveAsync(NewClient() with { Id = id, Name = "Олег Петренко-Іваненко" });
 
         Assert.Equal("Олег Петренко-Іваненко", (await Clients.GetAllAsync()).Single(c => c.Id == id).Name);
+    }
+
+    [Fact]
+    public async Task DemoClients_HaveDefaultZones_AndListShowsZoneName()
+    {
+        await SignInAsync(UserRole.Operator);
+
+        var clients = await Clients.GetAllAsync();
+
+        Assert.All(clients, c => Assert.NotNull(c.DefaultZone));
+        Assert.Equal("Дніпровський", clients.Single(c => c.Phone == "+380930000204").DefaultZone!.Name);
+    }
+
+    [Fact]
+    public async Task InactiveZone_CannotBeChosenForClient_ButKeptOnEdit()
+    {
+        await SignInAsync(UserRole.Operator);
+        int zoneId = await ZoneIdAsync("Солом'янський");
+        int id = await Clients.SaveAsync(NewClient() with { DefaultZoneId = zoneId });
+        await SignInAsync(UserRole.Admin);
+        await new ZoneService(Db, CurrentUser, new ZoneValidator()).SetActiveAsync(zoneId, false);
+        await SignInAsync(UserRole.Operator);
+
+        // Наявний клієнт із тепер неактивним районом редагується без помилки
+        await Clients.SaveAsync(NewClient() with { Id = id, DefaultZoneId = zoneId, Name = "Олег Петренко-Іваненко" });
+
+        // Новому клієнту неактивний район обрати не можна
+        var exception = await Assert.ThrowsAsync<DomainValidationException>(() =>
+            Clients.SaveAsync(NewClient("067 555 44 33") with { DefaultZoneId = zoneId }));
+        Assert.NotEmpty(exception.Errors[nameof(ClientInput.DefaultZoneId)]);
     }
 
     [Fact]

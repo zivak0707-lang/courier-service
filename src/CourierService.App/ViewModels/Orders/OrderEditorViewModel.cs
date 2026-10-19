@@ -42,6 +42,7 @@ public sealed partial class OrderEditorViewModel : EditViewModelBase
     private readonly OrderFormData _data;
     private OrderInput? _validInput;
     private string? _autoPickupAddress;
+    private int _autoPickupZoneId;
 
     /// <summary>
     /// Створює форму.
@@ -214,12 +215,21 @@ public sealed partial class OrderEditorViewModel : EditViewModelBase
 
     partial void OnClientIdChanged(int value)
     {
-        // Адреса, звідки забрати, підставляється з картки клієнта, якщо оператор не ввів іншу
-        string? address = _data.Clients.FirstOrDefault(c => c.Id == value)?.Address;
+        // Адреса й район, звідки забрати, підставляються з картки клієнта (D-41), якщо оператор не ввів інші
+        Client? client = _data.Clients.FirstOrDefault(c => c.Id == value);
+        string? address = client?.Address;
         if (address is not null && (string.IsNullOrWhiteSpace(PickupAddress) || PickupAddress == _autoPickupAddress))
         {
             PickupAddress = address;
             _autoPickupAddress = address;
+        }
+
+        // Неактивного району немає серед варіантів — тоді оператор обирає вручну
+        if (client?.DefaultZoneId is { } zoneId && Zones.Any(z => z.Value == zoneId)
+            && (PickupZoneId == 0 || PickupZoneId == _autoPickupZoneId))
+        {
+            PickupZoneId = zoneId;
+            _autoPickupZoneId = zoneId;
         }
     }
 

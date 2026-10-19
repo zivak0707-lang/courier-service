@@ -72,8 +72,8 @@ internal static class OrderTestData
 
         List<Client> clients =
         [
-            new() { Id = 1, Name = "Наталія Руденко", Phone = "+380930000204", Address = "вул. Яблунева, 3" },
-            new() { Id = 2, Name = "ТОВ «Квітковий двір»", Phone = "+380670000201", Address = "вул. Каштанова, 12" },
+            new() { Id = 1, Name = "Наталія Руденко", Phone = "+380930000204", Address = "вул. Яблунева, 3", DefaultZoneId = 5 },
+            new() { Id = 2, Name = "ТОВ «Квітковий двір»", Phone = "+380670000201", Address = "вул. Каштанова, 12", DefaultZoneId = 2 },
         ];
         return new OrderFormData(clients, zones, tariffs);
     }
@@ -207,6 +207,24 @@ public class OrderEditorViewModelTests
         editor.PickupAddress = "вул. Інша, 5";
         editor.ClientId = 1;
         Assert.Equal("вул. Інша, 5", editor.PickupAddress);
+    }
+
+    [Fact]
+    public void ChoosingClient_FillsPickupZone_UnlessOperatorChoseAnother()
+    {
+        var data = OrderTestData.Create();
+        var editor = CreateEditor();
+
+        editor.ClientId = 1;
+        Assert.Equal(OrderTestData.ZoneId(data, "Дніпровський"), editor.PickupZoneId);
+
+        editor.ClientId = 2;
+        Assert.Equal(OrderTestData.ZoneId(data, "Печерський"), editor.PickupZoneId);
+
+        int chosen = OrderTestData.ZoneId(data, "Оболонський");
+        editor.PickupZoneId = chosen;
+        editor.ClientId = 1;
+        Assert.Equal(chosen, editor.PickupZoneId);
     }
 
     [Fact]

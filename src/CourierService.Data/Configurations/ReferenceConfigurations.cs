@@ -49,6 +49,7 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder.Property(c => c.Email).HasMaxLength(100);
         builder.Property(c => c.Address).IsRequired().HasMaxLength(200);
         builder.Property(c => c.Notes).HasMaxLength(500);
+        builder.HasOne(c => c.DefaultZone).WithMany().HasForeignKey(c => c.DefaultZoneId).OnDelete(DeleteBehavior.Restrict);
     }
 }
 

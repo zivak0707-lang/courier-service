@@ -36,6 +36,9 @@ namespace CourierService.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("DefaultZoneId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Email")
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
@@ -58,6 +61,8 @@ namespace CourierService.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DefaultZoneId");
 
                     b.HasIndex("Phone")
                         .IsUnique();
@@ -492,6 +497,16 @@ namespace CourierService.Data.Migrations
                         {
                             t.HasCheckConstraint("CK_Zones_Coefficient", "CoefficientPercent BETWEEN 100 AND 300");
                         });
+                });
+
+            modelBuilder.Entity("CourierService.Core.Entities.Client", b =>
+                {
+                    b.HasOne("CourierService.Core.Entities.Zone", "DefaultZone")
+                        .WithMany()
+                        .HasForeignKey("DefaultZoneId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("DefaultZone");
                 });
 
             modelBuilder.Entity("CourierService.Core.Entities.Courier", b =>

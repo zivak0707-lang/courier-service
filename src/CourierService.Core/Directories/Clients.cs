@@ -13,6 +13,7 @@ namespace CourierService.Core.Directories;
 /// <param name="Phone">Телефон у будь-якому допустимому форматі.</param>
 /// <param name="Email">Електронна пошта (необов'язково).</param>
 /// <param name="Address">Типова адреса, звідки забирати посилки клієнта.</param>
+/// <param name="DefaultZoneId">Район типової адреси (D-41).</param>
 /// <param name="Notes">Примітки.</param>
 public sealed record ClientInput(
     int? Id,
@@ -21,6 +22,7 @@ public sealed record ClientInput(
     string Phone,
     string? Email,
     string Address,
+    int? DefaultZoneId,
     string? Notes) : IDirectoryInput;
 
 /// <summary>
@@ -38,6 +40,11 @@ public sealed class ClientValidator : IValidator<ClientInput>
         errors.Phone(nameof(input.Phone), input.Phone);
         errors.OptionalEmail(nameof(input.Email), input.Email, 100);
         errors.RequiredText(nameof(input.Address), input.Address, "Типова адреса", 200);
+        if (input.DefaultZoneId is not > 0)
+        {
+            errors.Add(nameof(input.DefaultZoneId), "Оберіть район, де знаходиться типова адреса.");
+        }
+
         errors.OptionalText(nameof(input.Notes), input.Notes, "Примітки", 500);
         return errors;
     }

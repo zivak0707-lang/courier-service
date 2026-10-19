@@ -29,6 +29,11 @@
         <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" MaxLength="200"
                  Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="вул. Хрещатик, 22, офіс 5" AutomationProperties.Name="Адреса" />
 
+        <TextBlock Text="Район типової адреси" Style="{StaticResource FieldLabelStyle}" />
+        <TextBlock Text="Підставляється в нове замовлення разом з адресою — від району залежить ціна" Style="{StaticResource HintTextStyle}" />
+        <ComboBox ItemsSource="{Binding Zones}" DisplayMemberPath="Display" SelectedValuePath="Value"
+                  SelectedValue="{Binding DefaultZoneId}" Style="{StaticResource FormComboBoxStyle}" b:Hint.Text="Оберіть район" AutomationProperties.Name="Район типової адреси" />
+
         <TextBlock Text="Примітки (необов'язково)" Style="{StaticResource FieldLabelStyle}" />
         <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" MaxLength="500"
                  AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60"

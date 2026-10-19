@@ -154,7 +154,10 @@ public sealed class DemoOrderGenerator
     private Order CreateOrder(ReferenceData data, Random random, DateTime createdAt, int operatorId)
     {
         Client client = data.Clients[random.Next(data.Clients.Count)];
-        Zone pickupZone = data.Zones[random.Next(data.Zones.Count)];
+        // Забирають з типової адреси клієнта, тож і район — її (D-41); випадкове число береться
+        // завжди, щоб решта демо-даних не змінювалася
+        Zone randomZone = data.Zones[random.Next(data.Zones.Count)];
+        Zone pickupZone = data.Zones.FirstOrDefault(z => z.Id == client.DefaultZoneId) ?? randomZone;
         Zone deliveryZone = data.Zones[random.Next(data.Zones.Count)];
 
         // Здебільшого Стандарт, рідше Експрес, зрідка Термінова (тарифи впорядковано за ціною)

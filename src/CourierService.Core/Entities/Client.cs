@@ -22,6 +22,15 @@ public class Client : ReferenceEntity
     /// <summary>Типова адреса, звідки забирати посилки.</summary>
     public string Address { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Район типової адреси (рішення D-41): підставляється в замовлення разом з адресою.
+    /// <c>null</c> — у клієнтів, створених до появи поля, доки оператор не відредагує картку.
+    /// </summary>
+    public int? DefaultZoneId { get; set; }
+
+    /// <summary>Район типової адреси.</summary>
+    public Zone? DefaultZone { get; set; }
+
     /// <summary>Примітки оператора.</summary>
     public string? Notes { get; set; }
 

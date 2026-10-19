@@ -278,18 +278,18 @@ public class DirectoryValidatorsTests
     [Fact]
     public void ClientValidator_ReportsEveryInvalidField()
     {
-        var input = new ClientInput(null, ClientType.Company, "", "123", "bad-email", " ", new string('x', 501));
+        var input = new ClientInput(null, ClientType.Company, "", "123", "bad-email", " ", null, new string('x', 501));
 
         var errors = new ClientValidator().Validate(input);
 
-        string[] expected = [nameof(input.Name), nameof(input.Phone), nameof(input.Email), nameof(input.Address), nameof(input.Notes)];
+        string[] expected = [nameof(input.Name), nameof(input.Phone), nameof(input.Email), nameof(input.Address), nameof(input.DefaultZoneId), nameof(input.Notes)];
         Assert.Equal(expected.Order(), errors.PropertyNames.Order());
     }
 
     [Fact]
     public void ClientValidator_ValidClient_HasNoErrors()
     {
-        var input = new ClientInput(null, ClientType.Individual, "Наталія Руденко", "093 000 02 04", null, "вул. Яблунева, 3", null);
+        var input = new ClientInput(null, ClientType.Individual, "Наталія Руденко", "093 000 02 04", null, "вул. Яблунева, 3", 5, null);
 
         Assert.True(new ClientValidator().Validate(input).IsValid);
     }

@@ -18,11 +18,12 @@
                 <MouseBinding Gesture="LeftDoubleClick" Command="{Binding EditCommand}" />
             </DataGrid.InputBindings>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Назва / ПІБ" Binding="{Binding Name}" Width="2*" MinWidth="220" />
+                <DataGridTextColumn Header="Назва / ПІБ" Binding="{Binding Name}" Width="1.6*" MinWidth="220" />
                 <DataGridTextColumn Header="Тип" Binding="{Binding ClientType, Converter={StaticResource EnumDisplay}}" Width="Auto" MinWidth="140" />
                 <DataGridTextColumn Header="Телефон" Binding="{Binding Phone, Converter={StaticResource Phone}}" Width="Auto" MinWidth="150" />
-                <DataGridTextColumn Header="Пошта" Binding="{Binding Email}" Width="1.5*" MinWidth="240" />
-                <DataGridTextColumn Header="Адреса" Binding="{Binding Address}" Width="*" />
+                <DataGridTextColumn Header="Пошта" Binding="{Binding Email}" Width="1.2*" MinWidth="180" />
+                <DataGridTextColumn Header="Адреса" Binding="{Binding Address}" Width="1.2*" MinWidth="200" />
+                <DataGridTextColumn Header="Район" Binding="{Binding DefaultZone.Name, TargetNullValue=—}" Width="Auto" />
                 <DataGridTextColumn Header="Активний" Binding="{Binding IsActive, Converter={StaticResource YesNo}}" Width="Auto" />
             </DataGrid.Columns>
         </DataGrid>
