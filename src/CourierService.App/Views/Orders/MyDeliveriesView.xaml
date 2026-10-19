@@ -29,7 +29,15 @@
             <DataGrid.InputBindings>
                 <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenOrderCommand}" />
                 <KeyBinding Key="Enter" Command="{Binding OpenOrderCommand}" />
+                <!-- Ctrl+C копіює саме трек-номер, а не весь рядок таблиці -->
+                <KeyBinding Key="C" Modifiers="Control" Command="{Binding CopyTrackingNumberCommand}" />
             </DataGrid.InputBindings>
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="_Відкрити картку" Command="{Binding OpenOrderCommand}" InputGestureText="Enter" />
+                    <MenuItem Header="_Копіювати трек-номер" Command="{Binding CopyTrackingNumberCommand}" InputGestureText="Ctrl+C" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Трек-номер" Binding="{Binding TrackingNumber}" Width="Auto" />
                 <DataGridTextColumn Header="Статус" Binding="{Binding Status, Converter={StaticResource EnumDisplay}}" Width="Auto" />

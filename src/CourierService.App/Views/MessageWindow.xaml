@@ -20,13 +20,16 @@
         <TextBlock x:Name="IconText" Grid.Row="0" Grid.Column="0"
                    FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="28"
                    VerticalAlignment="Top" Margin="0,2,16,0" />
-        <TextBlock x:Name="MessageText" Grid.Row="0" Grid.Column="1"
-                   Style="{StaticResource BodyTextStyle}" MaxWidth="440" />
+        <!-- Текст можна виділити й скопіювати (наприклад, щоб надіслати повідомлення про помилку) -->
+        <TextBox x:Name="MessageText" Grid.Row="0" Grid.Column="1"
+                 Style="{StaticResource SelectableTextStyle}" FontSize="14" MaxWidth="440" />
 
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal"
-                    HorizontalAlignment="Right" Margin="0,24,0,0">
-            <Button x:Name="PrimaryButton" MinWidth="100" IsDefault="True" Click="OnPrimaryClick" />
-            <Button x:Name="SecondaryButton" MinWidth="100" Margin="8,0,0,0" IsCancel="True" Content="_Ні" />
-        </StackPanel>
+        <DockPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,24,0,0">
+            <Button x:Name="CopyButton" DockPanel.Dock="Left" Padding="12,4" Visibility="Collapsed" Click="OnCopyClick" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="PrimaryButton" MinWidth="100" IsDefault="True" Click="OnPrimaryClick" />
+                <Button x:Name="SecondaryButton" MinWidth="100" Margin="8,0,0,0" IsCancel="True" Content="_Ні" />
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </Window>

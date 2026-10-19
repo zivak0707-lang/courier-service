@@ -29,6 +29,7 @@ public sealed partial class OrderListViewModel : ViewModelBase, ILoadable
     private readonly IDialogService _dialogs;
     private readonly ICurrentUser _currentUser;
     private readonly IClock _clock;
+    private readonly IClipboardService _clipboard;
     private bool _isLoaded;
 
     /// <summary>
@@ -42,6 +43,7 @@ public sealed partial class OrderListViewModel : ViewModelBase, ILoadable
     /// <param name="dialogs">Повідомлення.</param>
     /// <param name="currentUser">Поточний користувач.</param>
     /// <param name="clock">Поточний час (типовий період).</param>
+    /// <param name="clipboard">Буфер обміну (копіювання трек-номера).</param>
     public OrderListViewModel(
         IOrderService orders,
         IClientService clients,
@@ -50,7 +52,8 @@ public sealed partial class OrderListViewModel : ViewModelBase, ILoadable
         IOrderDetailsDialog orderDetails,
         IDialogService dialogs,
         ICurrentUser currentUser,
-        IClock clock)
+        IClock clock,
+        IClipboardService clipboard)
     {
         _orders = orders;
         _clients = clients;
@@ -60,6 +63,7 @@ public sealed partial class OrderListViewModel : ViewModelBase, ILoadable
         _dialogs = dialogs;
         _currentUser = currentUser;
         _clock = clock;
+        _clipboard = clipboard;
 
         Statuses = [new(null, "Усі"), .. Enum.GetValues<OrderStatus>().Select(s => new Option<OrderStatus?>(s, s.ToDisplayName()))];
         PaymentStatuses = [new(null, "Усі"), .. Enum.GetValues<PaymentStatus>().Select(s => new Option<PaymentStatus?>(s, s.ToDisplayName()))];
@@ -211,6 +215,14 @@ public sealed partial class OrderListViewModel : ViewModelBase, ILoadable
             await SearchAsync();
         }
     }
+
+    /// <summary>
+    /// Копіює трек-номер замовлення (Ctrl+C або меню правої кнопки в таблиці).
+    /// </summary>
+    /// <param name="order">Замовлення; якщо не передано — виділене.</param>
+    [RelayCommand]
+    private void CopyTrackingNumber(OrderListItem? order) =>
+        TrackingNumberCopy.Copy(_clipboard, _dialogs, (order ?? SelectedOrder)?.TrackingNumber);
 
     private bool CanOpenOrder() => SelectedOrder is not null;
 

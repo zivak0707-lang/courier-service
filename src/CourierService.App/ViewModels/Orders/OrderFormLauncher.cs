@@ -99,9 +99,12 @@ public sealed class OrderFormLauncher : IOrderFormLauncher
             return null;
         }
 
-        _dialogs.ShowInfo(
+        // Трек-номер оператор зазвичай одразу надсилає клієнту, тому поруч — кнопка копіювання
+        _dialogs.ShowInfoWithCopy(
             $"Замовлення оформлено.\n\nТрек-номер: {created.TrackingNumber}\nВартість: {created.Price}\n"
-            + $"Доставити до: {created.Deadline:dd.MM.yyyy HH:mm}");
+            + $"Доставити до: {created.Deadline:dd.MM.yyyy HH:mm}",
+            created.TrackingNumber,
+            "_Копіювати трек-номер");
         return created;
     }
 }

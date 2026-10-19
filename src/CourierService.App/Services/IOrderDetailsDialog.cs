@@ -33,6 +33,7 @@ public sealed class OrderDetailsDialog : IOrderDetailsDialog
     private readonly IEditDialogService _editDialogs;
     private readonly ISlaEvaluator _sla;
     private readonly IWaybillPrinter _waybills;
+    private readonly IClipboardService _clipboard;
 
     /// <summary>
     /// Створює сервіс.
@@ -45,6 +46,7 @@ public sealed class OrderDetailsDialog : IOrderDetailsDialog
     /// <param name="editDialogs">Вікна вибору кур'єра й причини.</param>
     /// <param name="sla">Оцінка терміну доставки.</param>
     /// <param name="waybills">Перегляд і друк накладної.</param>
+    /// <param name="clipboard">Буфер обміну.</param>
     public OrderDetailsDialog(
         IOrderService orders,
         IOrderActionService actions,
@@ -53,7 +55,8 @@ public sealed class OrderDetailsDialog : IOrderDetailsDialog
         IDialogService dialogs,
         IEditDialogService editDialogs,
         ISlaEvaluator sla,
-        IWaybillPrinter waybills)
+        IWaybillPrinter waybills,
+        IClipboardService clipboard)
     {
         _orders = orders;
         _actions = actions;
@@ -63,12 +66,13 @@ public sealed class OrderDetailsDialog : IOrderDetailsDialog
         _editDialogs = editDialogs;
         _sla = sla;
         _waybills = waybills;
+        _clipboard = clipboard;
     }
 
     /// <inheritdoc />
     public bool ShowOrder(int orderId)
     {
-        var viewModel = new OrderDetailsViewModel(orderId, _orders, _actions, _workflow, _currentUser, _dialogs, _editDialogs, _sla, _waybills);
+        var viewModel = new OrderDetailsViewModel(orderId, _orders, _actions, _workflow, _currentUser, _dialogs, _editDialogs, _sla, _waybills, _clipboard);
         var window = new OrderDetailsWindow(viewModel);
         if (Application.Current?.MainWindow is { IsVisible: true } owner)
         {

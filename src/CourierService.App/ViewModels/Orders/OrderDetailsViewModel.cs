@@ -37,6 +37,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
     private readonly IEditDialogService _editDialogs;
     private readonly ISlaEvaluator _sla;
     private readonly IWaybillPrinter _waybills;
+    private readonly IClipboardService _clipboard;
 
     /// <summary>
     /// Створює картку.
@@ -50,6 +51,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
     /// <param name="editDialogs">Вікна вибору кур'єра й причини.</param>
     /// <param name="sla">Оцінка терміну доставки.</param>
     /// <param name="waybills">Перегляд і друк накладної (D-36).</param>
+    /// <param name="clipboard">Буфер обміну (копіювання трек-номера).</param>
     public OrderDetailsViewModel(
         int orderId,
         IOrderService orders,
@@ -59,7 +61,8 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
         IDialogService dialogs,
         IEditDialogService editDialogs,
         ISlaEvaluator sla,
-        IWaybillPrinter waybills)
+        IWaybillPrinter waybills,
+        IClipboardService clipboard)
     {
         _orderId = orderId;
         _orders = orders;
@@ -70,6 +73,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
         _editDialogs = editDialogs;
         _sla = sla;
         _waybills = waybills;
+        _clipboard = clipboard;
     }
 
     /// <inheritdoc />
@@ -81,7 +85,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
     /// <summary>Замовлення з пов'язаними даними (лише для читання).</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Title), nameof(FragileText), nameof(PaymentDetails), nameof(DatesText), nameof(CanPrintWaybill))]
-    [NotifyCanExecuteChangedFor(nameof(PrintWaybillCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PrintWaybillCommand), nameof(CopyTrackingNumberCommand))]
     public partial Order? Order { get; private set; }
 
     /// <summary>Хто й коли оформив, дедлайн і (якщо є) час доставки.</summary>
@@ -196,6 +200,16 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
             IsBusy = false;
         }
     }
+
+    /// <summary>Чи щойно скопійовано трек-номер (показується позначка «Скопійовано»).</summary>
+    [ObservableProperty]
+    public partial bool IsTrackingNumberCopied { get; private set; }
+
+    private bool HasOrder() => Order is not null;
+
+    [RelayCommand(CanExecute = nameof(HasOrder))]
+    private void CopyTrackingNumber() =>
+        IsTrackingNumberCopied = TrackingNumberCopy.Copy(_clipboard, _dialogs, Order?.TrackingNumber);
 
     [RelayCommand(CanExecute = nameof(CanPrintWaybill))]
     private void PrintWaybill()

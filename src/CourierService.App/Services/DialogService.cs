@@ -13,17 +13,32 @@ namespace CourierService.App.Services;
 /// </remarks>
 public sealed class DialogService : IDialogService
 {
-    /// <inheritdoc />
-    public void ShowInfo(string message) => Show(message, MessageKind.Info);
+    private readonly IClipboardService _clipboard;
+
+    /// <summary>
+    /// Створює сервіс.
+    /// </summary>
+    /// <param name="clipboard">Буфер обміну (кнопка «Копіювати» в повідомленні).</param>
+    public DialogService(IClipboardService clipboard)
+    {
+        _clipboard = clipboard;
+    }
 
     /// <inheritdoc />
-    public void ShowWarning(string message) => Show(message, MessageKind.Warning);
+    public void ShowInfo(string message) => Show(new MessageWindow(message, MessageKind.Info));
 
     /// <inheritdoc />
-    public void ShowError(string message) => Show(message, MessageKind.Error);
+    public void ShowInfoWithCopy(string message, string textToCopy, string copyButtonText) =>
+        Show(new MessageWindow(message, MessageKind.Info, copyButtonText, () => _clipboard.TrySetText(textToCopy)));
 
     /// <inheritdoc />
-    public bool Confirm(string message) => Show(message, MessageKind.Question);
+    public void ShowWarning(string message) => Show(new MessageWindow(message, MessageKind.Warning));
+
+    /// <inheritdoc />
+    public void ShowError(string message) => Show(new MessageWindow(message, MessageKind.Error));
+
+    /// <inheritdoc />
+    public bool Confirm(string message) => Show(new MessageWindow(message, MessageKind.Question));
 
     /// <inheritdoc />
     public void ShowAbout()
@@ -38,9 +53,8 @@ public sealed class DialogService : IDialogService
             .OfType<Window>()
             .FirstOrDefault(window => window.IsActive);
 
-    private static bool Show(string message, MessageKind kind)
+    private static bool Show(MessageWindow window)
     {
-        var window = new MessageWindow(message, kind);
         Window? owner = FindOwner();
         if (owner is not null)
         {

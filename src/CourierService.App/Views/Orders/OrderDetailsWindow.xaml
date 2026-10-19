@@ -67,7 +67,13 @@
         <!-- Заголовок: трек-номер, статус, терміни -->
         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding Order.TrackingNumber}" Style="{StaticResource PageTitleStyle}" FontSize="24" Margin="0,0,16,0" />
+                <!-- Трек-номер можна виділити мишкою або скопіювати кнопкою -->
+                <TextBox Text="{Binding Order.TrackingNumber, Mode=OneWay}" Style="{StaticResource SelectableTextStyle}"
+                         FontSize="24" FontWeight="SemiBold" TextWrapping="NoWrap" VerticalAlignment="Center" />
+                <Button Style="{StaticResource CopyButtonStyle}" Command="{Binding CopyTrackingNumberCommand}" Margin="8,0,0,0" />
+                <TextBlock Text="Скопійовано" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" Margin="8,0,0,0"
+                           Visibility="{Binding IsTrackingNumberCopied, Converter={StaticResource VisibleWhen}}" />
+                <Border Width="16" />
                 <Border Background="#E6EEF8" CornerRadius="12" Padding="12,3" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Order.Status, Converter={StaticResource EnumDisplay}}" FontWeight="SemiBold"
                                AutomationProperties.Name="Статус" />

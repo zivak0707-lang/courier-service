@@ -37,6 +37,7 @@ public class OrderListViewModelTests
     private readonly FakeOrderService _orders = new();
     private readonly FakeDialogService _dialogs = new();
     private readonly FakeOrderDetailsDialog _details = new();
+    private readonly FakeClipboardService _clipboard = new();
     private readonly FakeClientService _clients = new()
     {
         Items = [new Client { Id = 7, Name = "Наталія Руденко", Phone = "+380930000204" }],
@@ -51,7 +52,7 @@ public class OrderListViewModelTests
         var currentUser = new CurrentUser();
         currentUser.SignIn(new UserSession(1, "user", "Користувач", role, null));
         return new OrderListViewModel(_orders, _clients, _couriers, launcher ?? new FakeOrderFormLauncher(), _details,
-            _dialogs, currentUser, new FixedClock(Now));
+            _dialogs, currentUser, new FixedClock(Now), _clipboard);
     }
 
     [Fact]
@@ -168,7 +169,7 @@ public class OrderListViewModelTests
     public async Task AccessDenied_ShowsErrorInsteadOfCrash()
     {
         var list = new OrderListViewModel(new ThrowingOrderService(), _clients, _couriers, new FakeOrderFormLauncher(), _details,
-            _dialogs, new CurrentUser(), new FixedClock(Now));
+            _dialogs, new CurrentUser(), new FixedClock(Now), _clipboard);
 
         await list.SearchCommand.ExecuteAsync(null);
 
@@ -199,7 +200,7 @@ public class TrackingSearchViewModelTests
 
     public TrackingSearchViewModelTests()
     {
-        _page = new TrackingSearchViewModel(_orders, new FakeDialogService(), _details);
+        _page = new TrackingSearchViewModel(_orders, new FakeDialogService(), _details, new FakeClipboardService());
     }
 
     [Fact]
@@ -272,7 +273,7 @@ public class OrderDetailsOpeningTests
         var currentUser = new CurrentUser();
         currentUser.SignIn(new UserSession(1, "operator", "Оператор", UserRole.Operator, null));
         var list = new OrderListViewModel(_orders, new FakeClientService(), new FakeCourierService(), new FakeOrderFormLauncher(),
-            _details, new FakeDialogService(), currentUser, new FixedClock(new DateTime(2026, 10, 19)));
+            _details, new FakeDialogService(), currentUser, new FixedClock(new DateTime(2026, 10, 19)), new FakeClipboardService());
         await list.LoadCommand.ExecuteAsync(null);
 
         Assert.False(list.OpenOrderCommand.CanExecute(null));
@@ -292,7 +293,7 @@ public class OrderDetailsOpeningTests
     public async Task TrackingSearch_OpenFoundOrder()
     {
         _orders.SearchResult = new([OrderListTestData.Item("KV2610190042-6")], false, null);
-        var page = new TrackingSearchViewModel(_orders, new FakeDialogService(), _details) { TrackingNumber = "KV2610190042-6" };
+        var page = new TrackingSearchViewModel(_orders, new FakeDialogService(), _details, new FakeClipboardService()) { TrackingNumber = "KV2610190042-6" };
         Assert.False(page.OpenOrderCommand.CanExecute(null));
 
         await page.SearchCommand.ExecuteAsync(null);

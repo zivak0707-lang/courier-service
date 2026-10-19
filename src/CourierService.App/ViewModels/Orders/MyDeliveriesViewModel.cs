@@ -15,6 +15,7 @@ public abstract partial class MyDeliveriesViewModelBase : ViewModelBase, ILoadab
     private readonly IOrderService _orders;
     private readonly IOrderDetailsDialog _orderDetails;
     private readonly IDialogService _dialogs;
+    private readonly IClipboardService _clipboard;
 
     /// <summary>
     /// Створює сторінку.
@@ -22,11 +23,13 @@ public abstract partial class MyDeliveriesViewModelBase : ViewModelBase, ILoadab
     /// <param name="orders">Сервіс замовлень.</param>
     /// <param name="orderDetails">Картка замовлення.</param>
     /// <param name="dialogs">Повідомлення.</param>
-    protected MyDeliveriesViewModelBase(IOrderService orders, IOrderDetailsDialog orderDetails, IDialogService dialogs)
+    /// <param name="clipboard">Буфер обміну (копіювання трек-номера).</param>
+    protected MyDeliveriesViewModelBase(IOrderService orders, IOrderDetailsDialog orderDetails, IDialogService dialogs, IClipboardService clipboard)
     {
         _orders = orders;
         _orderDetails = orderDetails;
         _dialogs = dialogs;
+        _clipboard = clipboard;
     }
 
     /// <summary>Активні (призначені й забрані) чи решта (історія).</summary>
@@ -47,6 +50,14 @@ public abstract partial class MyDeliveriesViewModelBase : ViewModelBase, ILoadab
 
     /// <summary>Чи список порожній (показується підказка).</summary>
     public bool IsEmpty => Items.Count == 0;
+
+    /// <summary>
+    /// Копіює трек-номер доставки (Ctrl+C або меню правої кнопки в таблиці).
+    /// </summary>
+    /// <param name="order">Доставка; якщо не передано — виділена.</param>
+    [RelayCommand]
+    private void CopyTrackingNumber(OrderListItem? order) =>
+        TrackingNumberCopy.Copy(_clipboard, _dialogs, (order ?? SelectedOrder)?.TrackingNumber);
 
     /// <summary>Кількість доставок.</summary>
     public string CountText => $"Доставок: {Items.Count}";
@@ -83,8 +94,9 @@ public abstract partial class MyDeliveriesViewModelBase : ViewModelBase, ILoadab
 /// <param name="orders">Сервіс замовлень.</param>
 /// <param name="orderDetails">Картка замовлення.</param>
 /// <param name="dialogs">Повідомлення.</param>
-public sealed class MyActiveDeliveriesViewModel(IOrderService orders, IOrderDetailsDialog orderDetails, IDialogService dialogs)
-    : MyDeliveriesViewModelBase(orders, orderDetails, dialogs)
+/// <param name="clipboard">Буфер обміну (копіювання трек-номера).</param>
+public sealed class MyActiveDeliveriesViewModel(IOrderService orders, IOrderDetailsDialog orderDetails, IDialogService dialogs, IClipboardService clipboard)
+    : MyDeliveriesViewModelBase(orders, orderDetails, dialogs, clipboard)
 {
     /// <inheritdoc />
     public override string Title => "Мої доставки: активні";
@@ -102,8 +114,9 @@ public sealed class MyActiveDeliveriesViewModel(IOrderService orders, IOrderDeta
 /// <param name="orders">Сервіс замовлень.</param>
 /// <param name="orderDetails">Картка замовлення.</param>
 /// <param name="dialogs">Повідомлення.</param>
-public sealed class MyCompletedDeliveriesViewModel(IOrderService orders, IOrderDetailsDialog orderDetails, IDialogService dialogs)
-    : MyDeliveriesViewModelBase(orders, orderDetails, dialogs)
+/// <param name="clipboard">Буфер обміну (копіювання трек-номера).</param>
+public sealed class MyCompletedDeliveriesViewModel(IOrderService orders, IOrderDetailsDialog orderDetails, IDialogService dialogs, IClipboardService clipboard)
+    : MyDeliveriesViewModelBase(orders, orderDetails, dialogs, clipboard)
 {
     /// <inheritdoc />
     public override string Title => "Мої доставки: виконані";

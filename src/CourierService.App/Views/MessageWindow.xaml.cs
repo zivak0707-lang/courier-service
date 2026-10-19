@@ -24,6 +24,8 @@ public enum MessageKind
 /// </summary>
 public partial class MessageWindow : Window
 {
+    private readonly Func<bool>? _copy;
+
     /// <summary>
     /// Створює вікно.
     /// </summary>
@@ -57,5 +59,25 @@ public partial class MessageWindow : Window
         }
     }
 
+    /// <summary>
+    /// Створює інформаційне вікно з кнопкою копіювання (наприклад, трек-номера нового замовлення).
+    /// </summary>
+    /// <param name="message">Текст повідомлення.</param>
+    /// <param name="kind">Вид повідомлення.</param>
+    /// <param name="copyButtonText">Напис на кнопці копіювання.</param>
+    /// <param name="copy">Дія копіювання; повертає <c>false</c>, якщо буфер обміну зайнятий.</param>
+    public MessageWindow(string message, MessageKind kind, string copyButtonText, Func<bool> copy)
+        : this(message, kind)
+    {
+        _copy = copy;
+        CopyButton.Content = copyButtonText;
+        CopyButton.Visibility = Visibility.Visible;
+    }
+
     private void OnPrimaryClick(object sender, RoutedEventArgs e) => DialogResult = true;
+
+    // Напис на кнопці підтверджує, що скопійовано, — окреме повідомлення тут зайве
+    private void OnCopyClick(object sender, RoutedEventArgs e) =>
+        CopyButton.Content = _copy?.Invoke() == true ? "✓ Скопійовано" : "Буфер обміну зайнятий — спробуйте ще раз";
+
 }

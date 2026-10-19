@@ -19,6 +19,8 @@ internal sealed class FakeDialogService : IDialogService
     public List<string> Questions { get; } = [];
 
     public void ShowInfo(string message) => Infos.Add(message);
+    public List<(string Message, string TextToCopy)> InfosWithCopy { get; } = [];
+    public void ShowInfoWithCopy(string message, string textToCopy, string copyButtonText) => InfosWithCopy.Add((message, textToCopy));
     public void ShowWarning(string message) => Warnings.Add(message);
     public void ShowError(string message) => Errors.Add(message);
 
@@ -126,5 +128,23 @@ internal sealed class FakeOrderDetailsDialog : IOrderDetailsDialog
     {
         Opened.Add(orderId);
         return Result;
+    }
+}
+
+/// <summary>Заглушка буфера обміну: запам'ятовує скопійоване, може імітувати зайнятий буфер.</summary>
+internal sealed class FakeClipboardService : IClipboardService
+{
+    public List<string> Copied { get; } = [];
+    public bool IsBusy { get; set; }
+
+    public bool TrySetText(string text)
+    {
+        if (IsBusy)
+        {
+            return false;
+        }
+
+        Copied.Add(text);
+        return true;
     }
 }

@@ -55,7 +55,14 @@
                     </Style>
                 </Grid.Resources>
 
-                <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding TrackingNumber}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,8" />
+                <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,8">
+                    <TextBox Text="{Binding TrackingNumber, Mode=OneWay}" Style="{StaticResource SelectableTextStyle}"
+                             FontSize="20" FontWeight="SemiBold" TextWrapping="NoWrap" VerticalAlignment="Center" />
+                    <Button Style="{StaticResource CopyButtonStyle}" Margin="8,0,0,0"
+                            Command="{Binding DataContext.CopyTrackingNumberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                    <TextBlock Text="Скопійовано" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" Margin="8,0,0,0"
+                               Visibility="{Binding DataContext.IsTrackingNumberCopied, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource VisibleWhen}}" />
+                </StackPanel>
                 <TextBlock Grid.Row="1" Text="Статус" Opacity="0.7" />
                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Status, Converter={StaticResource EnumDisplay}}" FontWeight="SemiBold" />
                 <TextBlock Grid.Row="2" Text="Оформлено" Opacity="0.7" />

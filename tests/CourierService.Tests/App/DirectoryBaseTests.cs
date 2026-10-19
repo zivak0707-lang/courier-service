@@ -95,9 +95,13 @@ internal sealed class FakeEditDialogService : IEditDialogService
     public bool Result { get; set; }
     public List<EditViewModelBase> Editors { get; } = [];
 
+    /// <summary>Що «користувач» робить у формі перед закриттям (заповнює й зберігає).</summary>
+    public Action<EditViewModelBase>? OnShow { get; set; }
+
     public bool ShowEditor(EditViewModelBase editor)
     {
         Editors.Add(editor);
+        OnShow?.Invoke(editor);
         return Result;
     }
 }

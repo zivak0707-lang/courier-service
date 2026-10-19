@@ -13,11 +13,12 @@ public class MyDeliveriesViewModelTests
 
     private readonly FakeOrderDetailsDialog _details = new();
     private readonly FakeDialogService _dialogs = new();
+    private readonly FakeClipboardService _clipboard = new();
 
     [Fact]
     public async Task ActivePage_LoadsActiveDeliveries()
     {
-        var page = new MyActiveDeliveriesViewModel(_orders, _details, _dialogs);
+        var page = new MyActiveDeliveriesViewModel(_orders, _details, _dialogs, _clipboard);
 
         await page.LoadCommand.ExecuteAsync(null);
 
@@ -30,7 +31,7 @@ public class MyDeliveriesViewModelTests
     [Fact]
     public async Task CompletedPage_LoadsHistory()
     {
-        var page = new MyCompletedDeliveriesViewModel(_orders, _details, _dialogs);
+        var page = new MyCompletedDeliveriesViewModel(_orders, _details, _dialogs, _clipboard);
 
         await page.LoadCommand.ExecuteAsync(null);
 
@@ -42,7 +43,7 @@ public class MyDeliveriesViewModelTests
     public async Task EmptyList_ShowsHint()
     {
         _orders.MyActive = [];
-        var page = new MyActiveDeliveriesViewModel(_orders, _details, _dialogs);
+        var page = new MyActiveDeliveriesViewModel(_orders, _details, _dialogs, _clipboard);
 
         await page.LoadCommand.ExecuteAsync(null);
 
@@ -53,7 +54,7 @@ public class MyDeliveriesViewModelTests
     [Fact]
     public async Task ActionInCard_ReloadsList()
     {
-        var page = new MyActiveDeliveriesViewModel(_orders, _details, _dialogs);
+        var page = new MyActiveDeliveriesViewModel(_orders, _details, _dialogs, _clipboard);
         await page.LoadCommand.ExecuteAsync(null);
         Assert.False(page.OpenOrderCommand.CanExecute(null));
 
@@ -68,7 +69,7 @@ public class MyDeliveriesViewModelTests
     [Fact]
     public async Task CardClosedWithoutChanges_NoReload()
     {
-        var page = new MyActiveDeliveriesViewModel(_orders, _details, _dialogs);
+        var page = new MyActiveDeliveriesViewModel(_orders, _details, _dialogs, _clipboard);
         await page.LoadCommand.ExecuteAsync(null);
         page.SelectedOrder = page.Items[0];
 

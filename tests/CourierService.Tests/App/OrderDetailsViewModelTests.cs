@@ -43,12 +43,13 @@ public class OrderDetailsViewModelTests
     private readonly FakeEditDialogService _editDialogs = new();
     private readonly CurrentUser _currentUser = new();
     private readonly FakeWaybillPrinter _waybills = new();
+    private readonly FakeClipboardService _clipboard = new();
 
     private OrderDetailsViewModel CreateCard(Order order, UserSession user)
     {
         _orders.Orders[order.Id] = order;
         _currentUser.SignIn(user);
-        return new OrderDetailsViewModel(order.Id, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs, new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills);
+        return new OrderDetailsViewModel(order.Id, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs, new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills, _clipboard);
     }
 
     private static Order NewOrderWithHistory()
@@ -97,7 +98,7 @@ public class OrderDetailsViewModelTests
     public async Task NotFound_ShowsError()
     {
         _currentUser.SignIn(WorkflowTestData.Operator);
-        var card = new OrderDetailsViewModel(404, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs, new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills);
+        var card = new OrderDetailsViewModel(404, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs, new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills, _clipboard);
 
         await card.LoadCommand.ExecuteAsync(null);
 
@@ -272,7 +273,7 @@ public class OrderDetailsSlaTests
         currentUser.SignIn(WorkflowTestData.Operator);
         var clock = new FixedClock(WorkflowTestData.Now.AddHours(3.5));   // лишилося 30 хв із 4 год
         var card = new OrderDetailsViewModel(order.Id, orders, new FakeOrderActionService(), new OrderWorkflow(), currentUser,
-            new FakeDialogService(), new FakeEditDialogService(), new SlaEvaluator(clock), new FakeWaybillPrinter());
+            new FakeDialogService(), new FakeEditDialogService(), new SlaEvaluator(clock), new FakeWaybillPrinter(), new FakeClipboardService());
 
         await card.LoadCommand.ExecuteAsync(null);
 
@@ -293,6 +294,7 @@ public class OrderDetailsWaybillTests
 {
     private readonly FakeOrderService _orders = new();
     private readonly FakeWaybillPrinter _waybills = new();
+    private readonly FakeClipboardService _clipboard = new();
     private readonly CurrentUser _currentUser = new();
 
     private async Task<OrderDetailsViewModel> OpenCardAsync(Order order, UserSession user)
@@ -300,7 +302,7 @@ public class OrderDetailsWaybillTests
         _orders.Orders[order.Id] = order;
         _currentUser.SignIn(user);
         var card = new OrderDetailsViewModel(order.Id, _orders, new FakeOrderActionService(), new OrderWorkflow(), _currentUser,
-            new FakeDialogService(), new FakeEditDialogService(), new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills);
+            new FakeDialogService(), new FakeEditDialogService(), new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills, _clipboard);
         await card.LoadCommand.ExecuteAsync(null);
         return card;
     }
@@ -348,7 +350,7 @@ public class OrderDetailsWaybillTests
     {
         _currentUser.SignIn(WorkflowTestData.Operator);
         var card = new OrderDetailsViewModel(1, _orders, new FakeOrderActionService(), new OrderWorkflow(), _currentUser,
-            new FakeDialogService(), new FakeEditDialogService(), new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills);
+            new FakeDialogService(), new FakeEditDialogService(), new SlaEvaluator(new FixedClock(WorkflowTestData.Now)), _waybills, _clipboard);
 
         Assert.False(card.PrintWaybillCommand.CanExecute(null));
     }

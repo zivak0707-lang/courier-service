@@ -69,6 +69,44 @@
         </Style.Triggers>
     </Style>
 
+    <!-- Меню правої кнопки для тексту, який можна лише виділити й скопіювати (x:Shared: окреме меню для кожного поля) -->
+    <ContextMenu x:Key="ReadOnlyTextMenu" x:Shared="False">
+        <MenuItem Header="_Копіювати" Command="ApplicationCommands.Copy" InputGestureText="Ctrl+C" />
+        <MenuItem Header="Виділити _все" Command="ApplicationCommands.SelectAll" InputGestureText="Ctrl+A" />
+    </ContextMenu>
+
+    <!-- Текст, який виглядає як звичайний, але його можна виділити мишкою й скопіювати (трек-номер, повідомлення).
+         Ім'я для екранних дикторів — сам текст -->
+    <Style x:Key="SelectableTextStyle" TargetType="TextBox">
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="IsReadOnlyCaretVisible" Value="False" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="ContextMenu" Value="{StaticResource ReadOnlyTextMenu}" />
+        <Setter Property="AutomationProperties.Name" Value="{Binding Text, RelativeSource={RelativeSource Self}}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
+                                  HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Маленька кнопка зі значком «копіювати» поруч із трек-номером -->
+    <Style x:Key="CopyButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Content" Value="&#xE8C8;" />
+        <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Padding" Value="8,6" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="ToolTip" Value="Копіювати трек-номер" />
+        <Setter Property="AutomationProperties.Name" Value="Копіювати трек-номер" />
+    </Style>
+
     <!-- Вузькі поля (габарити, вага): помилка може зайняти два рядки -->
     <Style x:Key="NarrowFormTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource FormTextBoxStyle}">
         <Setter Property="Margin" Value="0,0,0,42" />
