@@ -119,7 +119,7 @@ public abstract partial class EditViewModelBase : ViewModelBase, INotifyDataErro
             return money;
         }
 
-        errors.Add(property, $"Поле «{label}» має бути сумою в гривнях, наприклад 110,50.");
+        errors.Add(property, FormatError(text, label, $"«{label}» — сума в гривнях, наприклад 110,50."));
         return Money.Zero;
     }
 
@@ -136,7 +136,7 @@ public abstract partial class EditViewModelBase : ViewModelBase, INotifyDataErro
             return grams;
         }
 
-        errors.Add(property, $"Поле «{label}» має бути вагою в кілограмах, наприклад 2 або 0,5.");
+        errors.Add(property, FormatError(text, label, $"«{label}» — вага в кг, наприклад 2 або 0,5."));
         return 0;
     }
 
@@ -153,9 +153,17 @@ public abstract partial class EditViewModelBase : ViewModelBase, INotifyDataErro
             return value;
         }
 
-        errors.Add(property, $"Поле «{label}» має бути цілим числом.");
+        errors.Add(property, FormatError(text, label, $"«{label}» — потрібне ціле число."));
         return 0;
     }
+
+    /// <summary>
+    /// Текст помилки розбору: порожнє поле — «заповніть», інакше — підказка про формат.
+    /// Тексти короткі, бо показуються під вузькими полями, але з назвою поля: розрахунок вартості
+    /// показує їх окремо від поля.
+    /// </summary>
+    private static string FormatError(string? text, string label, string formatHint) =>
+        string.IsNullOrWhiteSpace(text) ? $"Заповніть поле «{label}»." : formatHint;
 
     /// <summary>
     /// Поєднує помилки розбору полів і помилки правил: якщо поле не розібралося,

@@ -92,6 +92,10 @@ public sealed partial class TariffEditorViewModel : EditViewModelBase<TariffInpu
     /// <inheritdoc />
     public override string Title => IsNew ? "Новий тариф" : "Зміна тарифу";
 
+    /// <inheritdoc />
+    /// <remarks>Ширше за типове вікно: довгі підписи («Доплата за переїзд через Дніпро, грн») уміщуються в один рядок.</remarks>
+    public override double DialogWidth => 680;
+
     /// <summary>Назва.</summary>
     [ObservableProperty]
     public partial string Name { get; set; }

@@ -92,21 +92,17 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="12" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="12" />
-                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Вага, кг" Style="{StaticResource FieldLabelStyle}" />
                     <TextBox Text="{Binding WeightGrams, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Вага" />
+                             Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Вага" />
                 </StackPanel>
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="Оголошена цінність, грн" Style="{StaticResource FieldLabelStyle}" />
                     <TextBox Text="{Binding DeclaredValue, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Оголошена цінність" />
+                             Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Оголошена цінність" />
                 </StackPanel>
-                <CheckBox Grid.Column="4" Content="Крихка" IsChecked="{Binding IsFragile}"
-                          VerticalAlignment="Top" Margin="0,26,0,0" AutomationProperties.Name="Крихка посилка" />
             </Grid>
 
             <TextBlock Text="Габарити, см (кожна сторона до 120 см)" Style="{StaticResource FieldLabelStyle}" />
@@ -119,12 +115,14 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBox Grid.Column="0" Text="{Binding LengthCm, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Довжина" ToolTip="Довжина" />
+                         Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Довжина" ToolTip="Довжина" />
                 <TextBox Grid.Column="2" Text="{Binding WidthCm, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Ширина" ToolTip="Ширина" />
+                         Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Ширина" ToolTip="Ширина" />
                 <TextBox Grid.Column="4" Text="{Binding HeightCm, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Висота" ToolTip="Висота" />
+                         Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Висота" ToolTip="Висота" />
             </Grid>
+            <CheckBox Content="Крихка посилка" IsChecked="{Binding IsFragile}" Margin="0,-14,0,22"
+                      AutomationProperties.Name="Крихка посилка" />
 
             <TextBlock Text="Оплата доставки" Style="{StaticResource SectionHeadingStyle}" Margin="0,0,0,8" />
             <Grid>

@@ -187,9 +187,9 @@ public class TariffEditorViewModelTests
         await editor.SaveCommand.ExecuteAsync(null);
 
         Assert.NotEmpty(editor.GetErrors(nameof(TariffEditorViewModel.Name)).Cast<string>());
-        Assert.Contains("сумою в гривнях", editor.GetErrors(nameof(TariffEditorViewModel.BasePrice)).Cast<string>().Single());
+        Assert.Contains("сума в гривнях", editor.GetErrors(nameof(TariffEditorViewModel.BasePrice)).Cast<string>().Single());
         Assert.Contains("меншою за максимальну", editor.GetErrors(nameof(TariffEditorViewModel.IncludedWeightGrams)).Cast<string>().Single());
-        Assert.Contains("цілим числом", editor.GetErrors(nameof(TariffEditorViewModel.DeliveryHours)).Cast<string>().Single());
+        Assert.Contains("ціле число", editor.GetErrors(nameof(TariffEditorViewModel.DeliveryHours)).Cast<string>().Single());
         Assert.Empty(_service.Saved);
     }
 }

@@ -308,7 +308,20 @@ public class EditViewModelBaseTests
 
         await _editor.SaveCommand.ExecuteAsync(null);
 
-        Assert.Equal(["Поле «Число» має бути цілим числом."], ErrorsOf(_editor, nameof(TestEditor.Number)));
+        Assert.Equal(["«Число» — потрібне ціле число."], ErrorsOf(_editor, nameof(TestEditor.Number)));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task Save_EmptyNumber_AsksToFillField(string number)
+    {
+        _editor.Name = "Тест";
+        _editor.Number = number;
+
+        await _editor.SaveCommand.ExecuteAsync(null);
+
+        Assert.Equal(["Заповніть поле «Число»."], ErrorsOf(_editor, nameof(TestEditor.Number)));
     }
 
     [Fact]

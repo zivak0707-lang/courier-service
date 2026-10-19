@@ -31,26 +31,47 @@
     </Style>
 
     <!-- Помилка біля поля: червона рамка й текст першої помилки під полем (INotifyDataErrorInfo) -->
+    <!-- Ширина тексту дорівнює ширині поля: у вузькому полі текст переноситься, а не заходить на сусідні поля
+         й не розтягує червону рамку -->
     <ControlTemplate x:Key="FieldErrorTemplate">
         <StackPanel>
             <Border BorderBrush="#C42B1C" BorderThickness="1" CornerRadius="4">
-                <AdornedElementPlaceholder />
+                <AdornedElementPlaceholder x:Name="Field" />
             </Border>
             <TextBlock Text="{Binding [0].ErrorContent}"
                        Foreground="#C42B1C" FontSize="12" TextWrapping="Wrap"
-                       MaxWidth="480" HorizontalAlignment="Left" Margin="2,2,0,0" />
+                       Width="{Binding AdornedElement.ActualWidth, ElementName=Field}"
+                       HorizontalAlignment="Left" Margin="2,2,0,0" />
         </StackPanel>
     </ControlTemplate>
 
-    <!-- Поля форм: місце під текст помилки зарезервовано відступом знизу -->
+    <!-- Поля форм: місце під текст помилки зарезервовано відступом знизу. Текст помилки шаблон малює
+         в окремому шарі, якого не бачать екранні диктори, тому помилка дублюється в HelpText поля -->
     <Style x:Key="FormTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
         <Setter Property="Validation.ErrorTemplate" Value="{StaticResource FieldErrorTemplate}" />
         <Setter Property="Margin" Value="0,0,0,26" />
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="AutomationProperties.HelpText"
+                        Value="{Binding (Validation.Errors)[0].ErrorContent, RelativeSource={RelativeSource Self}}" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="FormComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
         <Setter Property="Validation.ErrorTemplate" Value="{StaticResource FieldErrorTemplate}" />
         <Setter Property="Margin" Value="0,0,0,26" />
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="AutomationProperties.HelpText"
+                        Value="{Binding (Validation.Errors)[0].ErrorContent, RelativeSource={RelativeSource Self}}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Вузькі поля (габарити, вага): помилка може зайняти два рядки -->
+    <Style x:Key="NarrowFormTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource FormTextBoxStyle}">
+        <Setter Property="Margin" Value="0,0,0,42" />
     </Style>
 
     <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
