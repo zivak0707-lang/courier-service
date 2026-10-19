@@ -31,13 +31,13 @@ public class Order : EntityBase
     /// <summary>Телефон одержувача.</summary>
     public string RecipientPhone { get; set; } = string.Empty;
 
-    /// <summary>Адреса забору.</summary>
+    /// <summary>Адреса, звідки забрати посилку.</summary>
     public string PickupAddress { get; set; } = string.Empty;
 
-    /// <summary>Зона забору.</summary>
+    /// <summary>Зона, звідки забрати.</summary>
     public int PickupZoneId { get; set; }
 
-    /// <summary>Зона забору.</summary>
+    /// <summary>Зона, звідки забрати.</summary>
     public Zone PickupZone { get; set; } = null!;
 
     /// <summary>Адреса доставки.</summary>

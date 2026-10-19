@@ -127,7 +127,7 @@
                                 <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource ValueStyle}">
                                     <Run Text="{Binding Order.Client.Name, Mode=OneWay}" />, <Run Text="{Binding Order.Client.Phone, Mode=OneWay, Converter={StaticResource Phone}}" />
                                 </TextBlock>
-                                <TextBlock Grid.Row="2" Text="Забір" Style="{StaticResource LabelStyle}" />
+                                <TextBlock Grid.Row="2" Text="Звідки" Style="{StaticResource LabelStyle}" />
                                 <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource ValueStyle}">
                                     <Run Text="{Binding Order.PickupAddress, Mode=OneWay}" /> (<Run Text="{Binding Order.PickupZone.Name, Mode=OneWay}" />)
                                 </TextBlock>
@@ -135,7 +135,7 @@
                                 <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource ValueStyle}">
                                     <Run Text="{Binding Order.RecipientName, Mode=OneWay}" />, <Run Text="{Binding Order.RecipientPhone, Mode=OneWay, Converter={StaticResource Phone}}" />
                                 </TextBlock>
-                                <TextBlock Grid.Row="4" Text="Доставка" Style="{StaticResource LabelStyle}" />
+                                <TextBlock Grid.Row="4" Text="Куди" Style="{StaticResource LabelStyle}" />
                                 <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource ValueStyle}">
                                     <Run Text="{Binding Order.DeliveryAddress, Mode=OneWay}" /> (<Run Text="{Binding Order.DeliveryZone.Name, Mode=OneWay}" />)
                                 </TextBlock>

@@ -290,7 +290,7 @@ public sealed class OrderWorkflow : IOrderWorkflow
         {
             OrderAction.PickUp when NeedsOperatorPayment(order) =>
                 $"Відправник ще не оплатив доставку ({payment!.Method.ToDisplayName().ToLowerInvariant()}). "
-                + "Оператор позначає оплату до забору посилки.",
+                + "Оператор позначає оплату до того, як кур'єр забере посилку.",
             OrderAction.Deliver when payment is { Payer: PaymentPayer.Sender, Status: not PaymentStatus.Paid } =>
                 "Оплату відправника не підтверджено.",
             _ => null,

@@ -100,7 +100,7 @@ public sealed partial class OrderEditorViewModel : EditViewModelBase
     /// <summary>Варіанти відправника.</summary>
     public IReadOnlyList<Option<int>> Clients { get; }
 
-    /// <summary>Варіанти зон забору й доставки.</summary>
+    /// <summary>Варіанти зон (звідки забрати й куди доставити).</summary>
     public IReadOnlyList<Option<int>> Zones { get; }
 
     /// <summary>Варіанти тарифу.</summary>
@@ -129,11 +129,11 @@ public sealed partial class OrderEditorViewModel : EditViewModelBase
     [ObservableProperty]
     public partial string RecipientPhone { get; set; } = string.Empty;
 
-    /// <summary>Адреса забору (типово — адреса відправника).</summary>
+    /// <summary>Звідки забрати (типово — адреса відправника).</summary>
     [ObservableProperty]
     public partial string PickupAddress { get; set; } = string.Empty;
 
-    /// <summary>Зона забору.</summary>
+    /// <summary>Зона, звідки забрати.</summary>
     [ObservableProperty]
     public partial int PickupZoneId { get; set; }
 
@@ -214,7 +214,7 @@ public sealed partial class OrderEditorViewModel : EditViewModelBase
 
     partial void OnClientIdChanged(int value)
     {
-        // Адреса забору підставляється з картки клієнта, якщо оператор не ввів іншу
+        // Адреса, звідки забрати, підставляється з картки клієнта, якщо оператор не ввів іншу
         string? address = _data.Clients.FirstOrDefault(c => c.Id == value)?.Address;
         if (address is not null && (string.IsNullOrWhiteSpace(PickupAddress) || PickupAddress == _autoPickupAddress))
         {
@@ -265,7 +265,7 @@ public sealed partial class OrderEditorViewModel : EditViewModelBase
         Zone? deliveryZone = _data.Zones.FirstOrDefault(z => z.Id == DeliveryZoneId);
         if (tariff is null || pickupZone is null || deliveryZone is null)
         {
-            return PriceQuote.NotReady("Оберіть тариф, зону забору й зону доставки — вартість порахується автоматично.");
+            return PriceQuote.NotReady("Оберіть тариф і обидві зони (звідки забрати й куди доставити) — вартість порахується автоматично.");
         }
 
         if (new[] { WeightGrams, LengthCm, WidthCm, HeightCm }.Any(string.IsNullOrWhiteSpace))

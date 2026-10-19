@@ -80,13 +80,13 @@
         <StackPanel>
             <Border Style="{StaticResource Block}">
                 <StackPanel>
-                    <TextBlock Text="ВІДПРАВНИК · АДРЕСА ЗАБОРУ" Style="{StaticResource BlockTitle}" />
+                    <TextBlock Text="ВІДПРАВНИК · ЗВІДКИ ЗАБРАТИ" Style="{StaticResource BlockTitle}" />
                     <ContentPresenter Content="{Binding Sender}" ContentTemplate="{StaticResource PartyTemplate}" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource Block}">
                 <StackPanel>
-                    <TextBlock Text="ОДЕРЖУВАЧ · АДРЕСА ДОСТАВКИ" Style="{StaticResource BlockTitle}" />
+                    <TextBlock Text="ОДЕРЖУВАЧ · КУДИ ДОСТАВИТИ" Style="{StaticResource BlockTitle}" />
                     <ContentPresenter Content="{Binding Recipient}" ContentTemplate="{StaticResource PartyTemplate}" />
                 </StackPanel>
             </Border>

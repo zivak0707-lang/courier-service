@@ -13,8 +13,8 @@ namespace CourierService.Core.Orders;
 /// <param name="ClientId">Відправник (клієнт з довідника).</param>
 /// <param name="RecipientName">ПІБ одержувача.</param>
 /// <param name="RecipientPhone">Телефон одержувача в будь-якому допустимому форматі.</param>
-/// <param name="PickupAddress">Адреса забору.</param>
-/// <param name="PickupZoneId">Зона забору.</param>
+/// <param name="PickupAddress">Адреса, звідки забрати посилку.</param>
+/// <param name="PickupZoneId">Зона, звідки забрати.</param>
 /// <param name="DeliveryAddress">Адреса доставки.</param>
 /// <param name="DeliveryZoneId">Зона доставки.</param>
 /// <param name="TariffId">Тариф.</param>
@@ -117,10 +117,10 @@ public sealed class OrderValidator : IValidator<OrderInput>
         Selected(errors, nameof(input.ClientId), input.ClientId, "Оберіть відправника.");
         errors.RequiredText(nameof(input.RecipientName), input.RecipientName, "Одержувач", RecipientNameMaxLength);
         errors.Phone(nameof(input.RecipientPhone), input.RecipientPhone);
-        errors.RequiredText(nameof(input.PickupAddress), input.PickupAddress, "Адреса забору", Order.AddressMaxLength);
-        Selected(errors, nameof(input.PickupZoneId), input.PickupZoneId, "Оберіть зону забору.");
-        errors.RequiredText(nameof(input.DeliveryAddress), input.DeliveryAddress, "Адреса доставки", Order.AddressMaxLength);
-        Selected(errors, nameof(input.DeliveryZoneId), input.DeliveryZoneId, "Оберіть зону доставки.");
+        errors.RequiredText(nameof(input.PickupAddress), input.PickupAddress, "Звідки забрати", Order.AddressMaxLength);
+        Selected(errors, nameof(input.PickupZoneId), input.PickupZoneId, "Оберіть зону, звідки забрати.");
+        errors.RequiredText(nameof(input.DeliveryAddress), input.DeliveryAddress, "Куди доставити", Order.AddressMaxLength);
+        Selected(errors, nameof(input.DeliveryZoneId), input.DeliveryZoneId, "Оберіть зону, куди доставити.");
         Selected(errors, nameof(input.TariffId), input.TariffId, "Оберіть тариф.");
 
         errors.InRange(nameof(input.WeightGrams), input.WeightGrams, 1, TariffValidator.MaxParcelWeightGrams,

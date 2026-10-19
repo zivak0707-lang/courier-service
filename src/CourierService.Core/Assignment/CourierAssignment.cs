@@ -28,8 +28,8 @@ public sealed record CourierCandidate(
 /// <summary>
 /// Що потрібно знати про замовлення для вибору кур'єра.
 /// </summary>
-/// <param name="PickupZoneId">Зона забору.</param>
-/// <param name="PickupBank">Берег зони забору.</param>
+/// <param name="PickupZoneId">Зона, звідки забрати.</param>
+/// <param name="PickupBank">Берег зони, звідки забрати.</param>
 /// <param name="ChargeableWeightGrams">Розрахункова вага посилки, г.</param>
 public sealed record AssignmentRequest(int PickupZoneId, RiverBank PickupBank, int ChargeableWeightGrams);
 
@@ -57,7 +57,7 @@ public interface ICourierAssignmentService
 /// <summary>
 /// Алгоритм автопризначення: з активних кур'єрів, що витримують вагу й мають менше
 /// <see cref="MaxActiveDeliveries"/> активних доставок, обирається той, чия домашня зона
-/// збігається із зоною забору; далі — той самий берег Дніпра; далі — менше активних доставок; далі — за ім'ям.
+/// збігається із зоною, звідки забрати; далі — той самий берег Дніпра; далі — менше активних доставок; далі — за ім'ям.
 /// </summary>
 /// <remarks>Чиста функція: однакові дані завжди дають однаковий вибір, тому алгоритм перевіряється тестами.</remarks>
 public sealed class CourierAssignment : ICourierAssignmentService
@@ -102,7 +102,7 @@ public sealed class CourierAssignment : ICourierAssignmentService
             ? $"та сама зона ({best.HomeZoneName})"
             : best.HomeBank == request.PickupBank
                 ? $"той самий берег ({best.HomeBank.ToDisplayName().ToLowerInvariant()})"
-                : "на березі забору вільних кур'єрів немає";
+                : "на березі, звідки забрати, вільних кур'єрів немає";
         return new AssignmentSuggestion(best, $"{best.FullName}: {location}, {ActiveDeliveriesText(best.ActiveDeliveries)}.");
     }
 

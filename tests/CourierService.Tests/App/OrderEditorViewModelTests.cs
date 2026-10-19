@@ -121,7 +121,7 @@ public class OrderEditorViewModelTests
         Assert.Equal(PaymentMethod.Cash, editor.Method);
         Assert.Equal(3, editor.PaymentMethods.Count);
         Assert.False(editor.Quote.IsReady);
-        Assert.Contains("зону", editor.Quote.Hint);
+        Assert.Contains("зони", editor.Quote.Hint);
         Assert.False(editor.HasErrors);   // порожня форма не «червоніє» одразу
     }
 

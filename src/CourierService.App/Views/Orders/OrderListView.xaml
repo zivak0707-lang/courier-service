@@ -100,8 +100,8 @@
                 <DataGridTextColumn Header="Відправник" Binding="{Binding ClientName}" Width="*" MinWidth="160" />
                 <DataGridTextColumn Header="Одержувач" Binding="{Binding RecipientName}" Width="*" MinWidth="140" />
                 <DataGridTextColumn Header="Телефон одержувача" Binding="{Binding RecipientPhone, Converter={StaticResource Phone}}" Width="Auto" />
-                <DataGridTextColumn Header="Забір" Binding="{Binding PickupZone}" Width="Auto" />
-                <DataGridTextColumn Header="Доставка" Binding="{Binding DeliveryZone}" Width="Auto" />
+                <DataGridTextColumn Header="Звідки" Binding="{Binding PickupZone}" Width="Auto" />
+                <DataGridTextColumn Header="Куди" Binding="{Binding DeliveryZone}" Width="Auto" />
                 <DataGridTextColumn Header="Тариф" Binding="{Binding TariffName}" Width="Auto" />
                 <!-- Money порівнюється за копійками -->
                 <DataGridTextColumn Header="Вартість" Binding="{Binding Price}" SortMemberPath="Price.Kopecks" Width="Auto" />

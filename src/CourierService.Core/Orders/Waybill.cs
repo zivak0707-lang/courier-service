@@ -22,7 +22,7 @@ public sealed record WaybillParty(string Name, string Phone, string Address, str
 /// <param name="CreatedAt">Дата оформлення.</param>
 /// <param name="Deadline">Доставити до.</param>
 /// <param name="Tariff">Назва тарифу.</param>
-/// <param name="Sender">Відправник і адреса забору.</param>
+/// <param name="Sender">Відправник і адреса, звідки забрати.</param>
 /// <param name="Recipient">Одержувач і адреса доставки.</param>
 /// <param name="Parcel">Опис посилки: вага, габарити, позначки.</param>
 /// <param name="Price">Вартість доставки.</param>

@@ -53,7 +53,7 @@ public class CourierAssignmentTests
         var suggestion = _assignment.Suggest(PickupIn(Darnytskyi), [Candidate(3, "Олег Савчук", Shevchenkivskyi, active: 1)]);
 
         Assert.Equal(3, suggestion.Courier?.CourierId);
-        Assert.Equal("Олег Савчук: на березі забору вільних кур'єрів немає, 1 активна доставка.", suggestion.Explanation);
+        Assert.Equal("Олег Савчук: на березі, звідки забрати, вільних кур'єрів немає, 1 активна доставка.", suggestion.Explanation);
     }
 
     [Fact]

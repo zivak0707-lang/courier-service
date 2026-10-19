@@ -24,7 +24,7 @@
         <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" MaxLength="100"
                  Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Пошта" />
 
-        <TextBlock Text="Адреса забору за замовчуванням" Style="{StaticResource FieldLabelStyle}" />
+        <TextBlock Text="Звідки забирати посилки (типова адреса)" Style="{StaticResource FieldLabelStyle}" />
         <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" MaxLength="200"
                  Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Адреса" />
 

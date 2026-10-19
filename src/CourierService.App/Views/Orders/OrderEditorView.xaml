@@ -27,15 +27,15 @@
                     <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Адреса забору" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Text="Звідки забрати" Style="{StaticResource FieldLabelStyle}" />
                     <TextBox Text="{Binding PickupAddress, UpdateSourceTrigger=PropertyChanged}" MaxLength="200"
-                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Адреса забору" />
+                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Звідки забрати" />
                 </StackPanel>
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="Зона забору" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Text="Зона" Style="{StaticResource FieldLabelStyle}" />
                     <ComboBox ItemsSource="{Binding Zones}" DisplayMemberPath="Display" SelectedValuePath="Value"
                               SelectedValue="{Binding PickupZoneId}"
-                              Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Зона забору" />
+                              Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Зона, звідки забрати" />
                 </StackPanel>
             </Grid>
 
@@ -64,15 +64,15 @@
                     <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Адреса доставки" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Text="Куди доставити" Style="{StaticResource FieldLabelStyle}" />
                     <TextBox Text="{Binding DeliveryAddress, UpdateSourceTrigger=PropertyChanged}" MaxLength="200"
-                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Адреса доставки" />
+                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Куди доставити" />
                 </StackPanel>
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="Зона доставки" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Text="Зона" Style="{StaticResource FieldLabelStyle}" />
                     <ComboBox ItemsSource="{Binding Zones}" DisplayMemberPath="Display" SelectedValuePath="Value"
                               SelectedValue="{Binding DeliveryZoneId}"
-                              Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Зона доставки" />
+                              Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Зона, куди доставити" />
                 </StackPanel>
             </Grid>
 

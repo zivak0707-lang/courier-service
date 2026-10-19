@@ -107,7 +107,7 @@ public sealed partial class ClientEditorViewModel : EditViewModelBase<ClientInpu
     [ObservableProperty]
     public partial string Email { get; set; }
 
-    /// <summary>Адреса забору за замовчуванням.</summary>
+    /// <summary>Типова адреса, звідки забирати посилки.</summary>
     [ObservableProperty]
     public partial string Address { get; set; }
 

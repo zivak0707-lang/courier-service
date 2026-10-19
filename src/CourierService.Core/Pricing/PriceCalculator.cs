@@ -27,7 +27,7 @@ public sealed record ParcelParameters(
 /// <param name="ChargeableWeightGrams">Розрахункова вага — більша з фактичної та об'ємної, г.</param>
 /// <param name="ExtraKilograms">Кількість розпочатих кілограмів понад включену вагу.</param>
 /// <param name="ZoneCoefficientPercent">Застосований коефіцієнт зони, %.</param>
-/// <param name="CrossesRiver">Чи забір і доставка на різних берегах Дніпра.</param>
+/// <param name="CrossesRiver">Чи зони «звідки» й «куди» на різних берегах Дніпра.</param>
 /// <param name="BaseCost">Базова вартість з коефіцієнтом зони.</param>
 /// <param name="WeightCost">Вартість додаткових кілограмів з коефіцієнтом зони.</param>
 /// <param name="CrossRiverCost">Доплата за переїзд через Дніпро.</param>
@@ -58,7 +58,7 @@ public interface IPriceCalculator
     /// Обчислює вартість доставки з розбивкою.
     /// </summary>
     /// <param name="tariff">Тариф.</param>
-    /// <param name="pickupZone">Зона забору.</param>
+    /// <param name="pickupZone">Зона, звідки забрати.</param>
     /// <param name="deliveryZone">Зона доставки.</param>
     /// <param name="parcel">Параметри посилки (вже перевірені).</param>
     /// <returns>Розбивка й підсумок.</returns>

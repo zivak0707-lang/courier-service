@@ -19,7 +19,7 @@ public class Client : ReferenceEntity
     /// <summary>Електронна пошта (необов'язково).</summary>
     public string? Email { get; set; }
 
-    /// <summary>Адреса за замовчуванням для забору посилок.</summary>
+    /// <summary>Типова адреса, звідки забирати посилки.</summary>
     public string Address { get; set; } = string.Empty;
 
     /// <summary>Примітки оператора.</summary>

@@ -49,7 +49,7 @@ public sealed record OrderFilter(
 /// <param name="ClientPhone">Телефон відправника.</param>
 /// <param name="RecipientName">Одержувач.</param>
 /// <param name="RecipientPhone">Телефон одержувача.</param>
-/// <param name="PickupZone">Зона забору.</param>
+/// <param name="PickupZone">Зона, звідки забрати.</param>
 /// <param name="DeliveryZone">Зона доставки.</param>
 /// <param name="TariffName">Тариф.</param>
 /// <param name="Price">Вартість доставки.</param>

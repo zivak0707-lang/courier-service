@@ -23,7 +23,7 @@ public class Tariff : ReferenceEntity
     /// <summary>Термін доставки в робочих годинах (рішення D-14).</summary>
     public int DeliveryHours { get; set; }
 
-    /// <summary>Доплата, якщо забір і доставка на різних берегах Дніпра.</summary>
+    /// <summary>Доплата, якщо зони «звідки» й «куди» на різних берегах Дніпра.</summary>
     public Money CrossRiverSurcharge { get; set; }
 
     /// <summary>Оголошена цінність, що не тарифікується страхуванням.</summary>

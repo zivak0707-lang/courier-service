@@ -12,7 +12,7 @@ namespace CourierService.Core.Directories;
 /// <param name="Name">ПІБ або назва.</param>
 /// <param name="Phone">Телефон у будь-якому допустимому форматі.</param>
 /// <param name="Email">Електронна пошта (необов'язково).</param>
-/// <param name="Address">Адреса забору за замовчуванням.</param>
+/// <param name="Address">Типова адреса, звідки забирати посилки клієнта.</param>
 /// <param name="Notes">Примітки.</param>
 public sealed record ClientInput(
     int? Id,
@@ -37,7 +37,7 @@ public sealed class ClientValidator : IValidator<ClientInput>
         errors.RequiredText(nameof(input.Name), input.Name, "Назва / ПІБ", 150);
         errors.Phone(nameof(input.Phone), input.Phone);
         errors.OptionalEmail(nameof(input.Email), input.Email, 100);
-        errors.RequiredText(nameof(input.Address), input.Address, "Адреса", 200);
+        errors.RequiredText(nameof(input.Address), input.Address, "Типова адреса", 200);
         errors.OptionalText(nameof(input.Notes), input.Notes, "Примітки", 500);
         return errors;
     }

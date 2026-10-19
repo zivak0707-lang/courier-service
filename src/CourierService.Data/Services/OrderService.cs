@@ -293,7 +293,7 @@ public sealed class OrderService : IOrderService
     /// <param name="input">Перевірені дані форми.</param>
     /// <param name="recipientPhone">Телефон одержувача у форматі +380XXXXXXXXX.</param>
     /// <param name="client">Відправник.</param>
-    /// <param name="pickupZone">Зона забору.</param>
+    /// <param name="pickupZone">Зона, звідки забрати.</param>
     /// <param name="deliveryZone">Зона доставки.</param>
     /// <param name="tariff">Тариф.</param>
     /// <param name="price">Розрахована вартість.</param>
