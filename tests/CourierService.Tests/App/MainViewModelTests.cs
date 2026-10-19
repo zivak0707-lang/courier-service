@@ -31,7 +31,7 @@ public class MainViewModelTests
 
         _loginDialog = new FakeLoginDialog(_currentUser);
         _currentUser.SignIn(Operator);
-        _viewModel = new MainViewModel(new NavigationService(provider), _dialogs, _lifetime, _currentUser, _loginDialog);
+        _viewModel = new MainViewModel(new NavigationService(provider), _dialogs, _lifetime, _currentUser, _loginDialog, new FakeOrderFormLauncher());
     }
 
     private static UserSession SessionFor(UserRole role) => role switch
@@ -66,11 +66,18 @@ public class MainViewModelTests
         UserRole allowedRole = Enum.GetValues<UserRole>().First(role => SectionAccess.IsAllowed(section, role));
         var navigation = new RecordingNavigationService();
         _currentUser.SignIn(SessionFor(allowedRole));
-        var viewModel = new MainViewModel(navigation, _dialogs, _lifetime, _currentUser, _loginDialog);
+        var launcher = new FakeOrderFormLauncher();
+        var viewModel = new MainViewModel(navigation, _dialogs, _lifetime, _currentUser, _loginDialog, launcher);
 
         viewModel.OpenSectionCommand.Execute(section);
 
-        if (MainViewModel.SectionPages.TryGetValue(section, out Type? pageType))
+        if (section == AppSection.NewOrder)
+        {
+            // Нове замовлення відкривається модальним вікном, а не сторінкою (D-21)
+            Assert.Equal(1, launcher.Calls);
+            Assert.Equal(typeof(HomeViewModel), Assert.Single(navigation.RequestedTypes));
+        }
+        else if (MainViewModel.SectionPages.TryGetValue(section, out Type? pageType))
         {
             Assert.Equal(pageType, navigation.RequestedTypes.Last());
         }

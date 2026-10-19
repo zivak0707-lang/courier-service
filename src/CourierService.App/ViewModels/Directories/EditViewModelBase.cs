@@ -42,6 +42,9 @@ public abstract partial class EditViewModelBase : ViewModelBase, INotifyDataErro
     [ObservableProperty]
     public partial bool IsSaving { get; private set; }
 
+    /// <summary>Ширина вікна форми; великі форми (замовлення) перевизначають її.</summary>
+    public virtual double DialogWidth => 560;
+
     /// <inheritdoc />
     public IEnumerable GetErrors(string? propertyName) =>
         propertyName is not null && _errors.TryGetValue(propertyName, out var messages) ? messages : Array.Empty<string>();
@@ -101,6 +104,77 @@ public abstract partial class EditViewModelBase : ViewModelBase, INotifyDataErro
         {
             _isUpdatingErrors = false;
         }
+    }
+
+    /// <summary>Розбирає суму в гривнях; у разі помилки додає її біля поля.</summary>
+    /// <param name="text">Текст поля.</param>
+    /// <param name="property">Назва поля.</param>
+    /// <param name="label">Назва поля для повідомлення.</param>
+    /// <param name="errors">Помилки розбору.</param>
+    /// <returns>Сума або нуль.</returns>
+    protected static Money ParseMoney(string? text, string property, string label, ValidationErrors errors)
+    {
+        if (InputParsing.TryParseMoney(text, out Money money))
+        {
+            return money;
+        }
+
+        errors.Add(property, $"Поле «{label}» має бути сумою в гривнях, наприклад 110,50.");
+        return Money.Zero;
+    }
+
+    /// <summary>Розбирає вагу в кілограмах; у разі помилки додає її біля поля.</summary>
+    /// <param name="text">Текст поля.</param>
+    /// <param name="property">Назва поля.</param>
+    /// <param name="label">Назва поля для повідомлення.</param>
+    /// <param name="errors">Помилки розбору.</param>
+    /// <returns>Вага в грамах або нуль.</returns>
+    protected static int ParseKilograms(string? text, string property, string label, ValidationErrors errors)
+    {
+        if (InputParsing.TryParseKilograms(text, out int grams))
+        {
+            return grams;
+        }
+
+        errors.Add(property, $"Поле «{label}» має бути вагою в кілограмах, наприклад 2 або 0,5.");
+        return 0;
+    }
+
+    /// <summary>Розбирає ціле число; у разі помилки додає її біля поля.</summary>
+    /// <param name="text">Текст поля.</param>
+    /// <param name="property">Назва поля.</param>
+    /// <param name="label">Назва поля для повідомлення.</param>
+    /// <param name="errors">Помилки розбору.</param>
+    /// <returns>Число або нуль.</returns>
+    protected static int ParseInt(string? text, string property, string label, ValidationErrors errors)
+    {
+        if (InputParsing.TryParseInt(text, out int value))
+        {
+            return value;
+        }
+
+        errors.Add(property, $"Поле «{label}» має бути цілим числом.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Поєднує помилки розбору полів і помилки правил: якщо поле не розібралося,
+    /// повідомлення про формат важливіше за повідомлення про межі.
+    /// </summary>
+    /// <param name="parseErrors">Помилки розбору (доповнюються).</param>
+    /// <param name="ruleErrors">Помилки правил предметної області.</param>
+    /// <returns>Усі помилки за полями.</returns>
+    protected static ValidationErrors CombineErrors(ValidationErrors parseErrors, ValidationErrors ruleErrors)
+    {
+        foreach (string propertyName in ruleErrors.PropertyNames.Where(name => parseErrors[name].Count == 0))
+        {
+            foreach (string message in ruleErrors[propertyName])
+            {
+                parseErrors.Add(propertyName, message);
+            }
+        }
+
+        return parseErrors;
     }
 
     [RelayCommand]
@@ -186,18 +260,9 @@ public abstract class EditViewModelBase<TInput> : EditViewModelBase
     /// <inheritdoc />
     protected sealed override ValidationErrors Validate()
     {
-        var errors = new ValidationErrors();
-        TInput input = BuildInput(errors);
-        ValidationErrors ruleErrors = _validator.Validate(input);
-
-        // Якщо поле не розібралося, повідомлення про формат важливіше за повідомлення про межі
-        foreach (string propertyName in ruleErrors.PropertyNames.Where(name => errors[name].Count == 0))
-        {
-            foreach (string message in ruleErrors[propertyName])
-            {
-                errors.Add(propertyName, message);
-            }
-        }
+        var parseErrors = new ValidationErrors();
+        TInput input = BuildInput(parseErrors);
+        ValidationErrors errors = CombineErrors(parseErrors, _validator.Validate(input));
 
         _validInput = errors.IsValid ? input : default;
         return errors;
@@ -206,55 +271,4 @@ public abstract class EditViewModelBase<TInput> : EditViewModelBase
     /// <inheritdoc />
     protected sealed override Task SaveCoreAsync() =>
         SaveInputAsync(_validInput ?? throw new InvalidOperationException("Дані форми не перевірено."));
-
-    /// <summary>Розбирає суму в гривнях; у разі помилки додає її біля поля.</summary>
-    /// <param name="text">Текст поля.</param>
-    /// <param name="property">Назва поля.</param>
-    /// <param name="label">Назва поля для повідомлення.</param>
-    /// <param name="errors">Помилки розбору.</param>
-    /// <returns>Сума або нуль.</returns>
-    protected static Money ParseMoney(string? text, string property, string label, ValidationErrors errors)
-    {
-        if (InputParsing.TryParseMoney(text, out Money money))
-        {
-            return money;
-        }
-
-        errors.Add(property, $"Поле «{label}» має бути сумою в гривнях, наприклад 110,50.");
-        return Money.Zero;
-    }
-
-    /// <summary>Розбирає вагу в кілограмах; у разі помилки додає її біля поля.</summary>
-    /// <param name="text">Текст поля.</param>
-    /// <param name="property">Назва поля.</param>
-    /// <param name="label">Назва поля для повідомлення.</param>
-    /// <param name="errors">Помилки розбору.</param>
-    /// <returns>Вага в грамах або нуль.</returns>
-    protected static int ParseKilograms(string? text, string property, string label, ValidationErrors errors)
-    {
-        if (InputParsing.TryParseKilograms(text, out int grams))
-        {
-            return grams;
-        }
-
-        errors.Add(property, $"Поле «{label}» має бути вагою в кілограмах, наприклад 2 або 0,5.");
-        return 0;
-    }
-
-    /// <summary>Розбирає ціле число; у разі помилки додає її біля поля.</summary>
-    /// <param name="text">Текст поля.</param>
-    /// <param name="property">Назва поля.</param>
-    /// <param name="label">Назва поля для повідомлення.</param>
-    /// <param name="errors">Помилки розбору.</param>
-    /// <returns>Число або нуль.</returns>
-    protected static int ParseInt(string? text, string property, string label, ValidationErrors errors)
-    {
-        if (InputParsing.TryParseInt(text, out int value))
-        {
-            return value;
-        }
-
-        errors.Add(property, $"Поле «{label}» має бути цілим числом.");
-        return 0;
-    }
 }

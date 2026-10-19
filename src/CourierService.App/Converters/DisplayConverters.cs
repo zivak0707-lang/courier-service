@@ -29,6 +29,9 @@ public sealed class EnumDisplayConverter : DisplayConverterBase
         ClientType clientType => clientType.ToDisplayName(),
         RiverBank bank => bank.ToDisplayName(),
         OrderStatus status => status.ToDisplayName(),
+        PaymentPayer payer => payer.ToDisplayName(),
+        PaymentMethod method => method.ToDisplayName(),
+        PaymentStatus paymentStatus => paymentStatus.ToDisplayName(),
         _ => value?.ToString() ?? string.Empty,
     };
 }

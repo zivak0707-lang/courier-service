@@ -6,6 +6,8 @@
              xmlns:converters="clr-namespace:CourierService.App.Converters"
              xmlns:dir="clr-namespace:CourierService.App.ViewModels.Directories"
              xmlns:dirViews="clr-namespace:CourierService.App.Views.Directories"
+             xmlns:orders="clr-namespace:CourierService.App.ViewModels.Orders"
+             xmlns:orderViews="clr-namespace:CourierService.App.Views.Orders"
              ShutdownMode="OnExplicitShutdown"
              ThemeMode="Light">
     <!-- StartupUri не використовується: вікно входу й головне вікно відкриває App.OnStartup.
@@ -65,6 +67,11 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type dir:UserEditorViewModel}">
                 <dirViews:UserEditorView />
+            </DataTemplate>
+
+            <!-- Замовлення: форма нового замовлення у спільному вікні редагування -->
+            <DataTemplate DataType="{x:Type orders:OrderEditorViewModel}">
+                <orderViews:OrderEditorView />
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

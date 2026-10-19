@@ -61,4 +61,37 @@ public static class EnumDisplay
         OrderStatus.Cancelled => "Скасовано",
         _ => status.ToString(),
     };
+
+    /// <summary>Назва платника.</summary>
+    /// <param name="payer">Хто платить.</param>
+    /// <returns>Назва українською.</returns>
+    public static string ToDisplayName(this PaymentPayer payer) => payer switch
+    {
+        PaymentPayer.Sender => "Відправник",
+        PaymentPayer.Recipient => "Одержувач",
+        _ => payer.ToString(),
+    };
+
+    /// <summary>Назва способу оплати.</summary>
+    /// <param name="method">Спосіб оплати.</param>
+    /// <returns>Назва українською.</returns>
+    public static string ToDisplayName(this PaymentMethod method) => method switch
+    {
+        PaymentMethod.Cash => "Готівка",
+        PaymentMethod.Card => "Картка",
+        PaymentMethod.BankTransfer => "Безготівковий розрахунок",
+        _ => method.ToString(),
+    };
+
+    /// <summary>Назва стану оплати.</summary>
+    /// <param name="status">Стан оплати.</param>
+    /// <returns>Назва українською.</returns>
+    public static string ToDisplayName(this PaymentStatus status) => status switch
+    {
+        PaymentStatus.Pending => "Очікує",
+        PaymentStatus.Paid => "Оплачено",
+        PaymentStatus.Cancelled => "Скасовано",
+        PaymentStatus.Refunded => "Повернено",
+        _ => status.ToString(),
+    };
 }

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CourierService.App.Navigation;
 using CourierService.App.Services;
 using CourierService.App.ViewModels.Directories;
+using CourierService.App.ViewModels.Orders;
 using CourierService.Core.Enums;
 using CourierService.Core.Security;
 
@@ -24,6 +25,7 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IAppLifetime _lifetime;
     private readonly ICurrentUser _currentUser;
     private readonly ILoginDialog _loginDialog;
+    private readonly IOrderFormLauncher _orderForm;
     private bool _exitConfirmed;
 
     /// <summary>
@@ -34,18 +36,21 @@ public sealed partial class MainViewModel : ViewModelBase
     /// <param name="lifetime">Сервіс завершення роботи застосунку.</param>
     /// <param name="currentUser">Поточний користувач.</param>
     /// <param name="loginDialog">Вікно входу для зміни користувача.</param>
+    /// <param name="orderForm">Форма нового замовлення (модальне вікно, рішення D-21).</param>
     public MainViewModel(
         INavigationService navigation,
         IDialogService dialogs,
         IAppLifetime lifetime,
         ICurrentUser currentUser,
-        ILoginDialog loginDialog)
+        ILoginDialog loginDialog,
+        IOrderFormLauncher orderForm)
     {
         _navigation = navigation;
         _dialogs = dialogs;
         _lifetime = lifetime;
         _currentUser = currentUser;
         _loginDialog = loginDialog;
+        _orderForm = orderForm;
 
         _navigation.CurrentViewModelChanged += (_, _) => CurrentPage = _navigation.CurrentViewModel;
         _currentUser.Changed += (_, _) => OnCurrentUserChanged();
@@ -130,12 +135,18 @@ public sealed partial class MainViewModel : ViewModelBase
     private void ShowHome() => _navigation.NavigateTo<HomeViewModel>();
 
     [RelayCommand]
-    private void OpenSection(AppSection section)
+    private async Task OpenSectionAsync(AppSection section)
     {
         // Пункт меню прихований, але команду можна викликати й гарячою клавішею
         if (!SectionAccess.IsAllowed(section, CurrentRole))
         {
             _dialogs.ShowWarning($"Розділ «{AppSectionCatalog.Get(section).Title}» недоступний для вашої ролі.");
+            return;
+        }
+
+        if (section == AppSection.NewOrder)
+        {
+            await _orderForm.OpenNewOrderAsync();
             return;
         }
 

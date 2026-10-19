@@ -1,6 +1,7 @@
 using CourierService.App.Services;
 using CourierService.App.ViewModels;
 using CourierService.App.ViewModels.Directories;
+using CourierService.App.ViewModels.Orders;
 using CourierService.App.Views;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +25,7 @@ public static class CompositionRoot
         services.AddSingleton<IAppLifetime, WpfAppLifetime>();
         services.AddSingleton<ILoginDialog, LoginDialog>();
         services.AddSingleton<IEditDialogService, EditDialogService>();
+        services.AddSingleton<IOrderFormLauncher, OrderFormLauncher>();
         services.AddSingleton<GlobalExceptionHandler>();
 
         // Вікно входу: нова ViewModel під час кожного входу

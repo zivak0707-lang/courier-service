@@ -141,13 +141,28 @@ public sealed class OrderValidator : IValidator<OrderInput>
 
         errors.OptionalText(nameof(input.Comment), input.Comment, "Коментар", CommentMaxLength);
 
-        if (tariff is not null && errors.IsValid)
+        // Обмеження тарифу має сенс, лише коли вага й габарити самі по собі правильні
+        if (tariff is not null && ParcelFields.All(field => errors[field].Count == 0))
         {
             CheckTariffWeight(errors, input, tariff);
         }
 
         return errors;
     }
+
+    /// <summary>Поля, від яких залежить вартість доставки (для живого перерахунку у формі).</summary>
+    public static IReadOnlyList<string> PriceFields { get; } =
+    [
+        nameof(OrderInput.PickupZoneId), nameof(OrderInput.DeliveryZoneId), nameof(OrderInput.TariffId),
+        nameof(OrderInput.WeightGrams), nameof(OrderInput.LengthCm), nameof(OrderInput.WidthCm),
+        nameof(OrderInput.HeightCm), nameof(OrderInput.DeclaredValue),
+    ];
+
+    private static IReadOnlyList<string> ParcelFields { get; } =
+    [
+        nameof(OrderInput.WeightGrams), nameof(OrderInput.LengthCm), nameof(OrderInput.WidthCm),
+        nameof(OrderInput.HeightCm),
+    ];
 
     private static void CheckTariffWeight(ValidationErrors errors, OrderInput input, Tariff tariff)
     {

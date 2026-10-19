@@ -1,0 +1,190 @@
+<UserControl x:Class="CourierService.App.Views.Orders.OrderEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:orders="clr-namespace:CourierService.App.ViewModels.Orders"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=orders:OrderEditorViewModel}">
+    <!-- Ліворуч — хто й куди, праворуч — посилка, оплата й вартість, що перераховується під час введення -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="28" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0">
+            <TextBlock Text="Відправник" Style="{StaticResource SectionHeadingStyle}" Margin="0,0,0,8" />
+            <ComboBox ItemsSource="{Binding Clients}" DisplayMemberPath="Display" SelectedValuePath="Value"
+                      SelectedValue="{Binding ClientId}" IsTextSearchEnabled="True" TextSearch.TextPath="Display"
+                      Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Відправник" />
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Адреса забору" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding PickupAddress, UpdateSourceTrigger=PropertyChanged}" MaxLength="200"
+                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Адреса забору" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Зона забору" Style="{StaticResource FieldLabelStyle}" />
+                    <ComboBox ItemsSource="{Binding Zones}" DisplayMemberPath="Display" SelectedValuePath="Value"
+                              SelectedValue="{Binding PickupZoneId}"
+                              Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Зона забору" />
+                </StackPanel>
+            </Grid>
+
+            <TextBlock Text="Одержувач" Style="{StaticResource SectionHeadingStyle}" Margin="0,0,0,8" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="ПІБ" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding RecipientName, UpdateSourceTrigger=PropertyChanged}" MaxLength="100"
+                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="ПІБ одержувача" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Телефон" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding RecipientPhone, UpdateSourceTrigger=PropertyChanged}" MaxLength="25"
+                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Телефон одержувача" />
+                </StackPanel>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Адреса доставки" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding DeliveryAddress, UpdateSourceTrigger=PropertyChanged}" MaxLength="200"
+                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Адреса доставки" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Зона доставки" Style="{StaticResource FieldLabelStyle}" />
+                    <ComboBox ItemsSource="{Binding Zones}" DisplayMemberPath="Display" SelectedValuePath="Value"
+                              SelectedValue="{Binding DeliveryZoneId}"
+                              Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Зона доставки" />
+                </StackPanel>
+            </Grid>
+
+            <TextBlock Text="Коментар (необов'язково)" Style="{StaticResource FieldLabelStyle}" />
+            <TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}" MaxLength="500"
+                     Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Коментар" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="2">
+            <TextBlock Text="Посилка" Style="{StaticResource SectionHeadingStyle}" Margin="0,0,0,8" />
+            <ComboBox ItemsSource="{Binding Tariffs}" DisplayMemberPath="Display" SelectedValuePath="Value"
+                      SelectedValue="{Binding TariffId}"
+                      Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Тариф" />
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Вага, кг" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding WeightGrams, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Вага" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Оголошена цінність, грн" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding DeclaredValue, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Оголошена цінність" />
+                </StackPanel>
+                <CheckBox Grid.Column="4" Content="Крихка" IsChecked="{Binding IsFragile}"
+                          VerticalAlignment="Top" Margin="0,26,0,0" AutomationProperties.Name="Крихка посилка" />
+            </Grid>
+
+            <TextBlock Text="Габарити, см (кожна сторона до 120 см)" Style="{StaticResource FieldLabelStyle}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Text="{Binding LengthCm, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Довжина" ToolTip="Довжина" />
+                <TextBox Grid.Column="2" Text="{Binding WidthCm, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Ширина" ToolTip="Ширина" />
+                <TextBox Grid.Column="4" Text="{Binding HeightCm, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Висота" ToolTip="Висота" />
+            </Grid>
+
+            <TextBlock Text="Оплата доставки" Style="{StaticResource SectionHeadingStyle}" Margin="0,0,0,8" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Хто платить" Style="{StaticResource FieldLabelStyle}" />
+                    <ComboBox ItemsSource="{Binding Payers}" DisplayMemberPath="Display" SelectedValuePath="Value"
+                              SelectedValue="{Binding Payer}"
+                              Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Хто платить" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Спосіб" Style="{StaticResource FieldLabelStyle}" />
+                    <ComboBox ItemsSource="{Binding PaymentMethods}" DisplayMemberPath="Display" SelectedValuePath="Value"
+                              SelectedValue="{Binding Method}"
+                              Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Спосіб оплати" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Вартість: розбивка завжди сходиться з підсумком (рішення D-06) -->
+            <Border Background="#F3F6FA" BorderBrush="#D8DEE6" BorderThickness="1" CornerRadius="8" Padding="16,12"
+                    AutomationProperties.Name="Вартість доставки">
+                <StackPanel>
+                    <TextBlock Text="Вартість доставки" FontWeight="SemiBold" FontSize="15" Margin="0,0,0,6" />
+                    <TextBlock Text="{Binding Quote.Hint}" Style="{StaticResource SecondaryTextStyle}"
+                               Visibility="{Binding Quote.Hint, Converter={StaticResource VisibleWhen}}" />
+
+                    <StackPanel Visibility="{Binding Quote.IsReady, Converter={StaticResource VisibleWhen}}">
+                        <ItemsControl ItemsSource="{Binding Quote.Lines}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type orders:PriceLine}">
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Label}" TextWrapping="Wrap" Margin="0,0,12,0" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Amount}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Separator Margin="0,6" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Разом" FontSize="17" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding Quote.Total}" FontSize="17" FontWeight="SemiBold"
+                                       AutomationProperties.Name="Разом" />
+                        </Grid>
+                        <TextBlock Text="{Binding Quote.Details}" Style="{StaticResource HintTextStyle}" Margin="0,6,0,0" />
+                        <TextBlock Text="{Binding Quote.DeadlineText}" Style="{StaticResource HintTextStyle}" Margin="0,2,0,0" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

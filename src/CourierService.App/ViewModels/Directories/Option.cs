@@ -27,6 +27,10 @@ public static class Options
     public static IReadOnlyList<Option<TransportType>> TransportTypes { get; } =
         Enum.GetValues<TransportType>().Select(type => new Option<TransportType>(type, type.ToDisplayName())).ToList();
 
+    /// <summary>Хто платить за доставку.</summary>
+    public static IReadOnlyList<Option<PaymentPayer>> Payers { get; } =
+        Enum.GetValues<PaymentPayer>().Select(payer => new Option<PaymentPayer>(payer, payer.ToDisplayName())).ToList();
+
     /// <summary>Ролі, які можна призначити в довіднику користувачів (кур'єрів створюють окремо).</summary>
     public static IReadOnlyList<Option<UserRole>> AssignableRoles { get; } =
         [new(UserRole.Admin, UserRole.Admin.ToDisplayName()), new(UserRole.Operator, UserRole.Operator.ToDisplayName())];

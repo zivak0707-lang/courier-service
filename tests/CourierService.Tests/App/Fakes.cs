@@ -98,3 +98,15 @@ internal sealed class FakeDatabaseInitializer : IDatabaseInitializer
     public Task InitializeAsync(CancellationToken cancellationToken = default) =>
         ThrowOnInitialize is null ? Task.CompletedTask : Task.FromException(ThrowOnInitialize);
 }
+
+/// <summary>Заглушка форми нового замовлення: лише рахує відкриття.</summary>
+internal sealed class FakeOrderFormLauncher : CourierService.App.ViewModels.Orders.IOrderFormLauncher
+{
+    public int Calls { get; private set; }
+
+    public Task<CourierService.Core.Orders.OrderCreated?> OpenNewOrderAsync()
+    {
+        Calls++;
+        return Task.FromResult<CourierService.Core.Orders.OrderCreated?>(null);
+    }
+}
