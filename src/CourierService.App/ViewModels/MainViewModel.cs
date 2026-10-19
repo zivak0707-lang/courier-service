@@ -59,6 +59,8 @@ public sealed partial class MainViewModel : ViewModelBase
     {
         [AppSection.Zones] = typeof(ZonesViewModel),
         [AppSection.Tariffs] = typeof(TariffsViewModel),
+        [AppSection.Clients] = typeof(ClientsViewModel),
+        [AppSection.Couriers] = typeof(CouriersViewModel),
     };
 
     /// <inheritdoc />

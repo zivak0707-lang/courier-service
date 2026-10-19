@@ -48,6 +48,18 @@
             <DataTemplate DataType="{x:Type dir:TariffEditorViewModel}">
                 <dirViews:TariffEditorView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type dir:ClientsViewModel}">
+                <dirViews:ClientsView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type dir:ClientEditorViewModel}">
+                <dirViews:ClientEditorView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type dir:CouriersViewModel}">
+                <dirViews:CouriersView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type dir:CourierEditorViewModel}">
+                <dirViews:CourierEditorView />
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

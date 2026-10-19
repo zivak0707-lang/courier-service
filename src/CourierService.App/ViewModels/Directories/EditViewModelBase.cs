@@ -47,6 +47,14 @@ public abstract partial class EditViewModelBase : ViewModelBase, INotifyDataErro
         propertyName is not null && _errors.TryGetValue(propertyName, out var messages) ? messages : Array.Empty<string>();
 
     /// <summary>
+    /// Перша помилка поля — для елементів, що не підтримують прив'язку з показом помилок (PasswordBox).
+    /// </summary>
+    /// <param name="propertyName">Назва поля.</param>
+    /// <returns>Текст помилки або <c>null</c>.</returns>
+    protected string? FirstError(string propertyName) =>
+        _errors.TryGetValue(propertyName, out var messages) ? messages.FirstOrDefault() : null;
+
+    /// <summary>
     /// Розбирає поля форми й перевіряє дані правилами предметної області.
     /// </summary>
     /// <returns>Помилки за полями.</returns>

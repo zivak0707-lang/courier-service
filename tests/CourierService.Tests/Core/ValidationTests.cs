@@ -340,6 +340,19 @@ public class TextSearchTests
         Assert.Equal(expected, TextSearch.Matches(query, field));
     }
 
+    [Theory]
+    [InlineData("093 000 02 04", true)]
+    [InlineData("0930000204", true)]
+    [InlineData("+380 93 000", true)]
+    [InlineData("000-02", true)]
+    [InlineData("02", false)]          // замало цифр
+    [InlineData("093 abc", false)]     // не схоже на номер
+    [InlineData("067", false)]
+    public void MatchesPhone_ComparesDigits(string query, bool expected)
+    {
+        Assert.Equal(expected, TextSearch.MatchesPhone(query, "+380930000204"));
+    }
+
     [Fact]
     public void Matches_SearchesAllFields()
     {

@@ -38,6 +38,8 @@ public static class CompositionRoot
         services.AddTransient<HelpViewModel>();
         services.AddTransient<ZonesViewModel>();
         services.AddTransient<TariffsViewModel>();
+        services.AddTransient<ClientsViewModel>();
+        services.AddTransient<CouriersViewModel>();
 
         return services;
     }

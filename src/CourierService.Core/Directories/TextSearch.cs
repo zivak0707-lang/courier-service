@@ -32,6 +32,25 @@ public static class TextSearch
     }
 
     /// <summary>
+    /// Чи схожий запит на номер телефону, цифри якого входять у збережений номер.
+    /// «093 000 02 04», «0930000204» і «000-02» знаходять +380930000204.
+    /// </summary>
+    /// <param name="query">Запит користувача.</param>
+    /// <param name="phone">Телефон у форматі +380XXXXXXXXX.</param>
+    /// <returns><c>true</c>, якщо запит — фрагмент номера (щонайменше 3 цифри).</returns>
+    public static bool MatchesPhone(string? query, string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(query) || string.IsNullOrEmpty(phone)
+            || !query.All(ch => char.IsAsciiDigit(ch) || ch is ' ' or '-' or '(' or ')' or '+'))
+        {
+            return false;
+        }
+
+        string digits = new(query.Where(char.IsAsciiDigit).ToArray());
+        return digits.Length >= 3 && phone.Contains(digits, StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// Чи однакові два тексти без урахування регістру й пробілів на краях («Стандарт» = « стандарт »).
     /// </summary>
     /// <param name="left">Перший текст.</param>
