@@ -1,5 +1,7 @@
 using CourierService.Core.Abstractions;
+using CourierService.Core.Directories;
 using CourierService.Core.Security;
+using CourierService.Core.Validation;
 using CourierService.Data.Seed;
 using CourierService.Data.Services;
 using Microsoft.Data.Sqlite;
@@ -31,6 +33,18 @@ public static class DependencyInjection
 
         services.AddSingleton<DatabaseSeeder>();
         services.AddSingleton<IDatabaseInitializer, DatabaseInitializer>();
+
+        // Довідники: правила перевірки (Core) і сервіси (рішення D-18)
+        services.AddSingleton<IValidator<ZoneInput>, ZoneValidator>();
+        services.AddSingleton<IValidator<TariffInput>, TariffValidator>();
+        services.AddSingleton<IValidator<ClientInput>, ClientValidator>();
+        services.AddSingleton<IValidator<CourierInput>, CourierValidator>();
+        services.AddSingleton<IValidator<UserInput>, UserValidator>();
+        services.AddSingleton<IZoneService, ZoneService>();
+        services.AddSingleton<ITariffService, TariffService>();
+        services.AddSingleton<IClientService, ClientService>();
+        services.AddSingleton<ICourierService, CourierDirectoryService>();
+        services.AddSingleton<IUserService, UserService>();
 
         return services;
     }

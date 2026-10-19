@@ -30,4 +30,19 @@ public static class SearchText
         return fields.Any(field => field is not null
             && Ukrainian.IndexOf(field, trimmed, CompareOptions.IgnoreCase) >= 0);
     }
+
+    /// <summary>
+    /// Чи однакові два тексти без урахування регістру й пробілів на краях («Стандарт» = « стандарт »).
+    /// </summary>
+    /// <param name="left">Перший текст.</param>
+    /// <param name="right">Другий текст.</param>
+    /// <returns><c>true</c>, якщо тексти однакові.</returns>
+    public static bool SameText(string? left, string? right) =>
+        Ukrainian.Compare(left?.Trim(), right?.Trim(), CompareOptions.IgnoreCase) == 0;
+
+    /// <summary>
+    /// Порівняння для сортування списків за українським алфавітом (і, ї, є, ґ — на своїх місцях).
+    /// </summary>
+    public static StringComparer UkrainianComparer { get; } =
+        StringComparer.Create(CultureInfo.GetCultureInfo("uk-UA"), ignoreCase: true);
 }
