@@ -3,6 +3,7 @@ using CourierService.Core.Assignment;
 using CourierService.Core.Directories;
 using CourierService.Core.Orders;
 using CourierService.Core.Pricing;
+using CourierService.Core.Reports;
 using CourierService.Core.Security;
 using CourierService.Core.Sla;
 using CourierService.Core.Validation;
@@ -60,6 +61,9 @@ public static class DependencyInjection
         services.AddSingleton<IOrderWorkflow, OrderWorkflow>();
         services.AddSingleton<ICourierAssignmentService, CourierAssignment>();
         services.AddSingleton<IOrderActionService, OrderActionService>();
+
+        // Звіти й дашборд (D-29, D-30)
+        services.AddSingleton<IReportService, ReportService>();
 
         return services;
     }
