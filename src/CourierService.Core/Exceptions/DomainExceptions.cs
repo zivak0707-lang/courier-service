@@ -104,3 +104,33 @@ public sealed class EntityNotFoundException : DomainException
     /// <inheritdoc />
     public override string UserMessage => Message + " Оновіть список і спробуйте ще раз.";
 }
+
+/// <summary>
+/// Дію не можна виконати для замовлення в поточному статусі (рішення D-24).
+/// </summary>
+public sealed class InvalidStatusTransitionException : DomainException
+{
+    /// <summary>
+    /// Створює виняток.
+    /// </summary>
+    /// <param name="message">Яку дію і чому не можна виконати.</param>
+    public InvalidStatusTransitionException(string message)
+        : base(message)
+    {
+    }
+}
+
+/// <summary>
+/// Дію не можна виконати без підтвердженої оплати (рішення D-09, D-26).
+/// </summary>
+public sealed class PaymentRequiredException : DomainException
+{
+    /// <summary>
+    /// Створює виняток.
+    /// </summary>
+    /// <param name="message">Яка оплата потрібна.</param>
+    public PaymentRequiredException(string message)
+        : base(message)
+    {
+    }
+}

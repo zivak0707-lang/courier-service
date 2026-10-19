@@ -1,4 +1,6 @@
 using CourierService.Core.Enums;
+using CourierService.Core.Exceptions;
+using CourierService.Core.Orders;
 
 namespace CourierService.Core.Entities;
 
@@ -7,7 +9,7 @@ namespace CourierService.Core.Entities;
 /// </summary>
 /// <remarks>
 /// Ціна та її складові — знімок на момент створення: зміна тарифу не змінює старі замовлення.
-/// Статус змінюється лише через правила життєвого циклу (ітерація 5), тому сетер закритий.
+/// Статус змінюється лише через <see cref="ChangeStatus"/> за правилами життєвого циклу (D-24), тому сетер закритий.
 /// </remarks>
 public class Order : EntityBase
 {
@@ -130,4 +132,32 @@ public class Order : EntityBase
 
     /// <summary>Історія змін статусу.</summary>
     public ICollection<OrderStatusChange> StatusChanges { get; } = [];
+
+    /// <summary>
+    /// Змінює статус і записує зміну в історію. Неможливий перехід (якого немає в таблиці
+    /// <see cref="OrderWorkflow.Transitions"/>) відхиляється, навіть якщо його спробує зробити код в обхід правил.
+    /// </summary>
+    /// <param name="newStatus">Новий статус.</param>
+    /// <param name="changedByUserId">Хто змінює.</param>
+    /// <param name="changedAt">Коли.</param>
+    /// <param name="reason">Причина (для невдалої спроби).</param>
+    /// <exception cref="InvalidStatusTransitionException">Переходу немає в таблиці.</exception>
+    public void ChangeStatus(OrderStatus newStatus, int changedByUserId, DateTime changedAt, string? reason = null)
+    {
+        if (!OrderWorkflow.IsTransitionAllowed(Status, newStatus))
+        {
+            throw new InvalidStatusTransitionException(
+                $"Не можна змінити статус «{Status.ToDisplayName()}» на «{newStatus.ToDisplayName()}».");
+        }
+
+        StatusChanges.Add(new OrderStatusChange
+        {
+            FromStatus = Status,
+            ToStatus = newStatus,
+            ChangedAt = changedAt,
+            ChangedByUserId = changedByUserId,
+            Reason = reason,
+        });
+        Status = newStatus;
+    }
 }
