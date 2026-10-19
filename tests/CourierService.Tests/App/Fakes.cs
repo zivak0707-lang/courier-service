@@ -110,3 +110,16 @@ internal sealed class FakeOrderFormLauncher : CourierService.App.ViewModels.Orde
         return Task.FromResult<CourierService.Core.Orders.OrderCreated?>(null);
     }
 }
+
+/// <summary>Заглушка картки замовлення: запам'ятовує відкриті замовлення й повертає заданий результат.</summary>
+internal sealed class FakeOrderDetailsDialog : IOrderDetailsDialog
+{
+    public bool Result { get; set; }
+    public List<int> Opened { get; } = [];
+
+    public bool ShowOrder(int orderId)
+    {
+        Opened.Add(orderId);
+        return Result;
+    }
+}

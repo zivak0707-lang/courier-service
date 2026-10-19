@@ -15,6 +15,8 @@ public partial class EditDialogWindow : Window
     public EditDialogWindow(EditViewModelBase editor)
     {
         InitializeComponent();
+        // Ширина задається до показу вікна: велика форма замовлення ширша за форми довідників
+        Width = editor.DialogWidth;
         DataContext = editor;
         editor.Saved += (_, _) => DialogResult = true;
     }

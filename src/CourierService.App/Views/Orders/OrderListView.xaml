@@ -30,8 +30,12 @@
             </TextBox>
             <Button Grid.Column="2" Content="_Знайти" MinWidth="100" Margin="8,0,0,0" Command="{Binding SearchCommand}" />
             <Button Grid.Column="3" Content="_Скинути фільтри" Margin="8,0,0,0" Command="{Binding ResetFiltersCommand}" />
-            <Button Grid.Column="5" Content="_Нове замовлення" MinWidth="140" Command="{Binding NewOrderCommand}"
-                    Visibility="{Binding CanCreate, Converter={StaticResource VisibleWhen}}" />
+            <StackPanel Grid.Column="5" Orientation="Horizontal">
+                <Button Content="_Відкрити" MinWidth="110" Margin="0,0,8,0" Command="{Binding OpenOrderCommand}"
+                        ToolTip="Картка замовлення: історія, оплата, дії (або подвійний клік по рядку)" />
+                <Button Content="_Нове замовлення" MinWidth="140" Command="{Binding NewOrderCommand}"
+                        Visibility="{Binding CanCreate, Converter={StaticResource VisibleWhen}}" />
+            </StackPanel>
         </Grid>
 
         <!-- Фільтри застосовуються одразу -->
@@ -73,9 +77,13 @@
 
         <!-- Сортування кліком по заголовку працює по завантажених рядках (D-20) -->
         <!-- Рядки без ознаки IsActive: стандартний стиль рядка замість стилю довідників -->
-        <DataGrid ItemsSource="{Binding Items}" Style="{StaticResource DirectoryGridStyle}"
+        <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedOrder}" Style="{StaticResource DirectoryGridStyle}"
                   RowStyle="{StaticResource {x:Type DataGridRow}}"
                   AutomationProperties.Name="Замовлення">
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenOrderCommand}" />
+                <KeyBinding Key="Enter" Command="{Binding OpenOrderCommand}" />
+            </DataGrid.InputBindings>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Трек-номер" Binding="{Binding TrackingNumber}" Width="Auto" />
                 <DataGridTextColumn Header="Оформлено" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />

@@ -1,0 +1,22 @@
+<UserControl x:Class="CourierService.App.Views.Orders.AssignCourierView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:orders="clr-namespace:CourierService.App.ViewModels.Orders"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=orders:AssignCourierViewModel}">
+    <StackPanel>
+        <TextBlock Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,8">
+            <Run Text="Замовлення" /> <Run Text="{Binding TrackingNumber, Mode=OneWay}" />
+        </TextBlock>
+        <!-- Пояснення автопризначення (D-27): чому запропоновано саме цього кур'єра -->
+        <Border Background="#F3F6FA" BorderBrush="#D8DEE6" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,12">
+            <TextBlock Text="{Binding Suggestion}" TextWrapping="Wrap" AutomationProperties.Name="Пропозиція" />
+        </Border>
+        <TextBlock Text="Кур'єр" Style="{StaticResource FieldLabelStyle}" />
+        <ComboBox ItemsSource="{Binding Couriers}" DisplayMemberPath="Display" SelectedValuePath="Value"
+                  SelectedValue="{Binding CourierId}"
+                  Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Кур'єр" />
+    </StackPanel>
+</UserControl>

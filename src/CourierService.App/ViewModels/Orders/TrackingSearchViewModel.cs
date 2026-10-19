@@ -14,16 +14,19 @@ public sealed partial class TrackingSearchViewModel : ViewModelBase
 {
     private readonly IOrderService _orders;
     private readonly IDialogService _dialogs;
+    private readonly IOrderDetailsDialog _orderDetails;
 
     /// <summary>
     /// Створює сторінку.
     /// </summary>
     /// <param name="orders">Сервіс замовлень.</param>
     /// <param name="dialogs">Повідомлення.</param>
-    public TrackingSearchViewModel(IOrderService orders, IDialogService dialogs)
+    /// <param name="orderDetails">Картка замовлення.</param>
+    public TrackingSearchViewModel(IOrderService orders, IDialogService dialogs, IOrderDetailsDialog orderDetails)
     {
         _orders = orders;
         _dialogs = dialogs;
+        _orderDetails = orderDetails;
     }
 
     /// <inheritdoc />
@@ -36,6 +39,7 @@ public sealed partial class TrackingSearchViewModel : ViewModelBase
 
     /// <summary>Знайдене замовлення.</summary>
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(OpenOrderCommand))]
     public partial OrderListItem? Result { get; private set; }
 
     /// <summary>Пояснення, якщо замовлення не знайдено або номер введено з помилкою.</summary>
@@ -43,6 +47,18 @@ public sealed partial class TrackingSearchViewModel : ViewModelBase
     public partial string? Notice { get; private set; }
 
     private bool CanSearch() => !string.IsNullOrWhiteSpace(TrackingNumber);
+
+    private bool CanOpenOrder() => Result is not null;
+
+    [RelayCommand(CanExecute = nameof(CanOpenOrder))]
+    private async Task OpenOrderAsync()
+    {
+        // Після дії в картці показуємо актуальний статус
+        if (Result is { } order && _orderDetails.ShowOrder(order.Id))
+        {
+            await SearchAsync();
+        }
+    }
 
     [RelayCommand(CanExecute = nameof(CanSearch))]
     private async Task SearchAsync()

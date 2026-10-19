@@ -36,6 +36,7 @@ public class OrderListViewModelTests
 
     private readonly FakeOrderService _orders = new();
     private readonly FakeDialogService _dialogs = new();
+    private readonly FakeOrderDetailsDialog _details = new();
     private readonly FakeClientService _clients = new()
     {
         Items = [new Client { Id = 7, Name = "Наталія Руденко", Phone = "+380930000204" }],
@@ -49,7 +50,7 @@ public class OrderListViewModelTests
     {
         var currentUser = new CurrentUser();
         currentUser.SignIn(new UserSession(1, "user", "Користувач", role, null));
-        return new OrderListViewModel(_orders, _clients, _couriers, launcher ?? new FakeOrderFormLauncher(),
+        return new OrderListViewModel(_orders, _clients, _couriers, launcher ?? new FakeOrderFormLauncher(), _details,
             _dialogs, currentUser, new FixedClock(Now));
     }
 
@@ -166,7 +167,7 @@ public class OrderListViewModelTests
     [Fact]
     public async Task AccessDenied_ShowsErrorInsteadOfCrash()
     {
-        var list = new OrderListViewModel(new ThrowingOrderService(), _clients, _couriers, new FakeOrderFormLauncher(),
+        var list = new OrderListViewModel(new ThrowingOrderService(), _clients, _couriers, new FakeOrderFormLauncher(), _details,
             _dialogs, new CurrentUser(), new FixedClock(Now));
 
         await list.SearchCommand.ExecuteAsync(null);
@@ -193,11 +194,12 @@ public class OrderListViewModelTests
 public class TrackingSearchViewModelTests
 {
     private readonly FakeOrderService _orders = new();
+    private readonly FakeOrderDetailsDialog _details = new();
     private readonly TrackingSearchViewModel _page;
 
     public TrackingSearchViewModelTests()
     {
-        _page = new TrackingSearchViewModel(_orders, new FakeDialogService());
+        _page = new TrackingSearchViewModel(_orders, new FakeDialogService(), _details);
     }
 
     [Fact]
@@ -256,5 +258,48 @@ public class TrackingSearchViewModelTests
 
         Assert.Null(_page.Result);
         Assert.Contains("не знайдено", _page.Notice);
+    }
+}
+
+public class OrderDetailsOpeningTests
+{
+    private readonly FakeOrderService _orders = new();
+    private readonly FakeOrderDetailsDialog _details = new();
+
+    [Fact]
+    public async Task OrderList_OpenSelected_RefreshesOnlyAfterChanges()
+    {
+        var currentUser = new CurrentUser();
+        currentUser.SignIn(new UserSession(1, "operator", "Оператор", UserRole.Operator, null));
+        var list = new OrderListViewModel(_orders, new FakeClientService(), new FakeCourierService(), new FakeOrderFormLauncher(),
+            _details, new FakeDialogService(), currentUser, new FixedClock(new DateTime(2026, 10, 19)));
+        await list.LoadCommand.ExecuteAsync(null);
+
+        Assert.False(list.OpenOrderCommand.CanExecute(null));
+        list.SelectedOrder = OrderListTestData.Item("KV2610190001-2");
+        Assert.True(list.OpenOrderCommand.CanExecute(null));
+
+        await list.OpenOrderCommand.ExecuteAsync(null);
+        Assert.Equal([1], _details.Opened);
+        Assert.Single(_orders.Searches);
+
+        _details.Result = true;
+        await list.OpenOrderCommand.ExecuteAsync(null);
+        Assert.Equal(2, _orders.Searches.Count);
+    }
+
+    [Fact]
+    public async Task TrackingSearch_OpenFoundOrder()
+    {
+        _orders.SearchResult = new([OrderListTestData.Item("KV2610190042-6")], false, null);
+        var page = new TrackingSearchViewModel(_orders, new FakeDialogService(), _details) { TrackingNumber = "KV2610190042-6" };
+        Assert.False(page.OpenOrderCommand.CanExecute(null));
+
+        await page.SearchCommand.ExecuteAsync(null);
+        _details.Result = true;
+        await page.OpenOrderCommand.ExecuteAsync(null);
+
+        Assert.Equal([1], _details.Opened);
+        Assert.Equal(2, _orders.Searches.Count);   // повторний пошук показує новий статус
     }
 }

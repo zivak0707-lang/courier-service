@@ -26,6 +26,7 @@ public static class CompositionRoot
         services.AddSingleton<ILoginDialog, LoginDialog>();
         services.AddSingleton<IEditDialogService, EditDialogService>();
         services.AddSingleton<IOrderFormLauncher, OrderFormLauncher>();
+        services.AddSingleton<IOrderDetailsDialog, OrderDetailsDialog>();
         services.AddSingleton<GlobalExceptionHandler>();
 
         // Вікно входу: нова ViewModel під час кожного входу

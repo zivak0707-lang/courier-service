@@ -83,5 +83,8 @@
                 <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding Deadline, StringFormat=dd.MM.yyyy HH:mm}" />
             </Grid>
         </Border>
+        <Button Content="_Відкрити картку замовлення" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="14,6"
+                Command="{Binding OpenOrderCommand}"
+                Visibility="{Binding Result, Converter={StaticResource VisibleWhen}}" />
     </StackPanel>
 </UserControl>

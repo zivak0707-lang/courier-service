@@ -79,6 +79,13 @@
             <DataTemplate DataType="{x:Type orders:TrackingSearchViewModel}">
                 <orderViews:TrackingSearchView />
             </DataTemplate>
+            <!-- Дії з картки замовлення, що потребують введення (D-25) -->
+            <DataTemplate DataType="{x:Type orders:AssignCourierViewModel}">
+                <orderViews:AssignCourierView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type orders:FailureReasonViewModel}">
+                <orderViews:FailureReasonView />
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

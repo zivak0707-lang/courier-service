@@ -25,6 +25,7 @@ public sealed partial class OrderListViewModel : ViewModelBase, ILoadable
     private readonly IClientService _clients;
     private readonly ICourierService _couriers;
     private readonly IOrderFormLauncher _orderForm;
+    private readonly IOrderDetailsDialog _orderDetails;
     private readonly IDialogService _dialogs;
     private readonly ICurrentUser _currentUser;
     private readonly IClock _clock;
@@ -37,6 +38,7 @@ public sealed partial class OrderListViewModel : ViewModelBase, ILoadable
     /// <param name="clients">Довідник клієнтів (для фільтра).</param>
     /// <param name="couriers">Довідник кур'єрів (для фільтра).</param>
     /// <param name="orderForm">Форма нового замовлення.</param>
+    /// <param name="orderDetails">Картка замовлення.</param>
     /// <param name="dialogs">Повідомлення.</param>
     /// <param name="currentUser">Поточний користувач.</param>
     /// <param name="clock">Поточний час (типовий період).</param>
@@ -45,6 +47,7 @@ public sealed partial class OrderListViewModel : ViewModelBase, ILoadable
         IClientService clients,
         ICourierService couriers,
         IOrderFormLauncher orderForm,
+        IOrderDetailsDialog orderDetails,
         IDialogService dialogs,
         ICurrentUser currentUser,
         IClock clock)
@@ -53,6 +56,7 @@ public sealed partial class OrderListViewModel : ViewModelBase, ILoadable
         _clients = clients;
         _couriers = couriers;
         _orderForm = orderForm;
+        _orderDetails = orderDetails;
         _dialogs = dialogs;
         _currentUser = currentUser;
         _clock = clock;
@@ -85,6 +89,11 @@ public sealed partial class OrderListViewModel : ViewModelBase, ILoadable
     /// <summary>Знайдені замовлення, новіші першими.</summary>
     [ObservableProperty]
     public partial IReadOnlyList<OrderListItem> Items { get; private set; } = [];
+
+    /// <summary>Виділене замовлення.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(OpenOrderCommand))]
+    public partial OrderListItem? SelectedOrder { get; set; }
 
     /// <summary>Пояснення до результату (помилка в запиті, обрізаний результат).</summary>
     [ObservableProperty]
@@ -198,6 +207,18 @@ public sealed partial class OrderListViewModel : ViewModelBase, ILoadable
     private async Task NewOrderAsync()
     {
         if (await _orderForm.OpenNewOrderAsync() is not null)
+        {
+            await SearchAsync();
+        }
+    }
+
+    private bool CanOpenOrder() => SelectedOrder is not null;
+
+    [RelayCommand(CanExecute = nameof(CanOpenOrder))]
+    private async Task OpenOrderAsync()
+    {
+        // Після дії в картці (призначення, скасування…) список оновлюється
+        if (SelectedOrder is { } order && _orderDetails.ShowOrder(order.Id))
         {
             await SearchAsync();
         }
