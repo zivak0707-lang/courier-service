@@ -1,3 +1,5 @@
+using CourierService.Core.Directories;
+
 namespace CourierService.Core.Entities;
 
 /// <summary>
@@ -13,7 +15,7 @@ public abstract class EntityBase
 /// Сутність довідника. Такі записи не видаляються фізично, бо на них посилаються
 /// замовлення, а деактивуються (рішення D-04).
 /// </summary>
-public abstract class ReferenceEntity : EntityBase
+public abstract class ReferenceEntity : EntityBase, IReferenceItem
 {
     /// <summary>Чи активний запис (неактивні не пропонуються для нових замовлень).</summary>
     public bool IsActive { get; set; } = true;

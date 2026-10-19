@@ -27,6 +27,26 @@ public static class EnumDisplay
         _ => transport.ToString(),
     };
 
+    /// <summary>Назва типу клієнта.</summary>
+    /// <param name="clientType">Тип клієнта.</param>
+    /// <returns>Назва українською.</returns>
+    public static string ToDisplayName(this ClientType clientType) => clientType switch
+    {
+        ClientType.Individual => "Фізична особа",
+        ClientType.Company => "Компанія / ФОП",
+        _ => clientType.ToString(),
+    };
+
+    /// <summary>Назва берега Дніпра.</summary>
+    /// <param name="bank">Берег.</param>
+    /// <returns>Назва українською.</returns>
+    public static string ToDisplayName(this RiverBank bank) => bank switch
+    {
+        RiverBank.Right => "Правий",
+        RiverBank.Left => "Лівий",
+        _ => bank.ToString(),
+    };
+
     /// <summary>Назва статусу замовлення.</summary>
     /// <param name="status">Статус замовлення.</param>
     /// <returns>Назва українською.</returns>

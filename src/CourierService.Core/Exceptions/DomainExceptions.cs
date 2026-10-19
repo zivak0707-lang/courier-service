@@ -1,3 +1,5 @@
+using CourierService.Core.Validation;
+
 namespace CourierService.Core.Exceptions;
 
 /// <summary>
@@ -31,13 +33,33 @@ public abstract class DomainException : Exception
 public sealed class DomainValidationException : DomainException
 {
     /// <summary>
-    /// Створює виняток.
+    /// Створює виняток з однією помилкою.
     /// </summary>
     /// <param name="message">Що саме введено неправильно.</param>
-    public DomainValidationException(string message)
+    /// <param name="propertyName">Поле, до якого належить помилка (якщо відоме).</param>
+    public DomainValidationException(string message, string? propertyName = null)
         : base(message)
     {
+        Errors = new ValidationErrors();
+        if (propertyName is not null)
+        {
+            Errors.Add(propertyName, message);
+        }
     }
+
+    /// <summary>
+    /// Створює виняток з результату перевірки.
+    /// </summary>
+    /// <param name="errors">Помилки за полями.</param>
+    public DomainValidationException(ValidationErrors errors)
+        : base(errors?.FirstMessage ?? "Дані некоректні.")
+    {
+        ArgumentNullException.ThrowIfNull(errors);
+        Errors = errors;
+    }
+
+    /// <summary>Помилки за полями — форма показує їх біля відповідних полів.</summary>
+    public ValidationErrors Errors { get; }
 
     /// <inheritdoc />
     public override string UserMessage => "Перевірте введені дані. " + Message;
@@ -59,4 +81,22 @@ public sealed class AccessDeniedException : DomainException
 
     /// <inheritdoc />
     public override string UserMessage => "Недостатньо прав. " + Message;
+}
+
+/// <summary>
+/// Запис, з яким працює користувач, не знайдено (наприклад, його вже змінив інший сеанс).
+/// </summary>
+public sealed class EntityNotFoundException : DomainException
+{
+    /// <summary>
+    /// Створює виняток.
+    /// </summary>
+    /// <param name="message">Що саме не знайдено.</param>
+    public EntityNotFoundException(string message)
+        : base(message)
+    {
+    }
+
+    /// <inheritdoc />
+    public override string UserMessage => Message + " Оновіть список і спробуйте ще раз.";
 }
