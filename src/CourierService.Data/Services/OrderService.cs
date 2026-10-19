@@ -39,7 +39,9 @@ public sealed class OrderService : IOrderService
         o.Payment.Method,
         o.Courier != null ? o.Courier.User.FullName : null,
         o.Deadline,
-        o.DeliveredAt);
+        o.DeliveredAt,
+        o.PickupAddress,
+        o.DeliveryAddress);
 
     private readonly IDbContextFactory<AppDbContext> _contextFactory;
     private readonly ICurrentUser _currentUser;
@@ -199,7 +201,11 @@ public sealed class OrderService : IOrderService
         orders = active
             ? orders.Where(o => inProgress.Contains(o.Status)).OrderBy(o => o.Deadline)
             : orders.Where(o => !inProgress.Contains(o.Status)).OrderByDescending(o => o.CreatedAt).Take(OrderFilter.MaxResults);
-        return WithSla(await orders.Select(ToListItem).ToListAsync(cancellationToken));
+        List<OrderListItem> items = WithSla(await orders.Select(ToListItem).ToListAsync(cancellationToken));
+
+        // Невдала спроба для кур'єра вже завершена: «лишилося 5 год» в історії збивало б, рішення за оператором
+        return items.Select(item => item.Status == OrderStatus.DeliveryFailed ? item with { Sla = SlaResult.AwaitingOperator } : item)
+            .ToList();
     }
 
     /// <summary>

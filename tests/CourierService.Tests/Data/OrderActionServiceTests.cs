@@ -5,6 +5,7 @@ using CourierService.Core.Enums;
 using CourierService.Core.Exceptions;
 using CourierService.Core.Orders;
 using CourierService.Core.Security;
+using CourierService.Core.Sla;
 using CourierService.Data.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -213,6 +214,21 @@ public class OrderActionServiceTests : OrderServiceTestBase
 
         Assert.Equal([second], active.Select(o => o.Id));
         Assert.Equal([first], history.Select(o => o.Id));
+    }
+
+    [Fact]
+    public async Task MyDeliveries_FailedAttemptInHistory_ShowsAwaitingOperatorAndAddresses()
+    {
+        int orderId = await CreateOrderAsync(courierLogin: "courier1");
+        await SignInAsAsync("courier1");
+        await Actions.ExecuteAsync(orderId, OrderAction.PickUp);
+        await Actions.ExecuteAsync(orderId, OrderAction.ReportFailure, reason: "Одержувач не відповідає");
+
+        OrderListItem item = Assert.Single(await Orders.GetMyDeliveriesAsync(active: false));
+
+        Assert.Equal(SlaResult.AwaitingOperator, item.Sla);
+        Assert.False(string.IsNullOrEmpty(item.PickupAddress));
+        Assert.False(string.IsNullOrEmpty(item.DeliveryAddress));
     }
 
     [Fact]

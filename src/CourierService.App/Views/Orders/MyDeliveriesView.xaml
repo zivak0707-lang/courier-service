@@ -42,12 +42,33 @@
                 <DataGridTextColumn Header="Трек-номер" Binding="{Binding TrackingNumber}" Width="Auto" />
                 <DataGridTextColumn Header="Статус" Binding="{Binding Status, Converter={StaticResource EnumDisplay}}" Width="Auto" />
                 <DataGridTextColumn Header="Доставити до" Binding="{Binding Deadline, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />
-                <DataGridTemplateColumn Header="Термін" CellTemplate="{StaticResource SlaCellTemplate}" SortMemberPath="Sla.State" Width="Auto" />
-                <DataGridTextColumn Header="Звідки" Binding="{Binding PickupZone}" Width="Auto" />
-                <DataGridTextColumn Header="Відправник" Binding="{Binding ClientName}" Width="*" MinWidth="140" />
-                <DataGridTextColumn Header="Куди" Binding="{Binding DeliveryZone}" Width="Auto" />
-                <DataGridTextColumn Header="Одержувач" Binding="{Binding RecipientName}" Width="*" MinWidth="140" />
-                <DataGridTextColumn Header="Телефон одержувача" Binding="{Binding RecipientPhone, Converter={StaticResource Phone}}" Width="Auto" />
+                <DataGridTemplateColumn Header="Термін" CellTemplate="{StaticResource SlaCellTemplate}" SortMemberPath="Sla.State" Width="190" />
+                <!-- Кур'єру головне — куди їхати: адреса крупно, район і контакт дрібніше в тій самій клітинці -->
+                <DataGridTemplateColumn Header="Звідки забрати" SortMemberPath="PickupAddress" Width="*" MinWidth="180">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="4,3">
+                                <TextBlock Text="{Binding PickupAddress}" TextWrapping="Wrap" />
+                                <TextBlock FontSize="12" Opacity="0.7" TextWrapping="Wrap">
+                                    <Run Text="{Binding PickupZone, Mode=OneWay}" /> · <Run Text="{Binding ClientName, Mode=OneWay}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Куди доставити" SortMemberPath="DeliveryAddress" Width="*" MinWidth="180">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="4,3">
+                                <TextBlock Text="{Binding DeliveryAddress}" TextWrapping="Wrap" />
+                                <TextBlock FontSize="12" Opacity="0.7" TextWrapping="Wrap">
+                                    <Run Text="{Binding DeliveryZone, Mode=OneWay}" /> · <Run Text="{Binding RecipientName, Mode=OneWay}" />,
+                                    <Run Text="{Binding RecipientPhone, Mode=OneWay, Converter={StaticResource Phone}}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Вартість" Binding="{Binding Price}" SortMemberPath="Price.Kopecks" Width="Auto" />
                 <DataGridTextColumn Header="Платить" Binding="{Binding Payer, Converter={StaticResource EnumDisplay}}" Width="Auto" />
                 <DataGridTextColumn Header="Оплата" Binding="{Binding PaymentStatus, Converter={StaticResource EnumDisplay}}" Width="Auto" />

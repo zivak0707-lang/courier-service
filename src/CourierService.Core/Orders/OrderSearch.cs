@@ -59,6 +59,8 @@ public sealed record OrderFilter(
 /// <param name="CourierName">Призначений кур'єр або <c>null</c>.</param>
 /// <param name="Deadline">Крайній термін доставки.</param>
 /// <param name="DeliveredAt">Час доставки (для доставлених).</param>
+/// <param name="PickupAddress">Адреса, звідки забрати.</param>
+/// <param name="DeliveryAddress">Адреса, куди доставити.</param>
 public sealed record OrderListItem(
     int Id,
     string TrackingNumber,
@@ -77,7 +79,9 @@ public sealed record OrderListItem(
     PaymentMethod PaymentMethod,
     string? CourierName,
     DateTime Deadline,
-    DateTime? DeliveredAt)
+    DateTime? DeliveredAt,
+    string PickupAddress,
+    string DeliveryAddress)
 {
     /// <summary>Дотримання терміну на момент запиту (рахує сервіс, D-31).</summary>
     public SlaResult Sla { get; init; } = SlaResult.NotTracked;

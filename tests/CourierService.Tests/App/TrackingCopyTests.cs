@@ -132,5 +132,6 @@ public class TrackingCopyTests
     private static OrderListItem OrderListItemFor(string trackingNumber) =>
         new(1, trackingNumber, WorkflowTestData.Now, OrderStatus.Assigned, "Клієнт", "+380501234567", "Одержувач", "+380501112233",
             "Шевченківський", "Дарницький", "Стандарт", global::CourierService.Core.Money.FromHryvnias(157m),
-            PaymentStatus.Pending, PaymentPayer.Sender, PaymentMethod.Cash, null, WorkflowTestData.Now.AddHours(4), null);
+            PaymentStatus.Pending, PaymentPayer.Sender, PaymentMethod.Cash, null, WorkflowTestData.Now.AddHours(4), null,
+            "вул. Липова, 5", "вул. Каштанова, 12");
 }

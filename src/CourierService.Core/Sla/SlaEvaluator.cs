@@ -28,6 +28,12 @@ public sealed record SlaResult(SlaState State, string Text)
 {
     /// <summary>Термін не оцінюється.</summary>
     public static SlaResult NotTracked { get; } = new(SlaState.NotTracked, "—");
+
+    /// <summary>
+    /// Невдала спроба в історії кур'єра: доставку для нього завершено, далі вирішує оператор,
+    /// тому залишок часу не показується.
+    /// </summary>
+    public static SlaResult AwaitingOperator { get; } = new(SlaState.NotTracked, "Очікує рішення оператора");
 }
 
 /// <summary>
@@ -54,6 +60,10 @@ public sealed class SlaEvaluator : ISlaEvaluator
 {
     /// <summary>Частка терміну (у відсотках), менше якої лишилося — «під загрозою».</summary>
     public const int AtRiskPercent = 25;
+
+    // Запізнення рахується лише в робочих годинах (D-31): без уточнення «22:25 при дедлайні 20:45 → 14 хв»
+    // виглядало б як помилка
+    private const string WorkingTimeSuffix = "робочого часу";
 
     private readonly IClock _clock;
 
@@ -86,14 +96,14 @@ public sealed class SlaEvaluator : ISlaEvaluator
                 return IsDeliveredOnTime(deadline, delivered)
                     ? new SlaResult(SlaState.OnTime, "Доставлено вчасно")
                     : new SlaResult(SlaState.Overdue,
-                        $"Доставлено із запізненням {FormatDuration(DeadlineCalculator.WorkingTimeBetween(deadline, delivered))}");
+                        $"Доставлено із запізненням {FormatDuration(DeadlineCalculator.WorkingTimeBetween(deadline, delivered))} {WorkingTimeSuffix}");
         }
 
         DateTime now = _clock.Now;
         if (now > deadline)
         {
             return new SlaResult(SlaState.Overdue,
-                $"Прострочено на {FormatDuration(DeadlineCalculator.WorkingTimeBetween(deadline, now))}");
+                $"Прострочено на {FormatDuration(DeadlineCalculator.WorkingTimeBetween(deadline, now))} {WorkingTimeSuffix}");
         }
 
         TimeSpan remaining = DeadlineCalculator.WorkingTimeBetween(now, deadline);

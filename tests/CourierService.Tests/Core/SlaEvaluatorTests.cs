@@ -78,13 +78,13 @@ public class SlaEvaluatorTests
         SlaResult sla = Evaluate("2026-10-20 09:30", OrderStatus.DeliveryFailed, "2026-10-19 16:00", "2026-10-19 20:00");
 
         Assert.Equal(SlaState.Overdue, sla.State);
-        Assert.Equal("Прострочено на 1 год 30 хв", sla.Text);
+        Assert.Equal("Прострочено на 1 год 30 хв робочого часу", sla.Text);
     }
 
     [Theory]
     [InlineData("2026-10-19 13:59", SlaState.OnTime, "Доставлено вчасно")]
     [InlineData("2026-10-19 14:00", SlaState.OnTime, "Доставлено вчасно")]
-    [InlineData("2026-10-19 14:40", SlaState.Overdue, "Доставлено із запізненням 40 хв")]
+    [InlineData("2026-10-19 14:40", SlaState.Overdue, "Доставлено із запізненням 40 хв робочого часу")]
     public void Delivered_ComparedWithDeadline_RegardlessOfNow(string delivered, SlaState expected, string text)
     {
         SlaResult sla = Evaluate("2026-10-25 12:00", OrderStatus.Delivered, "2026-10-19 10:00", "2026-10-19 14:00", delivered);

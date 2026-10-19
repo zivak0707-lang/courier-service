@@ -416,7 +416,7 @@ public class OrderListSlaTests : OrderServiceTestBase
 
         Assert.Equal(SlaState.AtRisk, atRisk.Sla.State);
         Assert.Equal(SlaState.Overdue, overdue.Sla.State);
-        Assert.Equal("Прострочено на 1 год", overdue.Sla.Text);
+        Assert.Equal("Прострочено на 1 год робочого часу", overdue.Sla.Text);
         Assert.Null(overdue.DeliveredAt);
     }
 }
