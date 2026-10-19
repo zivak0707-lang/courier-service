@@ -85,6 +85,8 @@
                       Visibility="{Binding IsAdministrationMenuVisible, Converter={StaticResource VisibleWhen}}">
                 <MenuItem Header="_Користувачі"
                           Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Users}" />
+                <MenuItem Header="_Резервні копії"
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Backups}" />
             </MenuItem>
 
             <MenuItem Header="Д_овідка">

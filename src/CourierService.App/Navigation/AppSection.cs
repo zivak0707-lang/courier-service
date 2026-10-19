@@ -49,4 +49,7 @@ public enum AppSection
 
     /// <summary>Керування користувачами.</summary>
     Users,
+
+    /// <summary>Резервні копії бази даних.</summary>
+    Backups,
 }

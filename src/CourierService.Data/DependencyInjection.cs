@@ -1,5 +1,6 @@
 using CourierService.Core.Abstractions;
 using CourierService.Core.Assignment;
+using CourierService.Core.Backups;
 using CourierService.Core.Directories;
 using CourierService.Core.Orders;
 using CourierService.Core.Pricing;
@@ -25,8 +26,10 @@ public static class DependencyInjection
     /// </summary>
     /// <param name="services">Колекція сервісів.</param>
     /// <param name="databasePath">Повний шлях до файлу бази даних.</param>
+    /// <param name="backupsDirectory">Каталог резервних копій; типово — підкаталог backups поруч із базою.</param>
     /// <returns>Ту саму колекцію для ланцюжкових викликів.</returns>
-    public static IServiceCollection AddCourierData(this IServiceCollection services, string databasePath)
+    public static IServiceCollection AddCourierData(
+        this IServiceCollection services, string databasePath, string? backupsDirectory = null)
     {
         string connectionString = new SqliteConnectionStringBuilder { DataSource = databasePath }.ToString();
         services.AddDbContextFactory<AppDbContext>(options => options.UseSqlite(connectionString));
@@ -39,6 +42,11 @@ public static class DependencyInjection
         services.AddSingleton<DatabaseSeeder>();
         services.AddSingleton<DemoOrderGenerator>();
         services.AddSingleton<IDatabaseInitializer, DatabaseInitializer>();
+
+        // Резервні копії (D-35)
+        services.AddSingleton(new BackupLocation(
+            databasePath, backupsDirectory ?? Path.Combine(Path.GetDirectoryName(Path.GetFullPath(databasePath))!, "backups")));
+        services.AddSingleton<IBackupService, BackupService>();
 
         // Довідники: правила перевірки (Core) і сервіси (рішення D-18)
         services.AddSingleton<IValidator<ZoneInput>, ZoneValidator>();

@@ -57,6 +57,10 @@ internal sealed class FakeFileDialogService : IFileDialogService
     }
 
     public void OpenFile(string path) => Opened.Add(path);
+
+    public string? BackupPathToReturn { get; set; }
+
+    public string? AskBackupOpenPath(string initialDirectory) => BackupPathToReturn;
 }
 
 public class ReportPageViewModelTests

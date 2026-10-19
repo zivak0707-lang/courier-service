@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CourierService.App.Help;
 using CourierService.App.Navigation;
 using CourierService.App.Services;
+using CourierService.App.ViewModels.Administration;
 using CourierService.App.ViewModels.Directories;
 using CourierService.App.ViewModels.Orders;
 using CourierService.App.ViewModels.Reports;
@@ -79,6 +80,7 @@ public sealed partial class MainViewModel : ViewModelBase
         [AppSection.Clients] = typeof(ClientsViewModel),
         [AppSection.Couriers] = typeof(CouriersViewModel),
         [AppSection.Users] = typeof(UsersViewModel),
+        [AppSection.Backups] = typeof(BackupsViewModel),
     };
 
     /// <inheritdoc />
@@ -122,12 +124,13 @@ public sealed partial class MainViewModel : ViewModelBase
     /// <returns><c>true</c>, якщо користувач підтвердив вихід.</returns>
     public bool CanClose()
     {
-        if (!_exitConfirmed)
+        // Перезапуск після відновлення бази вже підтверджено — зайве питання не потрібне
+        if (!_exitConfirmed && !_lifetime.IsRestarting)
         {
             _exitConfirmed = _dialogs.Confirm(ExitConfirmationMessage);
         }
 
-        return _exitConfirmed;
+        return _exitConfirmed || _lifetime.IsRestarting;
     }
 
     private void OnCurrentUserChanged()

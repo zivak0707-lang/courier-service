@@ -339,6 +339,24 @@ public class MainViewModelTests
 
         Assert.Equal(2, _dialogs.ConfirmCalls);
     }
+
+    [Fact]
+    public void CanClose_WhileRestarting_DoesNotAsk()
+    {
+        _lifetime.Restart();
+
+        Assert.True(_viewModel.CanClose());
+        Assert.Equal(0, _dialogs.ConfirmCalls);
+    }
+
+    [Fact]
+    public void Backups_AdministrationMenu_OnlyForAdmin()
+    {
+        Assert.True(SectionAccess.IsAllowed(AppSection.Backups, UserRole.Admin));
+        Assert.False(SectionAccess.IsAllowed(AppSection.Backups, UserRole.Operator));
+        Assert.False(SectionAccess.IsAllowed(AppSection.Backups, UserRole.Courier));
+        Assert.Contains(AppSection.Backups, SectionAccess.AdministrationSections);
+    }
 }
 
 public class NavigationServiceTests

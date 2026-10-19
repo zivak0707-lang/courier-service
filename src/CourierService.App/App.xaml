@@ -10,6 +10,8 @@
              xmlns:orderViews="clr-namespace:CourierService.App.Views.Orders"
              xmlns:reports="clr-namespace:CourierService.App.ViewModels.Reports"
              xmlns:reportViews="clr-namespace:CourierService.App.Views.Reports"
+             xmlns:adm="clr-namespace:CourierService.App.ViewModels.Administration"
+             xmlns:admViews="clr-namespace:CourierService.App.Views.Administration"
              ShutdownMode="OnExplicitShutdown"
              ThemeMode="Light">
     <!-- StartupUri не використовується: вікно входу й головне вікно відкриває App.OnStartup.
@@ -66,6 +68,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type dir:UsersViewModel}">
                 <dirViews:UsersView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type adm:BackupsViewModel}">
+                <admViews:BackupsView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type dir:UserEditorViewModel}">
                 <dirViews:UserEditorView />

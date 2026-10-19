@@ -1,5 +1,6 @@
 using CourierService.App.Services;
 using CourierService.App.ViewModels;
+using CourierService.App.ViewModels.Administration;
 using CourierService.App.ViewModels.Directories;
 using CourierService.App.ViewModels.Orders;
 using CourierService.App.ViewModels.Reports;
@@ -55,6 +56,7 @@ public static class CompositionRoot
         services.AddTransient<ClientsViewModel>();
         services.AddTransient<CouriersViewModel>();
         services.AddTransient<UsersViewModel>();
+        services.AddTransient<BackupsViewModel>();
 
         return services;
     }

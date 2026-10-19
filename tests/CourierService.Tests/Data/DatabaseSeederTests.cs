@@ -30,7 +30,7 @@ public class DatabaseSeederTests : IAsyncLifetime
     {
         _db = await SqliteTestDatabase.CreateAsync();
         var seeder = new DatabaseSeeder(_hasher, Clock);
-        _initializer = new DatabaseInitializer(_db, seeder, new DemoOrderGenerator(Clock), NullLogger<DatabaseInitializer>.Instance);
+        _initializer = new DatabaseInitializer(_db, seeder, new DemoOrderGenerator(Clock), new NoBackups(), NullLogger<DatabaseInitializer>.Instance);
         await _initializer.InitializeAsync();
     }
 
@@ -85,7 +85,7 @@ public class DatabaseSeederTests : IAsyncLifetime
 
         // Новий ініціалізатор — імітація повторного запуску програми з тією самою БД
         var seeder = new DatabaseSeeder(_hasher, new FixedClock(new DateTime(2026, 10, 20, 9, 0, 0)));
-        await new DatabaseInitializer(_db, seeder, new DemoOrderGenerator(new FixedClock(new DateTime(2026, 10, 20, 9, 0, 0))), NullLogger<DatabaseInitializer>.Instance).InitializeAsync();
+        await new DatabaseInitializer(_db, seeder, new DemoOrderGenerator(new FixedClock(new DateTime(2026, 10, 20, 9, 0, 0))), new NoBackups(), NullLogger<DatabaseInitializer>.Instance).InitializeAsync();
 
         await using var context = _db.CreateDbContext();
         Assert.Equal(10, await context.Zones.CountAsync());

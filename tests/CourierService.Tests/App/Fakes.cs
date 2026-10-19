@@ -10,13 +10,15 @@ namespace CourierService.Tests.App;
 internal sealed class FakeDialogService : IDialogService
 {
     public bool ConfirmResult { get; set; }
+    public Queue<bool> ConfirmAnswers { get; } = new();
     public int ConfirmCalls { get; private set; }
     public int AboutCalls { get; private set; }
     public List<string> Errors { get; } = [];
     public List<string> Warnings { get; } = [];
+    public List<string> Infos { get; } = [];
     public List<string> Questions { get; } = [];
 
-    public void ShowInfo(string message) { }
+    public void ShowInfo(string message) => Infos.Add(message);
     public void ShowWarning(string message) => Warnings.Add(message);
     public void ShowError(string message) => Errors.Add(message);
 
@@ -24,7 +26,7 @@ internal sealed class FakeDialogService : IDialogService
     {
         ConfirmCalls++;
         Questions.Add(message);
-        return ConfirmResult;
+        return ConfirmAnswers.Count > 0 ? ConfirmAnswers.Dequeue() : ConfirmResult;
     }
 
     public void ShowAbout() => AboutCalls++;
@@ -34,8 +36,11 @@ internal sealed class FakeDialogService : IDialogService
 internal sealed class FakeAppLifetime : IAppLifetime
 {
     public int ShutdownCalls { get; private set; }
+    public int RestartCalls { get; private set; }
+    public bool IsRestarting => RestartCalls > 0;
 
     public void Shutdown() => ShutdownCalls++;
+    public void Restart() => RestartCalls++;
 }
 
 /// <summary>Заглушка вікна входу: імітує вхід заданого користувача або скасування.</summary>

@@ -3,7 +3,7 @@ using System.IO;
 namespace CourierService.App.Infrastructure;
 
 /// <summary>
-/// Шляхи до файлів застосунку: каталог даних користувача, журнали, файл бази даних.
+/// Шляхи до файлів застосунку: каталог даних користувача, журнали, файл бази даних, резервні копії.
 /// </summary>
 /// <remarks>
 /// Дані зберігаються в %LocalAppData%\CourierService, а не поруч з exe:
@@ -21,6 +21,9 @@ public static class AppPaths
 
     /// <summary>Каталог файлів журналу.</summary>
     public static string LogsDirectory { get; } = Path.Combine(DataDirectory, "logs");
+
+    /// <summary>Каталог резервних копій бази даних (рішення D-35).</summary>
+    public static string BackupsDirectory { get; } = Path.Combine(DataDirectory, "backups");
 
     /// <summary>Повний шлях до файлу бази даних SQLite.</summary>
     public static string DatabasePath { get; } = Path.Combine(DataDirectory, "courier.db");

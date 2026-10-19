@@ -22,6 +22,16 @@ public abstract class DomainException : Exception
     }
 
     /// <summary>
+    /// Створює виняток із технічною причиною.
+    /// </summary>
+    /// <param name="message">Опис проблеми українською.</param>
+    /// <param name="innerException">Технічна причина (для журналу) або <c>null</c>.</param>
+    protected DomainException(string message, Exception? innerException)
+        : base(message, innerException)
+    {
+    }
+
+    /// <summary>
     /// Текст для показу користувачу. За замовчуванням — текст винятку.
     /// </summary>
     public virtual string UserMessage => Message;
@@ -131,6 +141,22 @@ public sealed class PaymentRequiredException : DomainException
     /// <param name="message">Яка оплата потрібна.</param>
     public PaymentRequiredException(string message)
         : base(message)
+    {
+    }
+}
+
+/// <summary>
+/// Не вдалося створити резервну копію або відновити дані (диск, права доступу, пошкоджений файл).
+/// </summary>
+public sealed class BackupException : DomainException
+{
+    /// <summary>
+    /// Створює виняток.
+    /// </summary>
+    /// <param name="message">Що не вдалося зробити, українською.</param>
+    /// <param name="innerException">Технічна причина (для журналу).</param>
+    public BackupException(string message, Exception? innerException = null)
+        : base(message, innerException)
     {
     }
 }

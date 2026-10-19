@@ -33,6 +33,7 @@ public static class SectionAccess
         [AppSection.CourierPerformanceReport] = AdminAndOperator,
         [AppSection.CourierPayoutReport] = AdminOnly,
         [AppSection.Users] = AdminOnly,
+        [AppSection.Backups] = AdminOnly,
     };
 
     /// <summary>Розділи меню «Замовлення».</summary>
@@ -55,7 +56,7 @@ public static class SectionAccess
     ];
 
     /// <summary>Розділи меню «Адміністрування».</summary>
-    public static IReadOnlyList<AppSection> AdministrationSections { get; } = [AppSection.Users];
+    public static IReadOnlyList<AppSection> AdministrationSections { get; } = [AppSection.Users, AppSection.Backups];
 
     /// <summary>
     /// Чи доступний розділ ролі.

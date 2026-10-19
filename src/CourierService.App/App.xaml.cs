@@ -29,7 +29,7 @@ public partial class App : Application
 
             _services = new ServiceCollection()
                 .AddLogging(builder => builder.AddSerilog(dispose: true))
-                .AddCourierData(AppPaths.DatabasePath)
+                .AddCourierData(AppPaths.DatabasePath, AppPaths.BackupsDirectory)
                 .AddCourierApp()
                 .BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
 

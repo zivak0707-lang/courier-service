@@ -1,0 +1,40 @@
+<UserControl x:Class="CourierService.App.Views.Administration.BackupsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:adm="clr-namespace:CourierService.App.ViewModels.Administration"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=adm:BackupsViewModel}">
+    <DockPanel Margin="{StaticResource PagePadding}">
+        <TextBlock DockPanel.Dock="Top" Text="{Binding Title}" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock DockPanel.Dock="Top" Style="{StaticResource SecondaryTextStyle}" Margin="0,-8,0,4"
+                   Text="{Binding Description}" />
+        <TextBlock DockPanel.Dock="Top" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,12">
+            <Run Text="Каталог копій:" />
+            <Run Text="{Binding BackupsDirectory, Mode=OneWay}" />
+        </TextBlock>
+
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="_Створити копію" MinWidth="140" Margin="0,0,8,0" Command="{Binding CreateBackupCommand}" />
+            <Button Content="_Відновити з обраної" MinWidth="160" Margin="0,0,8,0" Command="{Binding RestoreSelectedCommand}"
+                    ToolTip="Замінити поточні дані даними з обраної копії" />
+            <Button Content="Відновити з _файлу…" MinWidth="160" Margin="0,0,8,0" Command="{Binding RestoreFromFileCommand}"
+                    ToolTip="Обрати файл копії, наприклад збережений на флешці" />
+            <Button Content="Відкрити _каталог" MinWidth="140" Command="{Binding OpenFolderCommand}" />
+        </StackPanel>
+
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding CountText}" Style="{StaticResource SecondaryTextStyle}" Margin="0,8,0,0" />
+
+        <DataGrid ItemsSource="{Binding Backups}" SelectedItem="{Binding SelectedBackup}"
+                  Style="{StaticResource DirectoryGridStyle}" RowStyle="{StaticResource {x:Type DataGridRow}}"
+                  AutomationProperties.Name="Резервні копії">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Створено" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy HH:mm:ss}" Width="Auto" />
+                <DataGridTextColumn Header="Вид" Binding="{Binding KindText}" Width="Auto" />
+                <DataGridTextColumn Header="Розмір" Binding="{Binding SizeText}" Width="Auto" />
+                <DataGridTextColumn Header="Файл" Binding="{Binding FileName}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

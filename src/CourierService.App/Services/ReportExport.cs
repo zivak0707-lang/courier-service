@@ -140,7 +140,7 @@ public sealed class ExcelReportExporter : IReportExporter
 }
 
 /// <summary>
-/// Вибір файлу для збереження й відкриття готового файлу (ViewModel не залежить від вікон Windows).
+/// Вибір файлів і відкриття готового файлу чи каталогу (ViewModel не залежить від вікон Windows).
 /// </summary>
 public interface IFileDialogService
 {
@@ -152,14 +152,21 @@ public interface IFileDialogService
     string? AskExcelSavePath(string suggestedName);
 
     /// <summary>
-    /// Відкриває файл програмою, пов'язаною з ним у Windows (Excel).
+    /// Відкриває файл програмою, пов'язаною з ним у Windows (Excel), або каталог у Провіднику.
     /// </summary>
-    /// <param name="path">Шлях до файлу.</param>
+    /// <param name="path">Шлях до файлу чи каталогу.</param>
     void OpenFile(string path);
+
+    /// <summary>
+    /// Питає, з якого файлу відновити базу даних.
+    /// </summary>
+    /// <param name="initialDirectory">Каталог, відкритий у вікні вибору (каталог копій).</param>
+    /// <returns>Повний шлях або <c>null</c>, якщо користувач скасував.</returns>
+    string? AskBackupOpenPath(string initialDirectory);
 }
 
 /// <summary>
-/// Реалізація <see cref="IFileDialogService"/> зі стандартним вікном збереження Windows.
+/// Реалізація <see cref="IFileDialogService"/> зі стандартними вікнами Windows.
 /// </summary>
 public sealed class FileDialogService : IFileDialogService
 {
@@ -181,4 +188,17 @@ public sealed class FileDialogService : IFileDialogService
 
     /// <inheritdoc />
     public void OpenFile(string path) => Process.Start(new ProcessStartInfo(path) { UseShellExecute = true })?.Dispose();
+
+    /// <inheritdoc />
+    public string? AskBackupOpenPath(string initialDirectory)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Відновити дані з резервної копії",
+            Filter = "Резервна копія бази даних (*.db)|*.db|Усі файли (*.*)|*.*",
+            CheckFileExists = true,
+            InitialDirectory = initialDirectory,
+        };
+        return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
 }

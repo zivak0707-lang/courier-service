@@ -30,6 +30,7 @@ public static class AppSectionCatalog
         [AppSection.CourierPerformanceReport] = new("Ефективність кур'єрів", "Кількість доставок і частка вчасних за кур'єрами.", 6),
         [AppSection.CourierPayoutReport] = new("Нарахування кур'єрам", "Виплати кур'єрам і валовий дохід служби.", 6),
         [AppSection.Users] = new("Користувачі", "Облікові записи та ролі.", 3),
+        [AppSection.Backups] = new("Резервні копії", "Копіювання й відновлення бази даних.", 7),
     };
 
     /// <summary>
