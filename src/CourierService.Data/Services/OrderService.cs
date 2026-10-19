@@ -79,6 +79,120 @@ public sealed class OrderService : IOrderService
         }
     }
 
+    /// <inheritdoc />
+    public async Task<OrderSearchResult> SearchAsync(OrderFilter filter, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+        _currentUser.RequireRole(UserRole.Admin, UserRole.Operator);
+
+        OrderQuery query = OrderQuery.Parse(filter.Query);
+        if (query.Kind == OrderQueryKind.Invalid)
+        {
+            return new OrderSearchResult([], false, query.Message);
+        }
+
+        if (query.Kind != OrderQueryKind.TrackingNumber && filter.From > filter.To)
+        {
+            return new OrderSearchResult([], false, "Початкова дата періоду пізніша за кінцеву.");
+        }
+
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        IQueryable<Order> orders = context.Orders.AsNoTracking();
+
+        if (query.Kind == OrderQueryKind.TrackingNumber)
+        {
+            // Трек-номер однозначний — інші умови не застосовуються, шукаємо за весь час
+            orders = orders.Where(o => o.TrackingNumber == query.Value);
+        }
+        else
+        {
+            orders = ApplyFilter(orders, filter, query);
+        }
+
+        // Береться на один рядок більше за межу — так видно, що результат обрізано
+        List<OrderListItem> items = await orders
+            .OrderByDescending(o => o.CreatedAt)
+            .ThenByDescending(o => o.Id)
+            .Take(OrderFilter.MaxResults + 1)
+            .Select(o => new OrderListItem(
+                o.Id,
+                o.TrackingNumber,
+                o.CreatedAt,
+                o.Status,
+                o.Client.Name,
+                o.Client.Phone,
+                o.RecipientName,
+                o.RecipientPhone,
+                o.PickupZone.Name,
+                o.DeliveryZone.Name,
+                o.Tariff.Name,
+                o.Price,
+                o.Payment!.Status,
+                o.Payment.Payer,
+                o.Payment.Method,
+                o.Courier != null ? o.Courier.User.FullName : null,
+                o.Deadline))
+            .ToListAsync(cancellationToken);
+
+        bool isTruncated = items.Count > OrderFilter.MaxResults;
+        if (isTruncated)
+        {
+            items.RemoveAt(items.Count - 1);
+        }
+
+        string? notice = isTruncated
+            ? $"Показано {OrderFilter.MaxResults} найновіших замовлень. Уточніть фільтр, щоб побачити решту."
+            : query.Kind == OrderQueryKind.TrackingNumber && items.Count == 0
+                ? $"Замовлення з трек-номером {query.Value} не знайдено."
+                : null;
+        return new OrderSearchResult(items, isTruncated, notice);
+    }
+
+    private static IQueryable<Order> ApplyFilter(IQueryable<Order> orders, OrderFilter filter, OrderQuery query)
+    {
+        if (query.Kind == OrderQueryKind.Phone)
+        {
+            // Телефони зберігаються як +380XXXXXXXXX, тож фрагмент цифр шукається як підрядок
+            string digits = query.Value;
+            orders = orders.Where(o => o.RecipientPhone.Contains(digits) || o.Client.Phone.Contains(digits));
+        }
+
+        if (filter.Status is { } status)
+        {
+            orders = orders.Where(o => o.Status == status);
+        }
+
+        if (filter.From is { } from)
+        {
+            DateTime start = from.Date;
+            orders = orders.Where(o => o.CreatedAt >= start);
+        }
+
+        if (filter.To is { } to)
+        {
+            // Останній день включно: усе, що раніше за початок наступного дня
+            DateTime end = to.Date.AddDays(1);
+            orders = orders.Where(o => o.CreatedAt < end);
+        }
+
+        if (filter.CourierId is { } courierId)
+        {
+            orders = orders.Where(o => o.CourierId == courierId);
+        }
+
+        if (filter.ClientId is { } clientId)
+        {
+            orders = orders.Where(o => o.ClientId == clientId);
+        }
+
+        if (filter.PaymentStatus is { } paymentStatus)
+        {
+            orders = orders.Where(o => o.Payment!.Status == paymentStatus);
+        }
+
+        return orders;
+    }
+
     /// <summary>
     /// Збирає замовлення з даних форми й довідників: ціна й дедлайн рахуються тут,
     /// а не беруться з інтерфейсу (рішення D-21).

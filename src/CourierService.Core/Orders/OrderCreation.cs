@@ -188,4 +188,13 @@ public interface IOrderService
     /// <param name="cancellationToken">Скасування операції.</param>
     /// <returns>Трек-номер, вартість і дедлайн нового замовлення.</returns>
     Task<OrderCreated> CreateAsync(OrderInput input, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Шукає замовлення за умовами фільтра в БД (рішення D-20). Правильний трек-номер шукається
+    /// за весь час без інших умов. Доступно адміністратору й оператору.
+    /// </summary>
+    /// <param name="filter">Умови пошуку.</param>
+    /// <param name="cancellationToken">Скасування операції.</param>
+    /// <returns>Не більше <see cref="OrderFilter.MaxResults"/> замовлень, новіші першими.</returns>
+    Task<OrderSearchResult> SearchAsync(OrderFilter filter, CancellationToken cancellationToken = default);
 }

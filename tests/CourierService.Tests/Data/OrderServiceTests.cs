@@ -195,3 +195,208 @@ public class OrderCreationTests : OrderServiceTestBase
         Assert.NotEmpty(exception.Errors[nameof(OrderInput.TariffId)]);
     }
 }
+
+public class OrderSearchTests : OrderServiceTestBase
+{
+    private string _rudenkoOld = null!;
+    private string _rudenkoToday = null!;
+    private string _flowersToday = null!;
+
+    /// <summary>
+    /// Три замовлення: Руденко 40 днів тому, Руденко сьогодні (одержувач 050…), «Квітковий двір» сьогодні
+    /// (одержувач 067…, призначено кур'єра, оплачено).
+    /// </summary>
+    private async Task SeedOrdersAsync()
+    {
+        await SignInAsync(UserRole.Operator);
+        Clock.Now = Now.AddDays(-40);
+        _rudenkoOld = (await Orders.CreateAsync(await InputAsync())).TrackingNumber;
+        Clock.Now = Now;
+        _rudenkoToday = (await Orders.CreateAsync(await InputAsync() with { RecipientPhone = "050 777 11 22" })).TrackingNumber;
+        _flowersToday = (await Orders.CreateAsync(
+            await InputAsync(client: "ТОВ «Квітковий двір»") with { RecipientPhone = "067 555 33 44" })).TrackingNumber;
+
+        Db.ExecuteScalar($"""
+            UPDATE Orders SET Status = 'Assigned', CourierId = (SELECT MIN(Id) FROM Couriers)
+            WHERE TrackingNumber = '{_flowersToday}';
+            UPDATE Payments SET Status = 'Paid', PaidAt = '2026-10-19 12:30:00'
+            WHERE OrderId = (SELECT Id FROM Orders WHERE TrackingNumber = '{_flowersToday}');
+            """);
+    }
+
+    private async Task<string[]> FoundAsync(OrderFilter filter) =>
+        (await Orders.SearchAsync(filter)).Items.Select(o => o.TrackingNumber).ToArray();
+
+    private async Task<int> IdAsync(string sql) => Convert.ToInt32(Db.ExecuteScalar(sql), System.Globalization.CultureInfo.InvariantCulture);
+
+    [Fact]
+    public async Task NoConditions_ReturnsAllNewestFirst()
+    {
+        await SeedOrdersAsync();
+
+        Assert.Equal([_flowersToday, _rudenkoToday, _rudenkoOld], await FoundAsync(new OrderFilter()));
+    }
+
+    [Fact]
+    public async Task DefaultPeriod_HidesOlderOrders()
+    {
+        await SeedOrdersAsync();
+
+        Assert.Equal([_flowersToday, _rudenkoToday], await FoundAsync(OrderFilter.LastDays(Now)));
+    }
+
+    [Fact]
+    public async Task Period_IncludesBothBoundaryDays()
+    {
+        await SeedOrdersAsync();
+        DateTime oldDay = Now.AddDays(-40).Date;
+
+        Assert.Equal([_rudenkoOld], await FoundAsync(new OrderFilter(From: oldDay, To: oldDay)));
+        Assert.Equal([_flowersToday, _rudenkoToday], await FoundAsync(new OrderFilter(From: Now.Date, To: Now.Date)));
+        Assert.Empty(await FoundAsync(new OrderFilter(From: oldDay.AddDays(1), To: Now.Date.AddDays(-1))));
+    }
+
+    [Fact]
+    public async Task ReversedPeriod_IsExplained()
+    {
+        await SeedOrdersAsync();
+
+        var result = await Orders.SearchAsync(new OrderFilter(From: Now, To: Now.AddDays(-1)));
+
+        Assert.Empty(result.Items);
+        Assert.Contains("пізніша", result.Notice);
+    }
+
+    [Fact]
+    public async Task TrackingNumber_FindsOrderOutsidePeriodAndIgnoresOtherFilters()
+    {
+        await SeedOrdersAsync();
+        string typed = _rudenkoOld.ToLowerInvariant().Replace("-", " ", StringComparison.Ordinal);
+
+        var filter = OrderFilter.LastDays(Now) with { Query = typed, Status = OrderStatus.Delivered };
+
+        Assert.Equal([_rudenkoOld], await FoundAsync(filter));
+    }
+
+    [Fact]
+    public async Task UnknownTrackingNumber_IsReported()
+    {
+        await SeedOrdersAsync();
+        string unknown = TrackingNumber.Create(Now, 77);
+
+        var result = await Orders.SearchAsync(new OrderFilter(Query: unknown));
+
+        Assert.Empty(result.Items);
+        Assert.Contains("не знайдено", result.Notice);
+    }
+
+    [Fact]
+    public async Task TrackingNumberWithTypo_ReturnsHintInsteadOfResults()
+    {
+        await SeedOrdersAsync();
+        char last = _rudenkoToday[^1];
+        string typo = _rudenkoToday[..^1] + (last == '9' ? '0' : (char)(last + 1));
+
+        var result = await Orders.SearchAsync(new OrderFilter(Query: typo));
+
+        Assert.Empty(result.Items);
+        Assert.Contains("контрольна цифра", result.Notice);
+    }
+
+    [Theory]
+    [InlineData("050 777 11 22", 1)]     // одержувач
+    [InlineData("0930000204", 1)]        // відправник (Руденко); старе замовлення поза періодом
+    [InlineData("555-33", 1)]
+    [InlineData("0999999999", 0)]
+    public async Task Phone_MatchesSenderOrRecipientInAnyFormat(string phone, int expected)
+    {
+        await SeedOrdersAsync();
+
+        var found = await FoundAsync(new OrderFilter(Query: phone, From: Now.Date, To: Now.Date));
+
+        Assert.Equal(expected, found.Length);
+    }
+
+    [Fact]
+    public async Task StatusCourierClientAndPayment_Filters()
+    {
+        await SeedOrdersAsync();
+        int courierId = await IdAsync("SELECT MIN(Id) FROM Couriers");
+        int flowersId = await IdAsync("SELECT Id FROM Clients WHERE Name = 'ТОВ «Квітковий двір»'");
+
+        Assert.Equal([_flowersToday], await FoundAsync(new OrderFilter(Status: OrderStatus.Assigned)));
+        Assert.Equal([_rudenkoToday, _rudenkoOld], await FoundAsync(new OrderFilter(Status: OrderStatus.New)));
+        Assert.Equal([_flowersToday], await FoundAsync(new OrderFilter(CourierId: courierId)));
+        Assert.Equal([_flowersToday], await FoundAsync(new OrderFilter(ClientId: flowersId)));
+        Assert.Equal([_flowersToday], await FoundAsync(new OrderFilter(PaymentStatus: PaymentStatus.Paid)));
+        Assert.Equal([_rudenkoToday, _rudenkoOld], await FoundAsync(new OrderFilter(PaymentStatus: PaymentStatus.Pending)));
+        Assert.Empty(await FoundAsync(new OrderFilter(Status: OrderStatus.Assigned, ClientId: flowersId,
+            PaymentStatus: PaymentStatus.Pending)));
+    }
+
+    [Fact]
+    public async Task ListItem_ContainsDisplayFields()
+    {
+        await SeedOrdersAsync();
+
+        var item = (await Orders.SearchAsync(new OrderFilter(Query: _flowersToday))).Items.Single();
+
+        Assert.Equal("ТОВ «Квітковий двір»", item.ClientName);
+        Assert.Equal("+380675553344", item.RecipientPhone);
+        Assert.Equal("Шевченківський", item.PickupZone);
+        Assert.Equal("Дарницький", item.DeliveryZone);
+        Assert.Equal("Стандарт", item.TariffName);
+        Assert.Equal(Money.FromHryvnias(157m), item.Price);
+        Assert.Equal(OrderStatus.Assigned, item.Status);
+        Assert.Equal(PaymentStatus.Paid, item.PaymentStatus);
+        Assert.False(string.IsNullOrEmpty(item.CourierName));
+        Assert.Equal(new DateTime(2026, 10, 20, 12, 0, 0), item.Deadline);
+    }
+
+    [Fact]
+    public async Task InvalidQuery_ReturnsExplanation()
+    {
+        await SeedOrdersAsync();
+
+        var result = await Orders.SearchAsync(new OrderFilter(Query: "Руденко"));
+
+        Assert.Empty(result.Items);
+        Assert.NotNull(result.Notice);
+    }
+
+    [Fact]
+    public async Task Courier_CannotSearchAllOrders()
+    {
+        await SignInAsync(UserRole.Courier);
+
+        await Assert.ThrowsAsync<AccessDeniedException>(() => Orders.SearchAsync(new OrderFilter()));
+    }
+
+    [Fact]
+    public async Task Admin_CanSearch()
+    {
+        await SeedOrdersAsync();
+        await SignInAsync(UserRole.Admin);
+
+        Assert.Equal(3, (await Orders.SearchAsync(new OrderFilter())).Items.Count);
+    }
+
+    [Fact]
+    public async Task ResultAboveLimit_IsTruncatedWithNotice()
+    {
+        await SignInAsync(UserRole.Operator);
+        OrderInput input = await InputAsync();
+        for (int i = 0; i < OrderFilter.MaxResults + 1; i++)
+        {
+            await Orders.CreateAsync(input);
+        }
+
+        var result = await Orders.SearchAsync(new OrderFilter());
+
+        Assert.True(result.IsTruncated);
+        Assert.Equal(OrderFilter.MaxResults, result.Items.Count);
+        Assert.Contains("Уточніть фільтр", result.Notice);
+        // Обрізаються найстаріші: першого замовлення в результаті немає
+        Assert.DoesNotContain(TrackingNumber.Create(Now, 1), result.Items.Select(o => o.TrackingNumber));
+    }
+}
