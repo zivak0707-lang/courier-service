@@ -34,6 +34,16 @@ public interface ICurrentUser
     /// <summary>Завершує сеанс.</summary>
     void SignOut();
 
+    /// <summary>Виникає, коли змінилися дані поточного сеансу без виходу (наприклад, ПІБ).</summary>
+    event EventHandler? SessionUpdated;
+
+    /// <summary>
+    /// Оновлює дані поточного сеансу (того самого користувача) без виходу з програми.
+    /// </summary>
+    /// <param name="session">Нові дані сеансу.</param>
+    /// <exception cref="InvalidOperationException">Вхід не виконано або це інший користувач.</exception>
+    void UpdateSession(UserSession session);
+
     /// <summary>
     /// Повертає сеанс, якщо роль користувача входить до дозволених.
     /// </summary>
@@ -70,6 +80,22 @@ public sealed class CurrentUser : ICurrentUser
     {
         Session = null;
         Changed?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <inheritdoc />
+    public event EventHandler? SessionUpdated;
+
+    /// <inheritdoc />
+    public void UpdateSession(UserSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        if (Session is null || Session.UserId != session.UserId)
+        {
+            throw new InvalidOperationException("Оновити можна лише сеанс поточного користувача.");
+        }
+
+        Session = session;
+        SessionUpdated?.Invoke(this, EventArgs.Empty);
     }
 
     /// <inheritdoc />

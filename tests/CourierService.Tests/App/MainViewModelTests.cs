@@ -137,6 +137,20 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public void StatusBar_RefreshesAfterOwnProfileUpdate_WithoutLeavingPage()
+    {
+        var changed = new List<string?>();
+        _viewModel.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+        ViewModelBase? page = _viewModel.CurrentPage;
+
+        _currentUser.UpdateSession(_currentUser.Session! with { FullName = "Ігор Бондаренко" });
+
+        Assert.Contains(nameof(MainViewModel.CurrentUserText), changed);
+        Assert.Equal("Ігор Бондаренко (Оператор)", _viewModel.CurrentUserText);
+        Assert.Same(page, _viewModel.CurrentPage);
+    }
+
+    [Fact]
     public void UserChange_RefreshesMenuAndReturnsHome()
     {
         _viewModel.ShowHelpCommand.Execute(null);

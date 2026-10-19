@@ -105,3 +105,28 @@ public class CurrentUserTests
         Assert.Throws<AccessDeniedException>(() => new CurrentUser().RequireRole(UserRole.Admin));
     }
 }
+
+public class CurrentUserSessionUpdateTests
+{
+    [Fact]
+    public void UpdateSession_ReplacesDataOfSameUser()
+    {
+        var currentUser = new CurrentUser();
+        currentUser.SignIn(new UserSession(1, "admin", "Олена Марченко", UserRole.Admin, null));
+
+        currentUser.UpdateSession(new UserSession(1, "admin", "Олена Шевчук", UserRole.Admin, null));
+
+        Assert.Equal("Олена Шевчук", currentUser.Session!.FullName);
+    }
+
+    [Fact]
+    public void UpdateSession_RejectsOtherUserOrNoSession()
+    {
+        var currentUser = new CurrentUser();
+        var other = new UserSession(2, "operator", "Ігор Бондар", UserRole.Operator, null);
+
+        Assert.Throws<InvalidOperationException>(() => currentUser.UpdateSession(other));
+        currentUser.SignIn(new UserSession(1, "admin", "Олена Марченко", UserRole.Admin, null));
+        Assert.Throws<InvalidOperationException>(() => currentUser.UpdateSession(other));
+    }
+}

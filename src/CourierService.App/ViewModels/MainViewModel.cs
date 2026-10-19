@@ -55,6 +55,7 @@ public sealed partial class MainViewModel : ViewModelBase
 
         _navigation.CurrentViewModelChanged += (_, _) => CurrentPage = _navigation.CurrentViewModel;
         _currentUser.Changed += (_, _) => OnCurrentUserChanged();
+        _currentUser.SessionUpdated += (_, _) => OnPropertyChanged(nameof(CurrentUserText));
         _navigation.NavigateTo<HomeViewModel>();
     }
 

@@ -426,3 +426,41 @@ public class UserServiceTests : DirectoryServiceTestBase
         Assert.False((await auth.SignInAsync("operator", "operator123")).Succeeded);
     }
 }
+
+public class OwnProfileUpdateTests : DirectoryServiceTestBase
+{
+    private UserService Users => new(Db, CurrentUser, new UserValidator(), Hasher, Clock);
+
+    [Fact]
+    public async Task EditingOwnProfile_UpdatesSessionWithoutSignOut()
+    {
+        await SignInAsync(UserRole.Admin);
+        int adminId = CurrentUser.Session!.UserId;
+        int signOuts = 0;
+        int updates = 0;
+        CurrentUser.Changed += (_, _) => signOuts++;
+        CurrentUser.SessionUpdated += (_, _) => updates++;
+
+        await Users.SaveAsync(new UserInput(adminId, "Олена Марченко-Шевчук", "olena.admin", null, UserRole.Admin));
+
+        Assert.Equal("Олена Марченко-Шевчук", CurrentUser.Session!.FullName);
+        Assert.Equal("olena.admin", CurrentUser.Session.Login);
+        Assert.Equal(UserRole.Admin, CurrentUser.Session.Role);
+        Assert.Equal(1, updates);
+        Assert.Equal(0, signOuts);
+    }
+
+    [Fact]
+    public async Task EditingAnotherUser_DoesNotTouchSession()
+    {
+        await SignInAsync(UserRole.Operator);
+        await using var context = Db.CreateDbContext();
+        var operatorUser = await context.Users.SingleAsync(u => u.Role == UserRole.Operator);
+        await SignInAsync(UserRole.Admin);
+        UserSession before = CurrentUser.Session!;
+
+        await Users.SaveAsync(new UserInput(operatorUser.Id, "Ігор Бондаренко", operatorUser.Login, null, UserRole.Operator));
+
+        Assert.Same(before, CurrentUser.Session);
+    }
+}

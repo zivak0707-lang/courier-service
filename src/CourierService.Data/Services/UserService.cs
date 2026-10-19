@@ -105,6 +105,13 @@ public sealed class UserService : DirectoryServiceBase<User>, IUserService
         }
 
         await SaveChangesAsync(context, cancellationToken);
+
+        // Користувач змінив власні ПІБ чи логін — рядок стану має показати нові дані без повторного входу
+        if (user.Id == session.UserId)
+        {
+            CurrentUser.UpdateSession(session with { FullName = user.FullName, Login = user.Login });
+        }
+
         return user.Id;
     }
 

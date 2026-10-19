@@ -28,6 +28,7 @@
                   RowStyle="{StaticResource {x:Type DataGridRow}}" AutomationProperties.Name="Доставки">
             <DataGrid.InputBindings>
                 <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenOrderCommand}" />
+                <KeyBinding Key="Enter" Command="{Binding OpenOrderCommand}" />
             </DataGrid.InputBindings>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Трек-номер" Binding="{Binding TrackingNumber}" Width="Auto" />
