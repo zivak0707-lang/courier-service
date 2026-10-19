@@ -1,0 +1,93 @@
+<UserControl x:Class="CourierService.App.Views.Reports.ReportPageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:reports="clr-namespace:CourierService.App.ViewModels.Reports"
+             xmlns:core="clr-namespace:CourierService.Core.Reports;assembly=CourierService.Core"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=reports:ReportPageViewModel}">
+    <!-- Одна сторінка для всіх звітів (D-30, D-32): колонки таблиці створює код вигляду за ReportTable.Columns -->
+    <DockPanel Margin="{StaticResource PagePadding}">
+        <TextBlock DockPanel.Dock="Top" Text="{Binding Title}" Style="{StaticResource PageTitleStyle}" Margin="0,0,0,4" />
+        <TextBlock DockPanel.Dock="Top" Text="{Binding Table.Subtitle}" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,12" />
+
+        <!-- Період -->
+        <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" Visibility="{Binding UsesPeriod, Converter={StaticResource VisibleWhen}}">
+                <TextBlock Text="З" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <DatePicker SelectedDate="{Binding From}" Width="150" AutomationProperties.Name="Період з" />
+                <TextBlock Text="по" VerticalAlignment="Center" Margin="12,0,8,0" />
+                <DatePicker SelectedDate="{Binding To}" Width="150" AutomationProperties.Name="Період по" />
+                <ItemsControl ItemsSource="{Binding QuickPeriods}" Focusable="False" Margin="12,0,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Margin="0,0,6,0" Padding="10,4"
+                                    Command="{Binding DataContext.UseLastDaysCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding}">
+                                <TextBlock>
+                                    <Run Text="{Binding Mode=OneWay}" /> днів
+                                </TextBlock>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+            <Button Content="_Оновити" MinWidth="100" Margin="6,0,8,0" Command="{Binding BuildCommand}" />
+        </WrapPanel>
+
+        <TextBlock DockPanel.Dock="Top" Text="{Binding Notice}" Style="{StaticResource ErrorTextStyle}" Margin="0,0,0,8"
+                   Visibility="{Binding Notice, Converter={StaticResource VisibleWhen}}" />
+
+        <!-- Показники -->
+        <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Table.Summary}" Focusable="False" Margin="0,0,0,8">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type core:ReportSummaryItem}">
+                    <Border Background="#F3F6FA" BorderBrush="#D8DEE6" BorderThickness="1" CornerRadius="8"
+                            Padding="14,8" Margin="0,0,10,8" MinWidth="170">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Label}" Style="{StaticResource SecondaryTextStyle}" FontSize="12" />
+                            <TextBlock Text="{Binding Text}" FontSize="18" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Пояснення, як рахується звіт -->
+        <ItemsControl DockPanel.Dock="Bottom" ItemsSource="{Binding Table.Notes}" Focusable="False" Margin="0,8,0,0">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" Style="{StaticResource HintTextStyle}" Margin="0,0,0,2" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <TextBlock DockPanel.Dock="Top" Text="За обраний період даних немає." Style="{StaticResource SecondaryTextStyle}"
+                   Margin="0,0,0,8" Visibility="{Binding IsEmpty, Converter={StaticResource VisibleWhen}}" />
+
+        <DataGrid x:Name="ReportGrid" ItemsSource="{Binding Rows}" Style="{StaticResource DirectoryGridStyle}"
+                  AutomationProperties.Name="Таблиця звіту">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsTotal}" Value="True">
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                            <Setter Property="Background" Value="#EEF2F7" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

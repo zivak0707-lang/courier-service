@@ -4,6 +4,7 @@ using CourierService.App.Navigation;
 using CourierService.App.Services;
 using CourierService.App.ViewModels.Directories;
 using CourierService.App.ViewModels.Orders;
+using CourierService.App.ViewModels.Reports;
 using CourierService.Core.Enums;
 using CourierService.Core.Security;
 
@@ -66,6 +67,10 @@ public sealed partial class MainViewModel : ViewModelBase
         [AppSection.TrackingSearch] = typeof(TrackingSearchViewModel),
         [AppSection.MyActiveDeliveries] = typeof(MyActiveDeliveriesViewModel),
         [AppSection.MyCompletedDeliveries] = typeof(MyCompletedDeliveriesViewModel),
+        [AppSection.RevenueReport] = typeof(RevenueReportViewModel),
+        [AppSection.UnpaidReport] = typeof(UnpaidReportViewModel),
+        [AppSection.CourierPerformanceReport] = typeof(CourierPerformanceReportViewModel),
+        [AppSection.CourierPayoutReport] = typeof(CourierPayoutReportViewModel),
         [AppSection.Zones] = typeof(ZonesViewModel),
         [AppSection.Tariffs] = typeof(TariffsViewModel),
         [AppSection.Clients] = typeof(ClientsViewModel),

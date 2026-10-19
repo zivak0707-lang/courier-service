@@ -8,6 +8,8 @@
              xmlns:dirViews="clr-namespace:CourierService.App.Views.Directories"
              xmlns:orders="clr-namespace:CourierService.App.ViewModels.Orders"
              xmlns:orderViews="clr-namespace:CourierService.App.Views.Orders"
+             xmlns:reports="clr-namespace:CourierService.App.ViewModels.Reports"
+             xmlns:reportViews="clr-namespace:CourierService.App.Views.Reports"
              ShutdownMode="OnExplicitShutdown"
              ThemeMode="Light">
     <!-- StartupUri не використовується: вікно входу й головне вікно відкриває App.OnStartup.
@@ -82,6 +84,10 @@
             <!-- Мої доставки: один шаблон для базового класу активних і виконаних -->
             <DataTemplate DataType="{x:Type orders:MyDeliveriesViewModelBase}">
                 <orderViews:MyDeliveriesView />
+            </DataTemplate>
+            <!-- Звіти: один шаблон для базового класу всіх сторінок звітів (D-30) -->
+            <DataTemplate DataType="{x:Type reports:ReportPageViewModel}">
+                <reportViews:ReportPageView />
             </DataTemplate>
             <!-- Дії з картки замовлення, що потребують введення (D-25) -->
             <DataTemplate DataType="{x:Type orders:AssignCourierViewModel}">

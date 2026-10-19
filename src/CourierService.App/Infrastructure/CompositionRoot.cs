@@ -2,6 +2,7 @@ using CourierService.App.Services;
 using CourierService.App.ViewModels;
 using CourierService.App.ViewModels.Directories;
 using CourierService.App.ViewModels.Orders;
+using CourierService.App.ViewModels.Reports;
 using CourierService.App.Views;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -43,6 +44,10 @@ public static class CompositionRoot
         services.AddTransient<TrackingSearchViewModel>();
         services.AddTransient<MyActiveDeliveriesViewModel>();
         services.AddTransient<MyCompletedDeliveriesViewModel>();
+        services.AddTransient<RevenueReportViewModel>();
+        services.AddTransient<UnpaidReportViewModel>();
+        services.AddTransient<CourierPerformanceReportViewModel>();
+        services.AddTransient<CourierPayoutReportViewModel>();
         services.AddTransient<ZonesViewModel>();
         services.AddTransient<TariffsViewModel>();
         services.AddTransient<ClientsViewModel>();
