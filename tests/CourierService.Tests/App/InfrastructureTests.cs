@@ -64,6 +64,16 @@ public class GlobalExceptionHandlerTests
     }
 
     [Fact]
+    public void GetUserMessage_DomainException_ShowsItsOwnMessage()
+    {
+        var exception = new CourierService.Core.Exceptions.AccessDeniedException("Розділ доступний лише адміністратору.");
+
+        string message = GlobalExceptionHandler.GetUserMessage(exception);
+
+        Assert.Equal("Недостатньо прав. Розділ доступний лише адміністратору.", message);
+    }
+
+    [Fact]
     public void GetUserMessage_PointsToLogsDirectory()
     {
         string message = GlobalExceptionHandler.GetUserMessage(new Exception());

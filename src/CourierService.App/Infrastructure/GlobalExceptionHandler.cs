@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Threading;
 using CourierService.App.Services;
+using CourierService.Core.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace CourierService.App.Infrastructure;
@@ -46,11 +47,16 @@ public sealed class GlobalExceptionHandler
     /// <param name="exception">Виняток, що виник.</param>
     /// <returns>Текст повідомлення українською.</returns>
     /// <remarks>
-    /// З ітерації 2 винятки предметної області (DomainException) показуватимуть власний текст
-    /// через віртуальну властивість UserMessage.
+    /// Винятки предметної області показують власний текст через віртуальну
+    /// властивість <see cref="DomainException.UserMessage"/> (поліморфізм).
     /// </remarks>
     public static string GetUserMessage(Exception exception)
     {
+        if (exception is DomainException domainException)
+        {
+            return domainException.UserMessage;
+        }
+
         return "Сталася непередбачена помилка. Програма продовжить роботу.\n\n"
              + "Якщо помилка повторюється, передайте розробнику файл журналу з каталогу:\n"
              + AppPaths.LogsDirectory;
