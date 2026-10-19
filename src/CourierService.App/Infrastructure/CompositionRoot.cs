@@ -40,6 +40,7 @@ public static class CompositionRoot
         services.AddTransient<TariffsViewModel>();
         services.AddTransient<ClientsViewModel>();
         services.AddTransient<CouriersViewModel>();
+        services.AddTransient<UsersViewModel>();
 
         return services;
     }

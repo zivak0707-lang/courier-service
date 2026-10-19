@@ -60,6 +60,12 @@
             <DataTemplate DataType="{x:Type dir:CourierEditorViewModel}">
                 <dirViews:CourierEditorView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type dir:UsersViewModel}">
+                <dirViews:UsersView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type dir:UserEditorViewModel}">
+                <dirViews:UserEditorView />
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
