@@ -1,44 +1,54 @@
-using CourierService.App.Infrastructure;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CourierService.App.Help;
+using CourierService.Core.Directories;
 
 namespace CourierService.App.ViewModels;
 
 /// <summary>
-/// Розділ довідки.
+/// Сторінка довідки (пункт меню «Допомога», клавіша F1): зміст, пошук і текст обраного розділу (рішення D-34).
 /// </summary>
-/// <param name="Heading">Заголовок розділу.</param>
-/// <param name="Text">Текст розділу.</param>
-public sealed record HelpTopic(string Heading, string Text);
-
-/// <summary>
-/// Сторінка довідки (пункт меню «Допомога», клавіша F1).
-/// </summary>
-public sealed class HelpViewModel : ViewModelBase
+public sealed partial class HelpViewModel : ViewModelBase
 {
+    /// <summary>
+    /// Створює сторінку довідки.
+    /// </summary>
+    /// <param name="initialTopic">Розділ, відкритий одразу (довідка до поточної сторінки), або <c>null</c> для огляду.</param>
+    public HelpViewModel(HelpTopic? initialTopic = null)
+    {
+        FilteredTopics = Topics;
+        SelectedTopic = initialTopic ?? Topics[0];
+    }
+
     /// <inheritdoc />
     public override string Title => "Допомога";
 
-    /// <summary>Розділи довідки.</summary>
-    public IReadOnlyList<HelpTopic> Topics { get; } =
-    [
-        new("Призначення програми",
-            "Програма веде облік роботи кур'єрської служби в Києві: оформлення замовлень, розрахунок вартості, "
-            + "призначення кур'єрів, контроль термінів, облік оплат і звіти."),
-        new("Ролі користувачів",
-            "Адміністратор керує користувачами, зонами й тарифами та бачить усі звіти. "
-            + "Оператор оформлює замовлення, веде клієнтів і кур'єрів, призначає доставки й позначає оплати. "
-            + "Кур'єр бачить лише свої доставки, змінює їхній статус і підтверджує отримання готівки."),
-        new("Головне меню",
-            "«Файл» — зміна користувача й вихід. «Замовлення» — оформлення й пошук. «Мої доставки» — робота кур'єра. "
-            + "«Довідники» — клієнти, кур'єри, зони, тарифи. «Звіти» — дашборд і звіти. "
-            + "«Адміністрування» — користувачі. «Довідка» — ця сторінка й відомості про програму."),
-        new("Вхід у програму",
-            "Під час першого запуску програма сама створює базу даних і демонстраційні облікові записи: "
-            + "адміністратор admin / admin123, оператор operator / operator123, "
-            + "кур'єри courier1…courier4 / courier123. Змінити користувача — «Файл» → «Змінити користувача»."),
-        new("Гарячі клавіші",
-            "F1 — довідка; Ctrl+N — нове замовлення; Ctrl+F — пошук за трек-номером; Alt+F4 — вихід із програми."),
-        new("Якщо сталася помилка",
-            "Програма покаже повідомлення й продовжить роботу. Технічні деталі записуються в журнал у каталозі "
-            + AppPaths.LogsDirectory + ". Якщо помилка повторюється, передайте файл журналу розробнику."),
-    ];
+    /// <summary>Усі розділи довідки.</summary>
+    public IReadOnlyList<HelpTopic> Topics => HelpContent.Topics;
+
+    /// <summary>Розділи, що відповідають пошуку (зміст ліворуч).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasNoResults))]
+    public partial IReadOnlyList<HelpTopic> FilteredTopics { get; private set; }
+
+    /// <summary>Розділ, текст якого показано праворуч.</summary>
+    [ObservableProperty]
+    public partial HelpTopic? SelectedTopic { get; set; }
+
+    /// <summary>Пошук за заголовком і текстом розділів.</summary>
+    [ObservableProperty]
+    public partial string SearchText { get; set; } = string.Empty;
+
+    /// <summary>Чи не знайдено жодного розділу.</summary>
+    public bool HasNoResults => FilteredTopics.Count == 0;
+
+    partial void OnSearchTextChanged(string value)
+    {
+        FilteredTopics = HelpContent.Topics.Where(topic => TextSearch.Matches(value, topic.Heading, topic.Text)).ToList();
+
+        // Обраний розділ, що випав із результатів, замінюється першим знайденим
+        if (SelectedTopic is null || !FilteredTopics.Contains(SelectedTopic))
+        {
+            SelectedTopic = FilteredTopics.FirstOrDefault();
+        }
+    }
 }

@@ -41,7 +41,6 @@ public static class CompositionRoot
 
         // ViewModel-и сторінок: новий екземпляр під час кожного переходу
         services.AddTransient<HomeViewModel>();
-        services.AddTransient<HelpViewModel>();
         services.AddTransient<OrderListViewModel>();
         services.AddTransient<TrackingSearchViewModel>();
         services.AddTransient<MyActiveDeliveriesViewModel>();

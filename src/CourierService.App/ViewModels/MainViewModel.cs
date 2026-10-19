@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CourierService.App.Help;
 using CourierService.App.Navigation;
 using CourierService.App.Services;
 using CourierService.App.ViewModels.Directories;
@@ -176,8 +177,25 @@ public sealed partial class MainViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Визначає розділ меню за типом сторінки (для контекстної довідки).
+    /// </summary>
+    /// <param name="pageType">Тип ViewModel сторінки або <c>null</c>.</param>
+    /// <returns>Розділ меню або <c>null</c>, якщо сторінка не належить жодному розділу (головна, довідка).</returns>
+    public static AppSection? SectionOf(Type? pageType) =>
+        SectionPages.Where(page => page.Value == pageType).Select(page => (AppSection?)page.Key).FirstOrDefault();
+
     [RelayCommand]
-    private void ShowHelp() => _navigation.NavigateTo<HelpViewModel>();
+    private void ShowHelp()
+    {
+        // F1 на сторінці довідки нічого не змінює, на інших — відкриває розділ про поточну сторінку
+        if (CurrentPage is HelpViewModel)
+        {
+            return;
+        }
+
+        _navigation.NavigateTo(new HelpViewModel(HelpContent.ForSection(SectionOf(CurrentPage?.GetType()))));
+    }
 
     [RelayCommand]
     private void ShowAbout() => _dialogs.ShowAbout();

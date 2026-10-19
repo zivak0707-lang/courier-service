@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using CourierService.App.Help;
 using CourierService.App.Infrastructure;
 using CourierService.App.Navigation;
 using CourierService.App.Services;
@@ -26,7 +27,6 @@ public class MainViewModelTests
     {
         var provider = new ServiceCollection()
             .AddTransient<HomeViewModel>()
-            .AddTransient<HelpViewModel>()
             .BuildServiceProvider();
 
         _loginDialog = new FakeLoginDialog(_currentUser);
@@ -234,12 +234,46 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public void ShowHelp_OpensHelpPageWithTopics()
+    public void ShowHelp_FromHomePage_OpensOverview()
     {
         _viewModel.ShowHelpCommand.Execute(null);
 
         var help = Assert.IsType<HelpViewModel>(_viewModel.CurrentPage);
         Assert.NotEmpty(help.Topics);
+        Assert.Equal(HelpContent.OverviewId, help.SelectedTopic?.Id);
+    }
+
+    [Fact]
+    public void ShowHelp_OnHelpPage_KeepsSelectedTopic()
+    {
+        _viewModel.ShowHelpCommand.Execute(null);
+        var help = Assert.IsType<HelpViewModel>(_viewModel.CurrentPage);
+        help.SelectedTopic = help.Topics[^1];
+
+        _viewModel.ShowHelpCommand.Execute(null);
+
+        Assert.Same(help, _viewModel.CurrentPage);
+        Assert.Equal(help.Topics[^1], help.SelectedTopic);
+    }
+
+    [Theory]
+    [MemberData(nameof(AllSections))]
+    public void SectionOf_PageOfSection_LeadsToItsHelpTopic(AppSection section)
+    {
+        if (!MainViewModel.SectionPages.TryGetValue(section, out Type? pageType))
+        {
+            return; // Нове замовлення — модальне вікно, а не сторінка
+        }
+
+        Assert.Equal(section, MainViewModel.SectionOf(pageType));
+        Assert.Equal(section, HelpContent.ForSection(MainViewModel.SectionOf(pageType)).Section);
+    }
+
+    [Fact]
+    public void SectionOf_PageOutsideSections_ReturnsNull()
+    {
+        Assert.Null(MainViewModel.SectionOf(typeof(HomeViewModel)));
+        Assert.Null(MainViewModel.SectionOf(null));
     }
 
     [Fact]
