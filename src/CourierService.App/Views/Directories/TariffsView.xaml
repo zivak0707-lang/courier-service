@@ -28,7 +28,7 @@
                 <DataGridTextColumn Header="Макс. вага" Binding="{Binding MaxWeightGrams, Converter={StaticResource Kilograms}}" Width="Auto" />
                 <DataGridTextColumn Header="Через Дніпро" Binding="{Binding CrossRiverSurcharge}" Width="Auto" />
                 <DataGridTextColumn Header="Крихкість" Binding="{Binding FragileSurcharge}" Width="Auto" />
-                <DataGridCheckBoxColumn Header="Активний" Binding="{Binding IsActive}" Width="Auto" />
+                <DataGridTextColumn Header="Активний" Binding="{Binding IsActive, Converter={StaticResource YesNo}}" Width="Auto" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

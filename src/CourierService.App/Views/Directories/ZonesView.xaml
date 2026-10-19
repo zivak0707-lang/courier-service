@@ -23,7 +23,7 @@
                 <DataGridTextColumn Header="Район" Binding="{Binding Name}" Width="*" />
                 <DataGridTextColumn Header="Берег" Binding="{Binding Bank, Converter={StaticResource EnumDisplay}}" Width="160" />
                 <DataGridTextColumn Header="Коефіцієнт" Binding="{Binding CoefficientPercent, Converter={StaticResource Coefficient}}" Width="140" />
-                <DataGridCheckBoxColumn Header="Активна" Binding="{Binding IsActive}" Width="100" />
+                <DataGridTextColumn Header="Активна" Binding="{Binding IsActive, Converter={StaticResource YesNo}}" Width="100" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

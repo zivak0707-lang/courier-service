@@ -132,6 +132,26 @@
         </Style.Triggers>
     </Style>
 
+    <!-- Клітинки всіх таблиць: вміст по центру рядка по вертикалі, щоб текст стояв на одній лінії з позначками
+         й прапорцями. Шаблон Fluent-теми розтягує вміст на всю висоту, тому шаблон замінено; кольори виділення
+         задають тригери базового стилю -->
+    <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="Padding" Value="4,0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridCell">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}"
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="DirectoryGridStyle" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
         <Setter Property="AutoGenerateColumns" Value="False" />
         <Setter Property="IsReadOnly" Value="True" />
@@ -164,7 +184,7 @@
 
     <DataTemplate x:Key="SlaCellTemplate">
         <Border DataContext="{Binding Sla}" Style="{StaticResource SlaBadgeStyle}" Margin="2,1">
-            <TextBlock Text="{Binding Text}" />
+            <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
         </Border>
     </DataTemplate>
 

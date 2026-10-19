@@ -52,10 +52,21 @@ public sealed class KilogramsConverter : DisplayConverterBase
         value is int grams ? InputParsing.FormatKilograms(grams) + " кг" : string.Empty;
 }
 
-/// <summary>Телефон +380XXXXXXXXX → «+380 (50) 123-45-67».</summary>
+/// <summary>Телефон +380XXXXXXXXX → «+380 (50) 123-45-67» (для показу, без переносу рядка всередині).</summary>
 public sealed class PhoneConverter : DisplayConverterBase
 {
     /// <inheritdoc />
     public override object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
-        PhoneNumber.Format(value as string);
+        PhoneNumber.Format(value as string).Replace(' ', NoBreakSpace);
+
+    // Нерозривний пробіл: вузька колонка чи картка не розірве номер між рядками
+    private const char NoBreakSpace = ' ';
+}
+
+/// <summary>Логічне значення → «так» / «ні» (таблиці лише для читання, щоб не було схожих на кнопки прапорців).</summary>
+public sealed class YesNoConverter : DisplayConverterBase
+{
+    /// <inheritdoc />
+    public override object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is true ? "так" : "ні";
 }

@@ -79,7 +79,8 @@
                                AutomationProperties.Name="Статус" />
                 </Border>
                 <Border DataContext="{Binding Sla}" Style="{StaticResource SlaBadgeStyle}" Padding="12,3" Margin="8,0,0,0"
-                        VerticalAlignment="Center">
+                        VerticalAlignment="Center"
+                        Visibility="{Binding DataContext.IsSlaTracked, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource VisibleWhen}}">
                     <TextBlock Text="{Binding Text}" AutomationProperties.Name="Термін" />
                 </Border>
             </StackPanel>
@@ -146,9 +147,7 @@
                                     тариф «<Run Text="{Binding Order.Tariff.Name, Mode=OneWay}" />»
                                 </TextBlock>
                                 <TextBlock Grid.Row="6" Text="Особливості" Style="{StaticResource LabelStyle}" />
-                                <TextBlock Grid.Row="6" Grid.Column="1" Style="{StaticResource ValueStyle}">
-                                    <Run Text="цінність" /> <Run Text="{Binding Order.DeclaredValue, Mode=OneWay}" /><Run Text="{Binding FragileText, Mode=OneWay}" />
-                                </TextBlock>
+                                <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding FeaturesText}" Style="{StaticResource ValueStyle}" />
                                 <TextBlock Grid.Row="7" Text="Коментар" Style="{StaticResource LabelStyle}" />
                                 <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Order.Comment, TargetNullValue='—'}" Style="{StaticResource ValueStyle}" />
                             </Grid>

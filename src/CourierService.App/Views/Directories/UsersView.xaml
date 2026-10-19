@@ -24,7 +24,7 @@
                 <DataGridTextColumn Header="Логін" Binding="{Binding Login}" Width="Auto" />
                 <DataGridTextColumn Header="Роль" Binding="{Binding Role, Converter={StaticResource EnumDisplay}}" Width="Auto" />
                 <DataGridTextColumn Header="Створено" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy}" Width="Auto" />
-                <DataGridCheckBoxColumn Header="Активний" Binding="{Binding IsActive}" Width="Auto" />
+                <DataGridTextColumn Header="Активний" Binding="{Binding IsActive, Converter={StaticResource YesNo}}" Width="Auto" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

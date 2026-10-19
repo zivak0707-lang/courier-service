@@ -130,7 +130,7 @@ public partial class DashboardView : UserControl
         {
             CourierScore score = ordered[index++];
             bar.FillColor = GrossColor;
-            bar.Label = score.OnTimePercent is { } percent ? $"{score.Delivered} ({percent:0.#} % вчасно)" : $"{score.Delivered}";
+            bar.Label = score.OnTimePercent is { } percent ? $"{score.Delivered} ({percent:0.0} % вчасно)" : $"{score.Delivered}";
         }
 
         bars.ValueLabelStyle.FontName = FontName;

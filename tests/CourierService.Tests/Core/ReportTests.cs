@@ -101,6 +101,7 @@ public class ReportTests
         Assert.Equal([0, 0, null, 0, null, Money.Zero], table.Rows[2].Skip(1));
         Assert.Equal(["Разом", 3, 2, 66.7m, 1, 5.7m, Money.FromHryvnias(477m)], table.Totals);
         Assert.Equal("66,7 %", ReportFormat.Display(ReportValueKind.Percent, table.Totals![3]));
+        Assert.Equal("64,0 %", ReportFormat.Display(ReportValueKind.Percent, 64m));
         Assert.Equal("8 год", Text(table, 0, 5));
         Assert.Equal("—", Text(table, 2, 3));
     }

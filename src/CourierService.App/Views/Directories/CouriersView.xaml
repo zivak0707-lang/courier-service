@@ -24,10 +24,10 @@
                 <DataGridTextColumn Header="Логін" Binding="{Binding Login}" Width="Auto" />
                 <DataGridTextColumn Header="Телефон" Binding="{Binding Phone, Converter={StaticResource Phone}}" Width="Auto" />
                 <DataGridTextColumn Header="Транспорт" Binding="{Binding TransportType, Converter={StaticResource EnumDisplay}}" Width="Auto" />
-                <DataGridTextColumn Header="До" Binding="{Binding MaxWeightGrams, Converter={StaticResource Kilograms}}" Width="Auto" />
+                <DataGridTextColumn Header="Вантаж до" Binding="{Binding MaxWeightGrams, Converter={StaticResource Kilograms}}" Width="Auto" />
                 <DataGridTextColumn Header="Домашня зона" Binding="{Binding HomeZoneName}" Width="Auto" />
                 <DataGridTextColumn Header="Виплата, %" Binding="{Binding PayoutPercent}" Width="Auto" />
-                <DataGridCheckBoxColumn Header="Активний" Binding="{Binding IsActive}" Width="Auto" />
+                <DataGridTextColumn Header="Активний" Binding="{Binding IsActive, Converter={StaticResource YesNo}}" Width="Auto" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

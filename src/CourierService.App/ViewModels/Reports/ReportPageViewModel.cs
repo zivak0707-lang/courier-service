@@ -198,17 +198,23 @@ public abstract partial class ReportPageViewModel : ViewModelBase, ILoadable
     public static IReadOnlyList<ReportDisplayRow> ToDisplayRows(ReportTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
-        var rows = table.Rows.Select(row => new ReportDisplayRow(Texts(table, row), false)).ToList();
+        var rows = table.Rows.Select(row => new ReportDisplayRow(Texts(table, row, isTotal: false), false)).ToList();
         if (table.Totals is { } totals && table.Rows.Count > 0)
         {
-            rows.Add(new ReportDisplayRow(Texts(table, totals), true));
+            rows.Add(new ReportDisplayRow(Texts(table, totals, isTotal: true), true));
         }
 
         return rows;
     }
 
-    private static List<string> Texts(ReportTable table, IReadOnlyList<object?> values) =>
-        table.Columns.Select((column, index) => values[index] is string text ? text : ReportFormat.Display(column.Kind, values[index]))
+    // У рядку «Разом» колонки без підсумку лишаються порожніми, а не заповнюються «—»
+    private static List<string> Texts(ReportTable table, IReadOnlyList<object?> values, bool isTotal) =>
+        table.Columns.Select((column, index) => values[index] switch
+            {
+                string text => text,
+                null when isTotal => string.Empty,
+                var value => ReportFormat.Display(column.Kind, value),
+            })
             .ToList();
 
     private void RebuildOnChange()

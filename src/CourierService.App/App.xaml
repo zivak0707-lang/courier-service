@@ -29,6 +29,7 @@
             <converters:CoefficientConverter x:Key="Coefficient" />
             <converters:KilogramsConverter x:Key="Kilograms" />
             <converters:PhoneConverter x:Key="Phone" />
+            <converters:YesNoConverter x:Key="YesNo" />
 
             <!-- Відповідність «ViewModel → View»: WPF сам обирає вигляд сторінки за типом ViewModel -->
             <DataTemplate DataType="{x:Type vm:HomeViewModel}">

@@ -81,7 +81,7 @@ public static class ReportFormat
         Money money => money.ToString(),
         System.DateTime date when kind == ReportValueKind.Date => date.ToString("dd.MM.yyyy", Ukrainian),
         System.DateTime dateTime => dateTime.ToString("dd.MM.yyyy HH:mm", Ukrainian),
-        decimal percent when kind == ReportValueKind.Percent => percent.ToString("0.#", Ukrainian) + " %",
+        decimal percent when kind == ReportValueKind.Percent => percent.ToString("0.0", Ukrainian) + " %",
         decimal hours when kind == ReportValueKind.Hours => hours.ToString("0.#", Ukrainian) + " год",
         IFormattable number => number.ToString(null, Ukrainian),
         _ => value.ToString() ?? string.Empty,

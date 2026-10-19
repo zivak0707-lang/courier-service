@@ -84,6 +84,34 @@ public class OrderDetailsViewModelTests
     }
 
     [Fact]
+    public async Task Features_DashWhenNothingDeclared_ListWhenPresent()
+    {
+        Order order = NewOrderWithHistory();
+        order.DeclaredValue = Money.Zero;
+        order.IsFragile = false;
+        var card = CreateCard(order, WorkflowTestData.Operator);
+        await card.LoadCommand.ExecuteAsync(null);
+        Assert.Equal("—", card.FeaturesText);
+
+        order.DeclaredValue = Money.FromHryvnias(500m);
+        order.IsFragile = true;
+        await card.LoadCommand.ExecuteAsync(null);
+        Assert.Equal($"цінність {Money.FromHryvnias(500m)}, крихка", card.FeaturesText);
+    }
+
+    [Fact]
+    public async Task CancelledOrder_HidesDeadlineBadge()
+    {
+        Order order = NewOrderWithHistory();
+        order.ChangeStatus(OrderStatus.Cancelled, 2, WorkflowTestData.Now.AddMinutes(5));
+        var card = CreateCard(order, WorkflowTestData.Operator);
+
+        await card.LoadCommand.ExecuteAsync(null);
+
+        Assert.False(card.IsSlaTracked);
+    }
+
+    [Fact]
     public async Task Admin_SeesCardWithoutActions()
     {
         var card = CreateCard(NewOrderWithHistory(), WorkflowTestData.Admin);

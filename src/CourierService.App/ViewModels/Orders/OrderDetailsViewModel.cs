@@ -84,7 +84,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
 
     /// <summary>Замовлення з пов'язаними даними (лише для читання).</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Title), nameof(FragileText), nameof(PaymentDetails), nameof(DatesText), nameof(CanPrintWaybill))]
+    [NotifyPropertyChangedFor(nameof(Title), nameof(FeaturesText), nameof(PaymentDetails), nameof(DatesText), nameof(CanPrintWaybill))]
     [NotifyCanExecuteChangedFor(nameof(PrintWaybillCommand), nameof(CopyTrackingNumberCommand))]
     public partial Order? Order { get; private set; }
 
@@ -95,17 +95,43 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
           + $" · доставити до {order.Deadline.ToString("dd.MM.yyyy HH:mm", Ukrainian)}"
           + (order.DeliveredAt is { } delivered ? $" · доставлено {delivered.ToString("dd.MM.yyyy HH:mm", Ukrainian)}" : string.Empty);
 
-    /// <summary>Позначка крихкої посилки.</summary>
-    public string FragileText => Order?.IsFragile == true ? ", крихка" : string.Empty;
+    /// <summary>Оголошена цінність і крихкість: «цінність 500,00 грн, крихка», «крихка» або «—», якщо нічого немає.</summary>
+    public string FeaturesText
+    {
+        get
+        {
+            if (Order is not { } order)
+            {
+                return string.Empty;
+            }
 
-    /// <summary>Коли й хто підтвердив оплату.</summary>
+            List<string> features = [];
+            if (order.DeclaredValue > Money.Zero)
+            {
+                features.Add($"цінність {order.DeclaredValue}");
+            }
+
+            if (order.IsFragile)
+            {
+                features.Add("крихка");
+            }
+
+            return features.Count == 0 ? "—" : string.Join(", ", features);
+        }
+    }
+
+    /// <summary>Коли й хто підтвердив оплату: «(19.10.2026 16:35, Ігор Бондар)».</summary>
     public string PaymentDetails => Order?.Payment is { PaidAt: { } paidAt } payment
-        ? $"({paidAt.ToString("dd.MM.yyyy HH:mm", Ukrainian)}, підтвердив(-ла) {payment.ConfirmedBy?.FullName})"
+        ? $"({paidAt.ToString("dd.MM.yyyy HH:mm", Ukrainian)}, {payment.ConfirmedBy?.FullName})"
         : string.Empty;
 
     /// <summary>Дотримання терміну доставки (D-31).</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSlaTracked))]
     public partial SlaResult Sla { get; private set; } = SlaResult.NotTracked;
+
+    /// <summary>Чи показувати позначку терміну: для скасованих і повернених вона була б порожньою.</summary>
+    public bool IsSlaTracked => Sla.State != SlaState.NotTracked;
 
     /// <summary>Розбивка вартості за знімком у замовленні.</summary>
     [ObservableProperty]
