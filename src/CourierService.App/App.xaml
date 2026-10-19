@@ -79,6 +79,10 @@
             <DataTemplate DataType="{x:Type orders:TrackingSearchViewModel}">
                 <orderViews:TrackingSearchView />
             </DataTemplate>
+            <!-- Мої доставки: один шаблон для базового класу активних і виконаних -->
+            <DataTemplate DataType="{x:Type orders:MyDeliveriesViewModelBase}">
+                <orderViews:MyDeliveriesView />
+            </DataTemplate>
             <!-- Дії з картки замовлення, що потребують введення (D-25) -->
             <DataTemplate DataType="{x:Type orders:AssignCourierViewModel}">
                 <orderViews:AssignCourierView />

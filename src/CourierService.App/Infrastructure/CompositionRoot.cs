@@ -41,6 +41,8 @@ public static class CompositionRoot
         services.AddTransient<HelpViewModel>();
         services.AddTransient<OrderListViewModel>();
         services.AddTransient<TrackingSearchViewModel>();
+        services.AddTransient<MyActiveDeliveriesViewModel>();
+        services.AddTransient<MyCompletedDeliveriesViewModel>();
         services.AddTransient<ZonesViewModel>();
         services.AddTransient<TariffsViewModel>();
         services.AddTransient<ClientsViewModel>();

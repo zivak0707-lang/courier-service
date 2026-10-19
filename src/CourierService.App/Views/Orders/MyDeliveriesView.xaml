@@ -1,0 +1,47 @@
+<UserControl x:Class="CourierService.App.Views.Orders.MyDeliveriesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:orders="clr-namespace:CourierService.App.ViewModels.Orders"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=orders:MyDeliveriesViewModelBase}">
+    <!-- Один вигляд для активних і виконаних доставок: WPF обирає шаблон за базовим типом ViewModel -->
+    <DockPanel Margin="{StaticResource PagePadding}">
+        <TextBlock DockPanel.Dock="Top" Text="{Binding Title}" Style="{StaticResource PageTitleStyle}" />
+
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="_Оновити" MinWidth="100" Margin="0,0,8,0" Command="{Binding LoadCommand}" />
+                <Button Content="_Відкрити" MinWidth="110" Command="{Binding OpenOrderCommand}"
+                        ToolTip="Картка доставки: «Забрав», «Доставив», «Невдала спроба» (або подвійний клік)" />
+            </StackPanel>
+            <TextBlock Text="Подвійний клік по рядку відкриває картку з діями." Style="{StaticResource SecondaryTextStyle}"
+                       VerticalAlignment="Center" />
+        </DockPanel>
+
+        <TextBlock DockPanel.Dock="Top" Text="{Binding EmptyText}" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,8"
+                   Visibility="{Binding IsEmpty, Converter={StaticResource VisibleWhen}}" />
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding CountText}" Style="{StaticResource SecondaryTextStyle}" Margin="0,8,0,0" />
+
+        <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedOrder}" Style="{StaticResource DirectoryGridStyle}"
+                  RowStyle="{StaticResource {x:Type DataGridRow}}" AutomationProperties.Name="Доставки">
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenOrderCommand}" />
+            </DataGrid.InputBindings>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Трек-номер" Binding="{Binding TrackingNumber}" Width="Auto" />
+                <DataGridTextColumn Header="Статус" Binding="{Binding Status, Converter={StaticResource EnumDisplay}}" Width="Auto" />
+                <DataGridTextColumn Header="Доставити до" Binding="{Binding Deadline, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />
+                <DataGridTextColumn Header="Забір" Binding="{Binding PickupZone}" Width="Auto" />
+                <DataGridTextColumn Header="Відправник" Binding="{Binding ClientName}" Width="*" MinWidth="140" />
+                <DataGridTextColumn Header="Доставка" Binding="{Binding DeliveryZone}" Width="Auto" />
+                <DataGridTextColumn Header="Одержувач" Binding="{Binding RecipientName}" Width="*" MinWidth="140" />
+                <DataGridTextColumn Header="Телефон одержувача" Binding="{Binding RecipientPhone, Converter={StaticResource Phone}}" Width="Auto" />
+                <DataGridTextColumn Header="Вартість" Binding="{Binding Price}" SortMemberPath="Price.Kopecks" Width="Auto" />
+                <DataGridTextColumn Header="Платить" Binding="{Binding Payer, Converter={StaticResource EnumDisplay}}" Width="Auto" />
+                <DataGridTextColumn Header="Оплата" Binding="{Binding PaymentStatus, Converter={StaticResource EnumDisplay}}" Width="Auto" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>
