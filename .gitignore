@@ -262,6 +262,8 @@ Generated_Code/
 # because we have git ;-)
 _UpgradeReport_Files/
 Backup*/
+# Код резервного копіювання бази даних — не тимчасові файли Visual Studio
+!src/CourierService.Core/Backups/
 UpgradeLog*.XML
 UpgradeLog*.htm
 ServiceFabricBackup/
