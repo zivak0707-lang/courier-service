@@ -1,4 +1,4 @@
-﻿# Нормалізація закінчень рядків: у репозиторії LF, у робочій копії Windows — CRLF
+# Нормалізація закінчень рядків: у репозиторії LF, у робочій копії Windows — CRLF
 * text=auto
 *.sln text eol=crlf
 *.slnx text eol=crlf
