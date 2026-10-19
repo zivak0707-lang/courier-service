@@ -62,7 +62,11 @@ public sealed class DomainValidationException : DomainException
     public ValidationErrors Errors { get; }
 
     /// <inheritdoc />
-    public override string UserMessage => "Перевірте введені дані. " + Message;
+    /// <remarks>
+    /// Префікс «Перевірте введені дані» додається, лише коли помилка стосується конкретних полів;
+    /// порушене бізнес-правило («не можна вимкнути власний обліковий запис») показується як є.
+    /// </remarks>
+    public override string UserMessage => Errors.IsValid ? Message : "Перевірте введені дані. " + Message;
 }
 
 /// <summary>

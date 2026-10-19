@@ -1,0 +1,32 @@
+<Window x:Class="CourierService.App.Views.MessageWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Кур'єрська служба"
+        MinWidth="380" MaxWidth="560" SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+    <!-- Власне вікно повідомлень: кнопки завжди українською, незалежно від мови Windows -->
+    <Grid Margin="24,20,24,20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="IconText" Grid.Row="0" Grid.Column="0"
+                   FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="28"
+                   VerticalAlignment="Top" Margin="0,2,16,0" />
+        <TextBlock x:Name="MessageText" Grid.Row="0" Grid.Column="1"
+                   Style="{StaticResource BodyTextStyle}" MaxWidth="440" />
+
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,24,0,0">
+            <Button x:Name="PrimaryButton" MinWidth="100" IsDefault="True" Click="OnPrimaryClick" />
+            <Button x:Name="SecondaryButton" MinWidth="100" Margin="8,0,0,0" IsCancel="True" Content="_Ні" />
+        </StackPanel>
+    </Grid>
+</Window>

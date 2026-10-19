@@ -51,11 +51,10 @@ public partial class App : Application
         {
             // Обробник помилок ще не підключений: повідомляємо напряму й завершуємо роботу
             Log.Fatal(ex, "Помилка запуску застосунку");
-            MessageBox.Show(
-                "Не вдалося запустити програму.\n\n" + ex.Message,
-                "Кур'єрська служба",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
+            new MessageWindow("Не вдалося запустити програму.\n\n" + ex.Message, MessageKind.Error)
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            }.ShowDialog();
             Shutdown(1);
         }
     }

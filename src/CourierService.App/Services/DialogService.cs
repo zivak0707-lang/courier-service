@@ -5,28 +5,25 @@ using CourierService.App.Views;
 namespace CourierService.App.Services;
 
 /// <summary>
-/// Реалізація <see cref="IDialogService"/> через стандартні вікна повідомлень WPF.
+/// Реалізація <see cref="IDialogService"/> через власне вікно повідомлень.
 /// </summary>
+/// <remarks>
+/// Стандартний MessageBox підписує кнопки мовою Windows (на російськомовній системі — «Да»/«Нет»),
+/// тому використано власне вікно з кнопками українською.
+/// </remarks>
 public sealed class DialogService : IDialogService
 {
-    /// <summary>Заголовок усіх вікон повідомлень.</summary>
-    public const string Caption = "Кур'єрська служба";
+    /// <inheritdoc />
+    public void ShowInfo(string message) => Show(message, MessageKind.Info);
 
     /// <inheritdoc />
-    public void ShowInfo(string message) =>
-        Show(message, MessageBoxButton.OK, MessageBoxImage.Information);
+    public void ShowWarning(string message) => Show(message, MessageKind.Warning);
 
     /// <inheritdoc />
-    public void ShowWarning(string message) =>
-        Show(message, MessageBoxButton.OK, MessageBoxImage.Warning);
+    public void ShowError(string message) => Show(message, MessageKind.Error);
 
     /// <inheritdoc />
-    public void ShowError(string message) =>
-        Show(message, MessageBoxButton.OK, MessageBoxImage.Error);
-
-    /// <inheritdoc />
-    public bool Confirm(string message) =>
-        Show(message, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+    public bool Confirm(string message) => Show(message, MessageKind.Question);
 
     /// <inheritdoc />
     public void ShowAbout()
@@ -41,12 +38,19 @@ public sealed class DialogService : IDialogService
             .OfType<Window>()
             .FirstOrDefault(window => window.IsActive);
 
-    private static MessageBoxResult Show(string message, MessageBoxButton buttons, MessageBoxImage icon)
+    private static bool Show(string message, MessageKind kind)
     {
+        var window = new MessageWindow(message, kind);
         Window? owner = FindOwner();
+        if (owner is not null)
+        {
+            window.Owner = owner;
+        }
+        else
+        {
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        }
 
-        return owner is null
-            ? MessageBox.Show(message, Caption, buttons, icon)
-            : MessageBox.Show(owner, message, Caption, buttons, icon);
+        return window.ShowDialog() == true;
     }
 }

@@ -91,10 +91,12 @@ public class DomainExceptionTests
     [Fact]
     public void UserMessage_IsDefinedBySubclass()
     {
-        DomainException validation = new DomainValidationException("Вага має бути більшою за нуль.");
+        DomainException validation = new DomainValidationException("Вага має бути більшою за нуль.", "WeightGrams");
+        DomainException rule = new DomainValidationException("Не можна вимкнути власний обліковий запис.");
         DomainException access = new AccessDeniedException("Кур'єр не може змінювати чужі замовлення.");
 
         Assert.Equal("Перевірте введені дані. Вага має бути більшою за нуль.", validation.UserMessage);
+        Assert.Equal("Не можна вимкнути власний обліковий запис.", rule.UserMessage);
         Assert.Equal("Недостатньо прав. Кур'єр не може змінювати чужі замовлення.", access.UserMessage);
     }
 }
