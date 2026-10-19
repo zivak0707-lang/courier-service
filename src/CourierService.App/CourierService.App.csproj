@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Інтерфейс користувача: WPF, MVVM -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyTitle>Кур'єрська служба</AssemblyTitle>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CourierService.Core\CourierService.Core.csproj" />
+    <ProjectReference Include="..\CourierService.Data\CourierService.Data.csproj" />
+  </ItemGroup>
+
+</Project>

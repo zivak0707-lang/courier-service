@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CourierService.App/CourierService.App.csproj" />
+    <Project Path="src/CourierService.Core/CourierService.Core.csproj" />
+    <Project Path="src/CourierService.Data/CourierService.Data.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CourierService.Tests/CourierService.Tests.csproj" />
+  </Folder>
+</Solution>

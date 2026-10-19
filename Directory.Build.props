@@ -1,0 +1,18 @@
+<Project>
+  <!-- Спільні налаштування для всіх проєктів solution -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Збірка без попереджень: будь-яке попередження зупиняє збірку -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- XML-документація обов'язкова для публічних членів (CS1591 стає помилкою) -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <SatelliteResourceLanguages>uk</SatelliteResourceLanguages>
+
+    <Product>Кур'єрська служба</Product>
+    <Authors>Sergiy Zivak</Authors>
+    <Copyright>© 2026 Sergiy Zivak</Copyright>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+</Project>
