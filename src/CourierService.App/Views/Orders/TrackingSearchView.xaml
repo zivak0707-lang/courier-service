@@ -1,6 +1,7 @@
 <UserControl x:Class="CourierService.App.Views.Orders.TrackingSearchView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:b="clr-namespace:CourierService.App.Behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:orders="clr-namespace:CourierService.App.ViewModels.Orders"
@@ -18,7 +19,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBox Text="{Binding TrackingNumber, UpdateSourceTrigger=PropertyChanged}" MaxLength="30"
-                     AutomationProperties.Name="Трек-номер" Loaded="OnSearchBoxLoaded">
+                     b:Hint.Text="KV2610190042-6" AutomationProperties.Name="Трек-номер" Loaded="OnSearchBoxLoaded">
                 <TextBox.InputBindings>
                     <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
                 </TextBox.InputBindings>

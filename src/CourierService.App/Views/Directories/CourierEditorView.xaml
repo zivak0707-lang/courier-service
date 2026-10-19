@@ -1,6 +1,7 @@
 <UserControl x:Class="CourierService.App.Views.Directories.CourierEditorView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:b="clr-namespace:CourierService.App.Behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dir="clr-namespace:CourierService.App.ViewModels.Directories"
@@ -9,7 +10,7 @@
     <StackPanel>
         <TextBlock Text="ПІБ" Style="{StaticResource FieldLabelStyle}" />
         <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" MaxLength="100"
-                 Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="ПІБ" />
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="Прізвище та ім'я" AutomationProperties.Name="ПІБ" />
 
         <Grid>
             <Grid.ColumnDefinitions>
@@ -20,12 +21,12 @@
             <StackPanel Grid.Column="0">
                 <TextBlock Text="Логін" Style="{StaticResource FieldLabelStyle}" />
                 <TextBox Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" MaxLength="50"
-                         Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Логін" />
+                         Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="латиницею, наприклад courier5" b:InputMask.Kind="Login" AutomationProperties.Name="Логін" />
             </StackPanel>
             <StackPanel Grid.Column="2">
                 <TextBlock Text="Телефон" Style="{StaticResource FieldLabelStyle}" />
                 <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" MaxLength="25"
-                         Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Телефон" />
+                         Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="050 123 45 67" b:InputMask.Kind="Phone" AutomationProperties.Name="Телефон" />
             </StackPanel>
         </Grid>
 
@@ -50,7 +51,7 @@
             <StackPanel Grid.Column="2">
                 <TextBlock Text="Вантажопідйомність, кг" Style="{StaticResource FieldLabelStyle}" />
                 <TextBox Text="{Binding MaxWeightGrams, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Вантажопідйомність" />
+                         Style="{StaticResource FormTextBoxStyle}" b:InputMask.Kind="Decimal" AutomationProperties.Name="Вантажопідйомність" />
             </StackPanel>
         </Grid>
 
@@ -63,12 +64,12 @@
             <StackPanel Grid.Column="0">
                 <TextBlock Text="Домашня зона" Style="{StaticResource FieldLabelStyle}" />
                 <ComboBox ItemsSource="{Binding Zones}" DisplayMemberPath="Display" SelectedValuePath="Value"
-                          SelectedValue="{Binding HomeZoneId}" Style="{StaticResource FormComboBoxStyle}" AutomationProperties.Name="Домашня зона" />
+                          SelectedValue="{Binding HomeZoneId}" Style="{StaticResource FormComboBoxStyle}" b:Hint.Text="Оберіть зону" AutomationProperties.Name="Домашня зона" />
             </StackPanel>
             <StackPanel Grid.Column="2">
                 <TextBlock Text="Виплата кур'єру, % від вартості" Style="{StaticResource FieldLabelStyle}" />
                 <TextBox Text="{Binding PayoutPercent, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Відсоток виплати" />
+                         Style="{StaticResource FormTextBoxStyle}" b:InputMask.Kind="Integer" AutomationProperties.Name="Відсоток виплати" />
             </StackPanel>
         </Grid>
     </StackPanel>

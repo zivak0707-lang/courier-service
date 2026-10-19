@@ -1,6 +1,7 @@
 <UserControl x:Class="CourierService.App.Views.Orders.FailureReasonView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:b="clr-namespace:CourierService.App.Behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:orders="clr-namespace:CourierService.App.ViewModels.Orders"
@@ -28,6 +29,6 @@
         <TextBlock Text="Причина (обов'язково)" Style="{StaticResource FieldLabelStyle}" />
         <TextBox Text="{Binding Reason, UpdateSourceTrigger=PropertyChanged}" MaxLength="500"
                  TextWrapping="Wrap" AcceptsReturn="True" MinHeight="64"
-                 Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Причина" />
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="Опишіть, що сталося, або оберіть типову причину вище" AutomationProperties.Name="Причина" />
     </StackPanel>
 </UserControl>

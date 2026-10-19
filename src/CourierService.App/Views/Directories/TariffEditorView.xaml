@@ -1,6 +1,7 @@
 <UserControl x:Class="CourierService.App.Views.Directories.TariffEditorView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:b="clr-namespace:CourierService.App.Behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dir="clr-namespace:CourierService.App.ViewModels.Directories"
@@ -12,7 +13,7 @@
 
         <TextBlock Text="Назва" Style="{StaticResource FieldLabelStyle}" />
         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="50"
-                 Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Назва" />
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="Наприклад, Експрес" AutomationProperties.Name="Назва" />
 
         <Grid>
             <Grid.ColumnDefinitions>
@@ -30,43 +31,43 @@
 
             <StackPanel Grid.Row="0" Grid.Column="0">
                 <TextBlock Text="Базова ціна, грн" Style="{StaticResource FieldLabelStyle}" />
-                <TextBox Text="{Binding BasePrice, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Базова ціна" />
+                <TextBox Text="{Binding BasePrice, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" b:Hint.Text="0,00" b:InputMask.Kind="Decimal" AutomationProperties.Name="Базова ціна" />
             </StackPanel>
             <StackPanel Grid.Row="0" Grid.Column="2">
                 <TextBlock Text="Термін, робочих годин" Style="{StaticResource FieldLabelStyle}" />
-                <TextBox Text="{Binding DeliveryHours, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Термін" />
+                <TextBox Text="{Binding DeliveryHours, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" b:Hint.Text="годин" b:InputMask.Kind="Integer" AutomationProperties.Name="Термін" />
             </StackPanel>
 
             <StackPanel Grid.Row="1" Grid.Column="0">
                 <TextBlock Text="Включена вага, кг" Style="{StaticResource FieldLabelStyle}" />
-                <TextBox Text="{Binding IncludedWeightGrams, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Включена вага" />
+                <TextBox Text="{Binding IncludedWeightGrams, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" b:InputMask.Kind="Decimal" AutomationProperties.Name="Включена вага" />
             </StackPanel>
             <StackPanel Grid.Row="1" Grid.Column="2">
                 <TextBlock Text="Ціна за кожен додатковий кг, грн" Style="{StaticResource FieldLabelStyle}" />
-                <TextBox Text="{Binding PricePerExtraKg, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Ціна за додатковий кг" />
+                <TextBox Text="{Binding PricePerExtraKg, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" b:Hint.Text="0,00" b:InputMask.Kind="Decimal" AutomationProperties.Name="Ціна за додатковий кг" />
             </StackPanel>
 
             <StackPanel Grid.Row="2" Grid.Column="0">
                 <TextBlock Text="Максимальна вага, кг" Style="{StaticResource FieldLabelStyle}" />
-                <TextBox Text="{Binding MaxWeightGrams, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Максимальна вага" />
+                <TextBox Text="{Binding MaxWeightGrams, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" b:InputMask.Kind="Decimal" AutomationProperties.Name="Максимальна вага" />
             </StackPanel>
             <StackPanel Grid.Row="2" Grid.Column="2">
                 <TextBlock Text="Доплата за переїзд через Дніпро, грн" Style="{StaticResource FieldLabelStyle}" />
-                <TextBox Text="{Binding CrossRiverSurcharge, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Доплата за переїзд" />
+                <TextBox Text="{Binding CrossRiverSurcharge, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" b:Hint.Text="0,00" b:InputMask.Kind="Decimal" AutomationProperties.Name="Доплата за переїзд" />
             </StackPanel>
 
             <StackPanel Grid.Row="3" Grid.Column="0">
                 <TextBlock Text="Цінність без страхування, грн" Style="{StaticResource FieldLabelStyle}" />
-                <TextBox Text="{Binding InsuranceFreeLimit, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Цінність без страхування" />
+                <TextBox Text="{Binding InsuranceFreeLimit, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" b:Hint.Text="0,00" b:InputMask.Kind="Decimal" AutomationProperties.Name="Цінність без страхування" />
             </StackPanel>
             <StackPanel Grid.Row="3" Grid.Column="2">
                 <TextBlock Text="Ставка страхування, ‰ (5 ‰ = 0,5 %)" Style="{StaticResource FieldLabelStyle}" />
-                <TextBox Text="{Binding InsurancePermille, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Ставка страхування" />
+                <TextBox Text="{Binding InsurancePermille, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" b:InputMask.Kind="Integer" AutomationProperties.Name="Ставка страхування" />
             </StackPanel>
 
             <StackPanel Grid.Row="4" Grid.Column="0">
                 <TextBlock Text="Доплата за крихкість, грн" Style="{StaticResource FieldLabelStyle}" />
-                <TextBox Text="{Binding FragileSurcharge, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" AutomationProperties.Name="Доплата за крихкість" />
+                <TextBox Text="{Binding FragileSurcharge, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource NarrowFormTextBoxStyle}" b:Hint.Text="0,00" b:InputMask.Kind="Decimal" AutomationProperties.Name="Доплата за крихкість" />
             </StackPanel>
         </Grid>
     </StackPanel>

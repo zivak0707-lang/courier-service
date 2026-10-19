@@ -1,6 +1,7 @@
 <UserControl x:Class="CourierService.App.Views.Directories.ClientEditorView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:b="clr-namespace:CourierService.App.Behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dir="clr-namespace:CourierService.App.ViewModels.Directories"
@@ -13,24 +14,24 @@
 
         <TextBlock Text="Назва компанії або ПІБ" Style="{StaticResource FieldLabelStyle}" />
         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="150"
-                 Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Назва" />
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="ТОВ «Назва» або прізвище та ім'я" AutomationProperties.Name="Назва" />
 
         <TextBlock Text="Телефон" Style="{StaticResource FieldLabelStyle}" />
-        <TextBlock Text="Будь-який формат: +380 50 123 45 67, 050-123-45-67, 0501234567" Style="{StaticResource HintTextStyle}" />
+        <TextBlock Text="У будь-якому форматі — програма сама приведе номер до вигляду +380 (50) 123-45-67" Style="{StaticResource HintTextStyle}" />
         <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" MaxLength="25"
-                 Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Телефон" />
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="050 123 45 67" b:InputMask.Kind="Phone" AutomationProperties.Name="Телефон" />
 
         <TextBlock Text="Електронна пошта (необов'язково)" Style="{StaticResource FieldLabelStyle}" />
         <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" MaxLength="100"
-                 Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Пошта" />
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="name@example.com" AutomationProperties.Name="Пошта" />
 
         <TextBlock Text="Звідки забирати посилки (типова адреса)" Style="{StaticResource FieldLabelStyle}" />
         <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" MaxLength="200"
-                 Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Адреса" />
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="вул. Хрещатик, 22, офіс 5" AutomationProperties.Name="Адреса" />
 
         <TextBlock Text="Примітки (необов'язково)" Style="{StaticResource FieldLabelStyle}" />
         <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" MaxLength="500"
                  AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60"
-                 Style="{StaticResource FormTextBoxStyle}" AutomationProperties.Name="Примітки" />
+                 Style="{StaticResource FormTextBoxStyle}" b:Hint.Text="Наприклад: вхід з двору, дзвонити заздалегідь" AutomationProperties.Name="Примітки" />
     </StackPanel>
 </UserControl>

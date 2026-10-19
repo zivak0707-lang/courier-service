@@ -1,6 +1,7 @@
 <UserControl x:Class="CourierService.App.Views.Directories.DirectoryToolbar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:b="clr-namespace:CourierService.App.Behaviors">
     <!-- Спільна панель усіх довідників. Прив'язки — до властивостей ReferenceListViewModel<TItem>,
          тому панель працює з будь-яким довідником без додаткового коду. -->
     <Grid Margin="0,0,0,12">
@@ -17,7 +18,7 @@
         <TextBox x:Name="SearchBox" Grid.Column="1"
                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                  ToolTip="Пошук за назвою, телефоном або іншими полями"
-                 AutomationProperties.Name="Пошук" />
+                 b:Hint.Text="Почніть вводити для пошуку" AutomationProperties.Name="Пошук" />
         <CheckBox Grid.Column="2" Content="Показувати неактивні" Margin="16,0,0,0"
                   VerticalAlignment="Center"
                   IsChecked="{Binding ShowInactive}" />
