@@ -1,6 +1,8 @@
 ﻿using System.Windows;
 using CourierService.App.Infrastructure;
+using CourierService.App.Services;
 using CourierService.App.Views;
+using CourierService.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -27,13 +29,22 @@ public partial class App : Application
 
             _services = new ServiceCollection()
                 .AddLogging(builder => builder.AddSerilog(dispose: true))
+                .AddCourierData(AppPaths.DatabasePath)
                 .AddCourierApp()
                 .BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
 
             _services.GetRequiredService<GlobalExceptionHandler>().Register(this);
             _services.GetRequiredService<ILogger<App>>().LogInformation("Застосунок запущено");
 
+            // Спершу вхід: без нього головне вікно не відкривається
+            if (!_services.GetRequiredService<ILoginDialog>().ShowLogin())
+            {
+                Shutdown();
+                return;
+            }
+
             MainWindow = _services.GetRequiredService<MainWindow>();
+            MainWindow.Closed += (_, _) => Shutdown();
             MainWindow.Show();
         }
         catch (Exception ex)

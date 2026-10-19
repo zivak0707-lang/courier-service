@@ -3,15 +3,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:CourierService.App.ViewModels"
              xmlns:views="clr-namespace:CourierService.App.Views"
-             ShutdownMode="OnMainWindowClose"
+             xmlns:converters="clr-namespace:CourierService.App.Converters"
+             ShutdownMode="OnExplicitShutdown"
              ThemeMode="Light">
-    <!-- StartupUri не використовується: головне вікно створює DI-контейнер в App.OnStartup.
+    <!-- StartupUri не використовується: вікно входу й головне вікно відкриває App.OnStartup.
+         OnExplicitShutdown: закриття вікна входу не завершує програму, завершення — лише явним викликом.
          ThemeMode="Light" вмикає вбудовану Fluent-тему WPF (рішення D-16). -->
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <converters:SectionVisibilityConverter x:Key="SectionVisibility" />
+            <converters:VisibleWhenConverter x:Key="VisibleWhen" />
 
             <!-- Відповідність «ViewModel → View»: WPF сам обирає вигляд сторінки за типом ViewModel -->
             <DataTemplate DataType="{x:Type vm:HomeViewModel}">

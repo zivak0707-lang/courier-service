@@ -15,7 +15,6 @@ public static class AppSectionCatalog
 {
     private static readonly Dictionary<AppSection, AppSectionInfo> Sections = new()
     {
-        [AppSection.ChangeUser] = new("Змінити користувача", "Вихід із поточного облікового запису та вхід під іншим.", 2),
         [AppSection.NewOrder] = new("Нове замовлення", "Оформлення замовлення з розрахунком вартості під час введення.", 4),
         [AppSection.OrderList] = new("Список замовлень", "Пошук, фільтри та сортування замовлень.", 4),
         [AppSection.TrackingSearch] = new("Пошук за трек-номером", "Швидкий пошук замовлення за трек-номером.", 4),

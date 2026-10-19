@@ -2,14 +2,22 @@ using System.ComponentModel;
 using CourierService.App.Navigation;
 using CourierService.App.Services;
 using CourierService.App.ViewModels;
+using CourierService.Core.Enums;
+using CourierService.Core.Security;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CourierService.Tests.App;
 
 public class MainViewModelTests
 {
+    private static readonly UserSession Admin = new(1, "admin", "Олена Марченко", UserRole.Admin, null);
+    private static readonly UserSession Operator = new(2, "operator", "Ігор Бондар", UserRole.Operator, null);
+    private static readonly UserSession Courier = new(3, "courier1", "Андрій Ткаченко", UserRole.Courier, 1);
+
     private readonly FakeDialogService _dialogs = new();
     private readonly FakeAppLifetime _lifetime = new();
+    private readonly CurrentUser _currentUser = new();
+    private readonly FakeLoginDialog _loginDialog;
     private readonly MainViewModel _viewModel;
 
     public MainViewModelTests()
@@ -19,8 +27,17 @@ public class MainViewModelTests
             .AddTransient<HelpViewModel>()
             .BuildServiceProvider();
 
-        _viewModel = new MainViewModel(new NavigationService(provider), _dialogs, _lifetime);
+        _loginDialog = new FakeLoginDialog(_currentUser);
+        _currentUser.SignIn(Operator);
+        _viewModel = new MainViewModel(new NavigationService(provider), _dialogs, _lifetime, _currentUser, _loginDialog);
     }
+
+    private static UserSession SessionFor(UserRole role) => role switch
+    {
+        UserRole.Admin => Admin,
+        UserRole.Operator => Operator,
+        _ => Courier,
+    };
 
     public static TheoryData<AppSection> AllSections()
     {
@@ -42,12 +59,103 @@ public class MainViewModelTests
 
     [Theory]
     [MemberData(nameof(AllSections))]
-    public void OpenSection_ShowsPlaceholderForSection(AppSection section)
+    public void OpenSection_AllowedRole_ShowsPlaceholderForSection(AppSection section)
     {
+        UserRole allowedRole = Enum.GetValues<UserRole>().First(role => SectionAccess.IsAllowed(section, role));
+        _currentUser.SignIn(SessionFor(allowedRole));
+
         _viewModel.OpenSectionCommand.Execute(section);
 
         var page = Assert.IsType<PlaceholderViewModel>(_viewModel.CurrentPage);
         Assert.Equal(AppSectionCatalog.Get(section).Title, page.Title);
+        Assert.Empty(_dialogs.Warnings);
+    }
+
+    [Fact]
+    public void OpenSection_ForbiddenForRole_ShowsWarningAndStaysOnPage()
+    {
+        _currentUser.SignIn(Courier);
+
+        _viewModel.OpenSectionCommand.Execute(AppSection.Users);
+
+        Assert.IsType<HomeViewModel>(_viewModel.CurrentPage);
+        Assert.Contains("недоступний для вашої ролі", Assert.Single(_dialogs.Warnings));
+    }
+
+    [Theory]
+    [InlineData(UserRole.Admin, true, false, true, true, true)]
+    [InlineData(UserRole.Operator, true, false, true, true, false)]
+    [InlineData(UserRole.Courier, false, true, false, false, false)]
+    public void MenuGroups_DependOnRole(
+        UserRole role, bool orders, bool myDeliveries, bool directories, bool reports, bool administration)
+    {
+        _currentUser.SignIn(SessionFor(role));
+
+        Assert.Equal(orders, _viewModel.IsOrdersMenuVisible);
+        Assert.Equal(myDeliveries, _viewModel.IsMyDeliveriesMenuVisible);
+        Assert.Equal(directories, _viewModel.IsDirectoriesMenuVisible);
+        Assert.Equal(reports, _viewModel.IsReportsMenuVisible);
+        Assert.Equal(administration, _viewModel.IsAdministrationMenuVisible);
+    }
+
+    [Fact]
+    public void StatusBar_ShowsUserNameAndRole()
+    {
+        Assert.Equal("Ігор Бондар (Оператор)", _viewModel.CurrentUserText);
+    }
+
+    [Fact]
+    public void UserChange_RefreshesMenuAndReturnsHome()
+    {
+        _viewModel.ShowHelpCommand.Execute(null);
+        var changed = new List<string?>();
+        ((INotifyPropertyChanged)_viewModel).PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        _currentUser.SignIn(Admin);
+
+        Assert.Contains(nameof(MainViewModel.CurrentRole), changed);
+        Assert.Contains(nameof(MainViewModel.IsAdministrationMenuVisible), changed);
+        Assert.IsType<HomeViewModel>(_viewModel.CurrentPage);
+        Assert.Equal("Олена Марченко (Адміністратор)", _viewModel.CurrentUserText);
+    }
+
+    [Fact]
+    public void ChangeUser_UserDeclines_KeepsSession()
+    {
+        _dialogs.ConfirmResult = false;
+
+        _viewModel.ChangeUserCommand.Execute(null);
+
+        Assert.Equal(Operator, _currentUser.Session);
+        Assert.Equal(0, _loginDialog.Calls);
+    }
+
+    [Fact]
+    public void ChangeUser_NewUserSignsIn_ContinuesWithNewSession()
+    {
+        _dialogs.ConfirmResult = true;
+        _loginDialog.NextUser = Courier;
+
+        _viewModel.ChangeUserCommand.Execute(null);
+
+        Assert.Equal(Courier, _currentUser.Session);
+        Assert.Equal(0, _lifetime.ShutdownCalls);
+        Assert.True(_viewModel.IsMyDeliveriesMenuVisible);
+    }
+
+    [Fact]
+    public void ChangeUser_LoginCancelled_ClosesProgramWithoutSecondQuestion()
+    {
+        _dialogs.ConfirmResult = true;
+        _loginDialog.NextUser = null;
+
+        _viewModel.ChangeUserCommand.Execute(null);
+
+        Assert.False(_currentUser.IsAuthenticated);
+        Assert.Equal(1, _lifetime.ShutdownCalls);
+        // Під час закриття вікна питання про вихід уже не ставиться
+        Assert.True(_viewModel.CanClose());
+        Assert.Equal([MainViewModel.ChangeUserConfirmationMessage], _dialogs.Questions);
     }
 
     [Theory]

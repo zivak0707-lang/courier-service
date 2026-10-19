@@ -5,9 +5,6 @@ namespace CourierService.App.Navigation;
 /// </summary>
 public enum AppSection
 {
-    /// <summary>Зміна користувача (вхід під іншим обліковим записом).</summary>
-    ChangeUser,
-
     /// <summary>Оформлення нового замовлення.</summary>
     NewOrder,
 

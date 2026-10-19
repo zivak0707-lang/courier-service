@@ -1,5 +1,6 @@
 using System.IO;
 using CourierService.App.Infrastructure;
+using CourierService.Data;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CourierService.Tests.App;
@@ -89,6 +90,7 @@ public class CompositionRootTests
     {
         var services = new ServiceCollection()
             .AddLogging()
+            .AddCourierData(Path.Combine(Path.GetTempPath(), "courier-di-test.db"))
             .AddCourierApp();
 
         // ValidateOnBuild перевіряє, що для кожного конструктора є всі залежності

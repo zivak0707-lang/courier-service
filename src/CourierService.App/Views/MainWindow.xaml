@@ -21,33 +21,39 @@
     </Window.InputBindings>
 
     <DockPanel>
-        <!-- Головне меню. Підкреслена літера (після «_») — клавіша доступу разом з Alt -->
+        <!-- Головне меню. Підкреслена літера (після «_») — клавіша доступу разом з Alt.
+             Пункти, недоступні ролі користувача, приховуються (SectionVisibilityConverter). -->
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Файл">
                 <MenuItem Header="_Головна сторінка" Command="{Binding ShowHomeCommand}" />
-                <MenuItem Header="Змінити _користувача"
-                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.ChangeUser}" />
+                <MenuItem Header="Змінити _користувача" Command="{Binding ChangeUserCommand}" />
                 <Separator />
                 <MenuItem Header="_Вихід" Command="{Binding ExitCommand}" InputGestureText="Alt+F4" />
             </MenuItem>
 
-            <MenuItem Header="_Замовлення">
+            <MenuItem Header="_Замовлення"
+                      Visibility="{Binding IsOrdersMenuVisible, Converter={StaticResource VisibleWhen}}">
                 <MenuItem Header="_Нове замовлення" InputGestureText="Ctrl+N"
-                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.NewOrder}" />
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.NewOrder}"
+                          Visibility="{Binding CurrentRole, Converter={StaticResource SectionVisibility}, ConverterParameter={x:Static nav:AppSection.NewOrder}}" />
                 <MenuItem Header="_Список замовлень"
-                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.OrderList}" />
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.OrderList}"
+                          Visibility="{Binding CurrentRole, Converter={StaticResource SectionVisibility}, ConverterParameter={x:Static nav:AppSection.OrderList}}" />
                 <MenuItem Header="_Пошук за трек-номером" InputGestureText="Ctrl+F"
-                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.TrackingSearch}" />
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.TrackingSearch}"
+                          Visibility="{Binding CurrentRole, Converter={StaticResource SectionVisibility}, ConverterParameter={x:Static nav:AppSection.TrackingSearch}}" />
             </MenuItem>
 
-            <MenuItem Header="_Мої доставки">
+            <MenuItem Header="_Мої доставки"
+                      Visibility="{Binding IsMyDeliveriesMenuVisible, Converter={StaticResource VisibleWhen}}">
                 <MenuItem Header="_Активні"
                           Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.MyActiveDeliveries}" />
                 <MenuItem Header="_Виконані"
                           Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.MyCompletedDeliveries}" />
             </MenuItem>
 
-            <MenuItem Header="_Довідники">
+            <MenuItem Header="_Довідники"
+                      Visibility="{Binding IsDirectoriesMenuVisible, Converter={StaticResource VisibleWhen}}">
                 <MenuItem Header="_Клієнти"
                           Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Clients}" />
                 <MenuItem Header="Кур'_єри"
@@ -59,7 +65,8 @@
                           Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Tariffs}" />
             </MenuItem>
 
-            <MenuItem Header="З_віти">
+            <MenuItem Header="З_віти"
+                      Visibility="{Binding IsReportsMenuVisible, Converter={StaticResource VisibleWhen}}">
                 <MenuItem Header="_Дашборд"
                           Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Dashboard}" />
                 <Separator />
@@ -70,10 +77,12 @@
                 <MenuItem Header="_Ефективність кур'єрів"
                           Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.CourierPerformanceReport}" />
                 <MenuItem Header="Нарахування _кур'єрам"
-                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.CourierPayoutReport}" />
+                          Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.CourierPayoutReport}"
+                          Visibility="{Binding CurrentRole, Converter={StaticResource SectionVisibility}, ConverterParameter={x:Static nav:AppSection.CourierPayoutReport}}" />
             </MenuItem>
 
-            <MenuItem Header="_Адміністрування">
+            <MenuItem Header="_Адміністрування"
+                      Visibility="{Binding IsAdministrationMenuVisible, Converter={StaticResource VisibleWhen}}">
                 <MenuItem Header="_Користувачі"
                           Command="{Binding OpenSectionCommand}" CommandParameter="{x:Static nav:AppSection.Users}" />
             </MenuItem>
@@ -85,7 +94,7 @@
             </MenuItem>
         </Menu>
 
-        <!-- Рядок стану -->
+        <!-- Рядок стану: хто працює з програмою -->
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
                 <TextBlock Text="{Binding CurrentUserText}" />
