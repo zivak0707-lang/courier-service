@@ -27,7 +27,7 @@ internal static class OrderListTestData
     public static OrderListItem Item(string trackingNumber, OrderStatus status = OrderStatus.New) => new(
         1, trackingNumber, new DateTime(2026, 10, 19, 10, 0, 0), status, "Наталія Руденко", "+380930000204",
         "Оксана Мельник", "+380501234567", "Шевченківський", "Дарницький", "Стандарт", Money.FromHryvnias(157m),
-        PaymentStatus.Pending, PaymentPayer.Sender, PaymentMethod.Cash, null, new DateTime(2026, 10, 20, 12, 0, 0));
+        PaymentStatus.Pending, PaymentPayer.Sender, PaymentMethod.Cash, null, new DateTime(2026, 10, 20, 12, 0, 0), null);
 }
 
 public class OrderListViewModelTests

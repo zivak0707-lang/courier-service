@@ -8,6 +8,7 @@ using CourierService.Core.Enums;
 using CourierService.Core.Exceptions;
 using CourierService.Core.Orders;
 using CourierService.Core.Security;
+using CourierService.Core.Sla;
 using CourierService.Core.Validation;
 
 namespace CourierService.App.ViewModels.Orders;
@@ -34,6 +35,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
     private readonly ICurrentUser _currentUser;
     private readonly IDialogService _dialogs;
     private readonly IEditDialogService _editDialogs;
+    private readonly ISlaEvaluator _sla;
 
     /// <summary>
     /// Створює картку.
@@ -45,6 +47,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
     /// <param name="currentUser">Поточний користувач.</param>
     /// <param name="dialogs">Повідомлення й підтвердження.</param>
     /// <param name="editDialogs">Вікна вибору кур'єра й причини.</param>
+    /// <param name="sla">Оцінка терміну доставки.</param>
     public OrderDetailsViewModel(
         int orderId,
         IOrderService orders,
@@ -52,7 +55,8 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
         IOrderWorkflow workflow,
         ICurrentUser currentUser,
         IDialogService dialogs,
-        IEditDialogService editDialogs)
+        IEditDialogService editDialogs,
+        ISlaEvaluator sla)
     {
         _orderId = orderId;
         _orders = orders;
@@ -61,6 +65,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
         _currentUser = currentUser;
         _dialogs = dialogs;
         _editDialogs = editDialogs;
+        _sla = sla;
     }
 
     /// <inheritdoc />
@@ -88,6 +93,10 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
     public string PaymentDetails => Order?.Payment is { PaidAt: { } paidAt } payment
         ? $"({paidAt.ToString("dd.MM.yyyy HH:mm", Ukrainian)}, підтвердив(-ла) {payment.ConfirmedBy?.FullName})"
         : string.Empty;
+
+    /// <summary>Дотримання терміну доставки (D-31).</summary>
+    [ObservableProperty]
+    public partial SlaResult Sla { get; private set; } = SlaResult.NotTracked;
 
     /// <summary>Розбивка вартості за знімком у замовленні.</summary>
     [ObservableProperty]
@@ -154,6 +163,7 @@ public sealed partial class OrderDetailsViewModel : ViewModelBase, ILoadable
         {
             Order order = await _orders.GetOrderAsync(_orderId);
             Order = order;
+            Sla = _sla.Evaluate(order.Status, order.CreatedAt, order.Deadline, order.DeliveredAt);
             PriceLines = PriceLinesFor(order);
             History = order.StatusChanges
                 .OrderByDescending(c => c.ChangedAt)

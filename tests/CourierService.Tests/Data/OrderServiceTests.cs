@@ -16,7 +16,7 @@ namespace CourierService.Tests.Data;
 public abstract class OrderServiceTestBase : DirectoryServiceTestBase
 {
     private protected OrderService Orders => new(
-        Db, CurrentUser, new OrderValidator(), new PriceCalculator(), new DeadlineCalculator(), Clock);
+        Db, CurrentUser, new OrderValidator(), new PriceCalculator(), new DeadlineCalculator(), Clock, new SlaEvaluator(Clock));
 
     /// <summary>Стандарт, 1,5 кг, Шевченківський → Дарницький: 157 грн (приклад з плану).</summary>
     protected async Task<OrderInput> InputAsync(
@@ -398,5 +398,25 @@ public class OrderSearchTests : OrderServiceTestBase
         Assert.Contains("Уточніть фільтр", result.Notice);
         // Обрізаються найстаріші: першого замовлення в результаті немає
         Assert.DoesNotContain(TrackingNumber.Create(Now, 1), result.Items.Select(o => o.TrackingNumber));
+    }
+}
+
+public class OrderListSlaTests : OrderServiceTestBase
+{
+    [Fact]
+    public async Task ListItems_CarrySlaAtQueryTime()
+    {
+        await SignInAsync(UserRole.Operator);
+        await Orders.CreateAsync(await InputAsync(tariff: "Термінова"));   // 12:00 + 2 год → 14:00
+
+        Clock.Now = Now.AddMinutes(100);   // лишилося 20 хв із 2 год
+        var atRisk = (await Orders.SearchAsync(new OrderFilter())).Items.Single();
+        Clock.Now = Now.AddHours(3);
+        var overdue = (await Orders.SearchAsync(new OrderFilter())).Items.Single();
+
+        Assert.Equal(SlaState.AtRisk, atRisk.Sla.State);
+        Assert.Equal(SlaState.Overdue, overdue.Sla.State);
+        Assert.Equal("Прострочено на 1 год", overdue.Sla.Text);
+        Assert.Null(overdue.DeliveredAt);
     }
 }

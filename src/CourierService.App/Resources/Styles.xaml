@@ -83,6 +83,32 @@
         <Setter Property="RowStyle" Value="{StaticResource DirectoryRowStyle}" />
     </Style>
 
+    <!-- Термін доставки (D-31): колір фону — завжди разом із текстом, щоб стан було видно не лише кольором.
+         DataContext позначки — SlaResult. -->
+    <Style x:Key="SlaBadgeStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="8,1" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Background" Value="Transparent" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding State}" Value="OnTime">
+                <Setter Property="Background" Value="#DFF6DD" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding State}" Value="AtRisk">
+                <Setter Property="Background" Value="#FFF1C2" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding State}" Value="Overdue">
+                <Setter Property="Background" Value="#FDE0E2" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <DataTemplate x:Key="SlaCellTemplate">
+        <Border DataContext="{Binding Sla}" Style="{StaticResource SlaBadgeStyle}" Margin="2,1">
+            <TextBlock Text="{Binding Text}" />
+        </Border>
+    </DataTemplate>
+
     <!-- Відступ робочої області сторінки -->
     <Thickness x:Key="PagePadding">32,24,32,24</Thickness>
 </ResourceDictionary>

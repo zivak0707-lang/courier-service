@@ -3,6 +3,7 @@ using CourierService.App.ViewModels.Orders;
 using CourierService.App.Views.Orders;
 using CourierService.Core.Orders;
 using CourierService.Core.Security;
+using CourierService.Core.Sla;
 
 namespace CourierService.App.Services;
 
@@ -30,6 +31,7 @@ public sealed class OrderDetailsDialog : IOrderDetailsDialog
     private readonly ICurrentUser _currentUser;
     private readonly IDialogService _dialogs;
     private readonly IEditDialogService _editDialogs;
+    private readonly ISlaEvaluator _sla;
 
     /// <summary>
     /// Створює сервіс.
@@ -40,13 +42,15 @@ public sealed class OrderDetailsDialog : IOrderDetailsDialog
     /// <param name="currentUser">Поточний користувач.</param>
     /// <param name="dialogs">Повідомлення.</param>
     /// <param name="editDialogs">Вікна вибору кур'єра й причини.</param>
+    /// <param name="sla">Оцінка терміну доставки.</param>
     public OrderDetailsDialog(
         IOrderService orders,
         IOrderActionService actions,
         IOrderWorkflow workflow,
         ICurrentUser currentUser,
         IDialogService dialogs,
-        IEditDialogService editDialogs)
+        IEditDialogService editDialogs,
+        ISlaEvaluator sla)
     {
         _orders = orders;
         _actions = actions;
@@ -54,12 +58,13 @@ public sealed class OrderDetailsDialog : IOrderDetailsDialog
         _currentUser = currentUser;
         _dialogs = dialogs;
         _editDialogs = editDialogs;
+        _sla = sla;
     }
 
     /// <inheritdoc />
     public bool ShowOrder(int orderId)
     {
-        var viewModel = new OrderDetailsViewModel(orderId, _orders, _actions, _workflow, _currentUser, _dialogs, _editDialogs);
+        var viewModel = new OrderDetailsViewModel(orderId, _orders, _actions, _workflow, _currentUser, _dialogs, _editDialogs, _sla);
         var window = new OrderDetailsWindow(viewModel);
         if (Application.Current?.MainWindow is { IsVisible: true } owner)
         {

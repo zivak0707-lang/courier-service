@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using CourierService.Core.Enums;
+using CourierService.Core.Sla;
 
 namespace CourierService.Core.Orders;
 
@@ -57,6 +58,7 @@ public sealed record OrderFilter(
 /// <param name="PaymentMethod">Спосіб оплати.</param>
 /// <param name="CourierName">Призначений кур'єр або <c>null</c>.</param>
 /// <param name="Deadline">Крайній термін доставки.</param>
+/// <param name="DeliveredAt">Час доставки (для доставлених).</param>
 public sealed record OrderListItem(
     int Id,
     string TrackingNumber,
@@ -74,7 +76,12 @@ public sealed record OrderListItem(
     PaymentPayer Payer,
     PaymentMethod PaymentMethod,
     string? CourierName,
-    DateTime Deadline);
+    DateTime Deadline,
+    DateTime? DeliveredAt)
+{
+    /// <summary>Дотримання терміну на момент запиту (рахує сервіс, D-31).</summary>
+    public SlaResult Sla { get; init; } = SlaResult.NotTracked;
+}
 
 /// <summary>
 /// Результат пошуку.

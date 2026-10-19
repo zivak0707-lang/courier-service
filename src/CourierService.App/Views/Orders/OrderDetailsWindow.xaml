@@ -68,6 +68,10 @@
                     <TextBlock Text="{Binding Order.Status, Converter={StaticResource EnumDisplay}}" FontWeight="SemiBold"
                                AutomationProperties.Name="Статус" />
                 </Border>
+                <Border DataContext="{Binding Sla}" Style="{StaticResource SlaBadgeStyle}" Padding="12,3" Margin="8,0,0,0"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Text}" AutomationProperties.Name="Термін" />
+                </Border>
             </StackPanel>
             <TextBlock Text="{Binding DatesText}" Style="{StaticResource SecondaryTextStyle}" Margin="0,4,0,0" />
 

@@ -88,6 +88,7 @@
                 <DataGridTextColumn Header="Трек-номер" Binding="{Binding TrackingNumber}" Width="Auto" />
                 <DataGridTextColumn Header="Оформлено" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="Auto" />
                 <DataGridTextColumn Header="Статус" Binding="{Binding Status, Converter={StaticResource EnumDisplay}}" Width="Auto" />
+                <DataGridTemplateColumn Header="Термін" CellTemplate="{StaticResource SlaCellTemplate}" SortMemberPath="Sla.State" Width="Auto" />
                 <DataGridTextColumn Header="Відправник" Binding="{Binding ClientName}" Width="*" MinWidth="160" />
                 <DataGridTextColumn Header="Одержувач" Binding="{Binding RecipientName}" Width="*" MinWidth="140" />
                 <DataGridTextColumn Header="Телефон одержувача" Binding="{Binding RecipientPhone, Converter={StaticResource Phone}}" Width="Auto" />

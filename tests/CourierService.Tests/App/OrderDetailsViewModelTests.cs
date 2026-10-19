@@ -6,7 +6,9 @@ using CourierService.Core.Enums;
 using CourierService.Core.Exceptions;
 using CourierService.Core.Orders;
 using CourierService.Core.Security;
+using CourierService.Core.Sla;
 using CourierService.Tests.Core;
+using CourierService.Tests.Data;
 
 namespace CourierService.Tests.App;
 
@@ -44,7 +46,7 @@ public class OrderDetailsViewModelTests
     {
         _orders.Orders[order.Id] = order;
         _currentUser.SignIn(user);
-        return new OrderDetailsViewModel(order.Id, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs);
+        return new OrderDetailsViewModel(order.Id, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs, new SlaEvaluator(new FixedClock(WorkflowTestData.Now)));
     }
 
     private static Order NewOrderWithHistory()
@@ -93,7 +95,7 @@ public class OrderDetailsViewModelTests
     public async Task NotFound_ShowsError()
     {
         _currentUser.SignIn(WorkflowTestData.Operator);
-        var card = new OrderDetailsViewModel(404, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs);
+        var card = new OrderDetailsViewModel(404, _orders, _actions, new OrderWorkflow(), _currentUser, _dialogs, _editDialogs, new SlaEvaluator(new FixedClock(WorkflowTestData.Now)));
 
         await card.LoadCommand.ExecuteAsync(null);
 
@@ -251,5 +253,28 @@ public class OrderActionEditorTests
         var call = Assert.Single(_actions.Executed);
         Assert.Equal(OrderAction.ReportFailure, call.Action);
         Assert.Equal("Одержувач не відповідає на дзвінки", call.Reason);
+    }
+}
+
+public class OrderDetailsSlaTests
+{
+    [Fact]
+    public async Task Card_ShowsSlaOfOrder()
+    {
+        var orders = new FakeOrderService();
+        Order order = WorkflowTestData.NewOrder();
+        order.CreatedAt = WorkflowTestData.Now;
+        order.Deadline = WorkflowTestData.Now.AddHours(4);
+        orders.Orders[order.Id] = order;
+        var currentUser = new CurrentUser();
+        currentUser.SignIn(WorkflowTestData.Operator);
+        var clock = new FixedClock(WorkflowTestData.Now.AddHours(3.5));   // лишилося 30 хв із 4 год
+        var card = new OrderDetailsViewModel(order.Id, orders, new FakeOrderActionService(), new OrderWorkflow(), currentUser,
+            new FakeDialogService(), new FakeEditDialogService(), new SlaEvaluator(clock));
+
+        await card.LoadCommand.ExecuteAsync(null);
+
+        Assert.Equal(SlaState.AtRisk, card.Sla.State);
+        Assert.Equal("Під загрозою: лишилося 30 хв", card.Sla.Text);
     }
 }

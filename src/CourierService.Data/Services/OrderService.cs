@@ -38,7 +38,8 @@ public sealed class OrderService : IOrderService
         o.Payment.Payer,
         o.Payment.Method,
         o.Courier != null ? o.Courier.User.FullName : null,
-        o.Deadline);
+        o.Deadline,
+        o.DeliveredAt);
 
     private readonly IDbContextFactory<AppDbContext> _contextFactory;
     private readonly ICurrentUser _currentUser;
@@ -46,6 +47,7 @@ public sealed class OrderService : IOrderService
     private readonly IPriceCalculator _priceCalculator;
     private readonly IDeadlineCalculator _deadlineCalculator;
     private readonly IClock _clock;
+    private readonly ISlaEvaluator _sla;
 
     /// <summary>
     /// Створює сервіс.
@@ -56,13 +58,15 @@ public sealed class OrderService : IOrderService
     /// <param name="priceCalculator">Калькулятор вартості.</param>
     /// <param name="deadlineCalculator">Розрахунок дедлайну.</param>
     /// <param name="clock">Поточний час.</param>
+    /// <param name="sla">Оцінка термінів для рядків списку.</param>
     public OrderService(
         IDbContextFactory<AppDbContext> contextFactory,
         ICurrentUser currentUser,
         OrderValidator validator,
         IPriceCalculator priceCalculator,
         IDeadlineCalculator deadlineCalculator,
-        IClock clock)
+        IClock clock,
+        ISlaEvaluator sla)
     {
         _contextFactory = contextFactory;
         _currentUser = currentUser;
@@ -70,6 +74,7 @@ public sealed class OrderService : IOrderService
         _priceCalculator = priceCalculator;
         _deadlineCalculator = deadlineCalculator;
         _clock = clock;
+        _sla = sla;
     }
 
     /// <inheritdoc />
@@ -149,7 +154,7 @@ public sealed class OrderService : IOrderService
             : query.Kind == OrderQueryKind.TrackingNumber && items.Count == 0
                 ? $"Замовлення з трек-номером {query.Value} не знайдено."
                 : null;
-        return new OrderSearchResult(items, isTruncated, notice);
+        return new OrderSearchResult(WithSla(items), isTruncated, notice);
     }
 
     /// <inheritdoc />
@@ -194,8 +199,15 @@ public sealed class OrderService : IOrderService
         orders = active
             ? orders.Where(o => inProgress.Contains(o.Status)).OrderBy(o => o.Deadline)
             : orders.Where(o => !inProgress.Contains(o.Status)).OrderByDescending(o => o.CreatedAt).Take(OrderFilter.MaxResults);
-        return await orders.Select(ToListItem).ToListAsync(cancellationToken);
+        return WithSla(await orders.Select(ToListItem).ToListAsync(cancellationToken));
     }
+
+    /// <summary>
+    /// Додає до рядків оцінку терміну: вона залежить від поточного часу, тому рахується після запиту, а не в SQL.
+    /// </summary>
+    private List<OrderListItem> WithSla(List<OrderListItem> items) =>
+        items.Select(item => item with { Sla = _sla.Evaluate(item.Status, item.CreatedAt, item.Deadline, item.DeliveredAt) })
+            .ToList();
 
     private static IQueryable<Order> ApplyFilter(IQueryable<Order> orders, OrderFilter filter, OrderQuery query)
     {

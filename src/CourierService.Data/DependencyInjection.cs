@@ -54,6 +54,7 @@ public static class DependencyInjection
         // Замовлення: чисті правила розрахунку (Core) і сервіс
         services.AddSingleton<IPriceCalculator, PriceCalculator>();
         services.AddSingleton<IDeadlineCalculator, DeadlineCalculator>();
+        services.AddSingleton<ISlaEvaluator, SlaEvaluator>();
         services.AddSingleton<OrderValidator>();
         services.AddSingleton<IOrderService, OrderService>();
         services.AddSingleton<IOrderWorkflow, OrderWorkflow>();
