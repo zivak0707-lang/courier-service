@@ -394,7 +394,7 @@ public class AboutViewModelTests
         Assert.Equal("Кур'єрська служба", about.ProductName);
         Assert.Matches(@"^\d+\.\d+\.\d+$", about.Version);
         Assert.Equal("Зівак Сергій Олександрович", about.Author);
-        Assert.Equal("1.0.0", about.Version);
+        Assert.Equal("1.0.1", about.Version);
         Assert.Equal("471", about.Group);
         Assert.Contains("КНЕУ", about.College);
         Assert.Equal("Литовка Л. В.", about.Supervisor);
