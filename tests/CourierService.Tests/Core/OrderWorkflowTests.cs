@@ -13,7 +13,7 @@ internal static class WorkflowTestData
     public static readonly DateTime Now = new(2026, 10, 19, 12, 0, 0);
 
     public static readonly UserSession Operator = new(2, "operator", "Ігор Бондар", UserRole.Operator, null);
-    public static readonly UserSession Admin = new(1, "admin", "Олена Марченко", UserRole.Admin, null);
+    public static readonly UserSession Admin = new(1, "admin", "Сергій Зівак", UserRole.Admin, null);
     public static readonly UserSession Courier1 = new(3, "courier1", "Андрій Ткаченко", UserRole.Courier, 1);
     public static readonly UserSession Courier2 = new(4, "courier2", "Марія Коваль", UserRole.Courier, 2);
 

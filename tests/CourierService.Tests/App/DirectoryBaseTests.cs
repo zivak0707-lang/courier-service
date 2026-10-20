@@ -115,7 +115,7 @@ public class ReferenceListViewModelTests
 
     public ReferenceListViewModelTests()
     {
-        _currentUser.SignIn(new UserSession(1, "admin", "Олена Марченко", UserRole.Admin, null));
+        _currentUser.SignIn(new UserSession(1, "admin", "Сергій Зівак", UserRole.Admin, null));
         _viewModel = new TestListViewModel(_dialogs, _editDialogs, _currentUser);
     }
 

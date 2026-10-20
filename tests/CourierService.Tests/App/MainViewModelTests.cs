@@ -13,7 +13,7 @@ namespace CourierService.Tests.App;
 
 public class MainViewModelTests
 {
-    private static readonly UserSession Admin = new(1, "admin", "Олена Марченко", UserRole.Admin, null);
+    private static readonly UserSession Admin = new(1, "admin", "Сергій Зівак", UserRole.Admin, null);
     private static readonly UserSession Operator = new(2, "operator", "Ігор Бондар", UserRole.Operator, null);
     private static readonly UserSession Courier = new(3, "courier1", "Андрій Ткаченко", UserRole.Courier, 1);
 
@@ -162,7 +162,7 @@ public class MainViewModelTests
         Assert.Contains(nameof(MainViewModel.CurrentRole), changed);
         Assert.Contains(nameof(MainViewModel.IsAdministrationMenuVisible), changed);
         Assert.IsType<HomeViewModel>(_viewModel.CurrentPage);
-        Assert.Equal("Олена Марченко (Адміністратор)", _viewModel.CurrentUserText);
+        Assert.Equal("Сергій Зівак (Адміністратор)", _viewModel.CurrentUserText);
     }
 
     [Fact]

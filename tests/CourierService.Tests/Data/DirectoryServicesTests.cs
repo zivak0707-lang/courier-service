@@ -414,7 +414,7 @@ public class UserServiceTests : DirectoryServiceTestBase
 
         await Assert.ThrowsAsync<DomainValidationException>(() => Users.SetActiveAsync(ownId, false));
         await Assert.ThrowsAsync<DomainValidationException>(() =>
-            Users.SaveAsync(new UserInput(ownId, "Олена Марченко", "admin", null, UserRole.Operator)));
+            Users.SaveAsync(new UserInput(ownId, "Сергій Зівак", "admin", null, UserRole.Operator)));
     }
 
     [Fact]
@@ -429,7 +429,7 @@ public class UserServiceTests : DirectoryServiceTestBase
 
         await Assert.ThrowsAsync<DomainValidationException>(() => Users.SetActiveAsync(firstAdmin, false));
         await Assert.ThrowsAsync<DomainValidationException>(() =>
-            Users.SaveAsync(new UserInput(firstAdmin, "Олена Марченко", "admin", null, UserRole.Operator)));
+            Users.SaveAsync(new UserInput(firstAdmin, "Сергій Зівак", "admin", null, UserRole.Operator)));
     }
 
     [Fact]
@@ -471,10 +471,10 @@ public class OwnProfileUpdateTests : DirectoryServiceTestBase
         CurrentUser.Changed += (_, _) => signOuts++;
         CurrentUser.SessionUpdated += (_, _) => updates++;
 
-        await Users.SaveAsync(new UserInput(adminId, "Олена Марченко-Шевчук", "olena.admin", null, UserRole.Admin));
+        await Users.SaveAsync(new UserInput(adminId, "Сергій Зівак-Олійник", "serhii.admin", null, UserRole.Admin));
 
-        Assert.Equal("Олена Марченко-Шевчук", CurrentUser.Session!.FullName);
-        Assert.Equal("olena.admin", CurrentUser.Session.Login);
+        Assert.Equal("Сергій Зівак-Олійник", CurrentUser.Session!.FullName);
+        Assert.Equal("serhii.admin", CurrentUser.Session.Login);
         Assert.Equal(UserRole.Admin, CurrentUser.Session.Role);
         Assert.Equal(1, updates);
         Assert.Equal(0, signOuts);

@@ -112,7 +112,7 @@ public class CurrentUserSessionUpdateTests
     public void UpdateSession_ReplacesDataOfSameUser()
     {
         var currentUser = new CurrentUser();
-        currentUser.SignIn(new UserSession(1, "admin", "Олена Марченко", UserRole.Admin, null));
+        currentUser.SignIn(new UserSession(1, "admin", "Сергій Зівак", UserRole.Admin, null));
 
         currentUser.UpdateSession(new UserSession(1, "admin", "Олена Шевчук", UserRole.Admin, null));
 
@@ -126,7 +126,7 @@ public class CurrentUserSessionUpdateTests
         var other = new UserSession(2, "operator", "Ігор Бондар", UserRole.Operator, null);
 
         Assert.Throws<InvalidOperationException>(() => currentUser.UpdateSession(other));
-        currentUser.SignIn(new UserSession(1, "admin", "Олена Марченко", UserRole.Admin, null));
+        currentUser.SignIn(new UserSession(1, "admin", "Сергій Зівак", UserRole.Admin, null));
         Assert.Throws<InvalidOperationException>(() => currentUser.UpdateSession(other));
     }
 }

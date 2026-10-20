@@ -40,7 +40,7 @@ internal sealed class NoBackups : IBackupService
 /// </summary>
 public sealed class BackupServiceTests : IAsyncLifetime
 {
-    private static readonly UserSession Admin = new(1, "admin", "Олена Марченко", UserRole.Admin, null);
+    private static readonly UserSession Admin = new(1, "admin", "Сергій Зівак", UserRole.Admin, null);
     private static readonly UserSession Operator = new(2, "operator", "Ігор Бондар", UserRole.Operator, null);
 
     private readonly string _root = Path.Combine(Path.GetTempPath(), "courier-backup-tests", Guid.NewGuid().ToString("N"));

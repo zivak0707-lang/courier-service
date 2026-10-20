@@ -21,7 +21,7 @@ public sealed record DemoAccount(string Login, string Password, string FullName,
 public static class DemoAccounts
 {
     /// <summary>Адміністратор.</summary>
-    public static DemoAccount Admin { get; } = new("admin", "admin123", "Олена Марченко", UserRole.Admin);
+    public static DemoAccount Admin { get; } = new("admin", "admin123", "Сергій Зівак", UserRole.Admin);
 
     /// <summary>Оператор.</summary>
     public static DemoAccount Operator { get; } = new("operator", "operator123", "Ігор Бондар", UserRole.Operator);

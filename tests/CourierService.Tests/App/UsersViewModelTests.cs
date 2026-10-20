@@ -15,7 +15,7 @@ public class UsersViewModelTests
     {
         Items =
         [
-            new UserListItem(1, "admin", "Олена Марченко", UserRole.Admin, true, Created),
+            new UserListItem(1, "admin", "Сергій Зівак", UserRole.Admin, true, Created),
             new UserListItem(2, "operator", "Ігор Бондар", UserRole.Operator, true, Created),
             new UserListItem(3, "courier1", "Андрій Ткаченко", UserRole.Courier, true, Created),
         ],
@@ -26,7 +26,7 @@ public class UsersViewModelTests
     private async Task<UsersViewModel> CreateLoadedListAsync()
     {
         var currentUser = new CurrentUser();
-        currentUser.SignIn(new UserSession(1, "admin", "Олена Марченко", UserRole.Admin, null));
+        currentUser.SignIn(new UserSession(1, "admin", "Сергій Зівак", UserRole.Admin, null));
         var list = new UsersViewModel(_service, new UserValidator(), new FakeDialogService(), _editDialogs, currentUser);
         await list.LoadCommand.ExecuteAsync(null);
         return list;
