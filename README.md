@@ -5,14 +5,14 @@
 **Десктопна програма для кур'єрської служби в Києві:** замовлення з живим розрахунком вартості,<br>
 призначення кур'єрів, контроль термінів, оплати, звіти й дашборд.
 
-[![Release](https://img.shields.io/badge/release-v1.0.1-2ea44f)](https://github.com/zivak0707-lang/courier-service/releases/latest)
+[![Release](https://img.shields.io/badge/release-v1.0.0-2ea44f)](https://github.com/zivak0707-lang/courier-service/releases/latest)
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4)
 ![WPF](https://img.shields.io/badge/UI-WPF-0078D4)
 ![SQLite](https://img.shields.io/badge/DB-SQLite-003B57)
 ![Tests](https://img.shields.io/badge/tests-936%20passed-brightgreen)
 ![Windows](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-lightgrey)
 
-### [⬇ Завантажити для Windows (zip, 72 МБ)](https://github.com/zivak0707-lang/courier-service/releases/latest/download/CourierService-1.0.1-win-x64.zip)
+### [⬇ Завантажити для Windows (zip, 72 МБ)](https://github.com/zivak0707-lang/courier-service/releases/latest/download/CourierService-1.0.0-win-x64.zip)
 
 Один exe, встановлювати .NET не потрібно · [усі релізи](https://github.com/zivak0707-lang/courier-service/releases)
 
